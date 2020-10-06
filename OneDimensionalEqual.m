@@ -1,30 +1,35 @@
 function []=OneDimensionalEqual()
 
-nodes = linspace(0, 1, 100);
+nodes = linspace(0, 1, 200);
 
 
 % dt = 0.01;
 % nSteps = 200;
-RKMethod = 1;
+
 
 for i = 1:4
     figure(i);
     hold off;
 end
 
-
-for RKMethod = [1, 2, 3, 4, 5, 6, 7, 8]
+M = 1
+k = 1;
+for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     
     
-    TT = 0.01;
-    NSteps = 10.^linspace(0, 3, 10);
+    TT = 0.5;
+    NSteps = 10.^linspace(0, 5, 10);
     NSteps = floor(NSteps);
     
 
     i = 1;
     for nSteps = NSteps
         dt = TT/nSteps
-        [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod)
+        if ( RKMethod == -1)
+            [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k);
+        else
+        [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, M, k);
+        end
         
         figure(1)
         loglog( NSteps(1:i), L2, '*-.')
@@ -51,6 +56,7 @@ for RKMethod = [1, 2, 3, 4, 5, 6, 7, 8]
         hold on
         i = i+1
     end
+    
     clear L2
     clear LInf
     clear L2DISPL
@@ -60,12 +66,14 @@ end
 
 
 
-function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, Value)
+function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k)
 
-M = 1;
-k = 1;
+% M = 1;
 
 
+% M = 1e-3;
+% k = 1;
+dt = dt/(M*k);
 
 
 substepping = false;
@@ -76,50 +84,134 @@ end
 
 
 h = nodes(2)-nodes(1);
-% AlphaStab = 12*M*dt*k/(M*h^2)
+
+
+
+AlphaStab = 0;
+if ( dt < h^2/M/k/6)
+    AlphaStab = 2/M-12*k*dt/h^2;
+end
+
+
+[AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt);
+B = inv(eye(size(AMatrix))-dt*AMatrix);
+b = eig(B);
+min(b)
+max(b)
+figure(900)
+plot(sort((b)), 'r')
+[AMatrixA] = ConstructMatrices(nodes, M, k, 0, dt);
+figure(900)
+B = inv(eye(size(AMatrix))-dt*AMatrixA);
+hold on
+b = eig(B);
+plot(sort((b)), 'k')
+ylim([-1.2, 1.2])
+drawnow
+hold off
+drawnow
+[X, NodalWaterPressure, NodalDisplacement] = IntegrateProblemImplicit(AMatrix, FFExt, X0, RKMethod, dt, nSteps);
+
+[NWA, NDA] = IntegrateAnalytical(X0, AMatrixA, dt*nSteps);
+
+[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, M*k*dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA, M);
+
+L2DISPL = L2DISPL*M;
+LInfDISPL = LInfDISPL*M;
+
+figure(101)
+hold on
+plot(nodes, NWA, 'k:')
+hold off
+
+
+figure(102)
+hold on
+plot(nodes, NDA, 'k:')
+hold off
+
+
+
+
+
+function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, M, k)
+
+% M = 1;
+
+
+% M = 1e-3;
+% k = 1;
+dt = dt/(M*k);
+
+
+substepping = false;
+if ( RKMethod > 10)
+    alfa = floor(RKMethod/10);
+    substepping = true;
+end
+
+
+h = nodes(2)-nodes(1);
+
 AlphaStab = dt*(-3*h^2 + 6*M*k)/(M*h^2)
+AlphaStab = 6*dt*k/h^2 + 3/M;
+
+AlphaStab = 12*dt*k/h^2 + 3/M;
+
 if (substepping)
     dt2 = dt/alfa;
     AlphaStab = dt2*(-3*h^2 + 10*M*k)/(M*h^2)
 end
 
 
+
 if (AlphaStab < 0)
     AlphaStab = 0;
 end
 AlphaStab
-if (nargin == 5)
-    if ( Value >=0)
-        AlphaStab = Value;
-    end
-end
+
 
 
 [AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt);
+b = eig(eye(size(AMatrix))+dt*AMatrix);
+min(b)
+max(b)
+figure(900)
+plot(sort((b)), 'r')
 [AMatrixA] = ConstructMatrices(nodes, M, k, 0, dt);
-
+figure(900)
+hold on
+b = eig(eye(size(AMatrixA))+dt*AMatrixA);
+plot(sort((b)), 'k')
+ylim([-1.2, 1.2])
+drawnow
+hold off
+drawnow
 [X, NodalWaterPressure, NodalDisplacement] = IntegrateProblem(AMatrix, FFExt, X0, RKMethod, dt, nSteps);
 
 [NWA, NDA] = IntegrateAnalytical(X0, AMatrixA, dt*nSteps);
 
-[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA)
+[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, M*k*dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA, M)
+
+L2DISPL = L2DISPL*M;
+LInfDISPL = LInfDISPL*M;
 
 figure(101)
 hold on
-plot(nodes, NWA, 'k')
+plot(nodes, NWA, 'k:')
 hold off
 
 
 figure(102)
 hold on
-plot(nodes, NDA, 'k')
+plot(nodes, NDA, 'k:')
 hold off
 
 
 
 function [NodalWaterPressure, NodalDisplacement] = IntegrateAnalytical(X0, AMatrix, t)
 
-[vectors, values] = eig(-full(AMatrix));
+[vectors, values] = eig(full(AMatrix));
 
 x = 0*X0;
 
@@ -149,10 +241,10 @@ for t = 1:nSteps
     for i = 1:length(bRK)
         Xstep = X;
         for j = 1:i-1
-            Xstep = Xstep + dt*aRK(i,j)*k(:,j);
+            Xstep = Xstep + dt * aRK(i,j) * k(:,j);
         end
         
-        [k(:,i)] = -AMatrix*Xstep+FFExt;
+        [k(:,i)] = (AMatrix*Xstep)+FFExt;
         
     end
     
@@ -175,9 +267,28 @@ for i = 1:nNodes
 end
 
 
+function [X, NodalWaterPressure, NodalDisplacement] = IntegrateProblemImplicit( AMatrix, FFExt, X, RKMethod, dt, nSteps)
+
+one = eye(size(AMatrix));
+A = one - dt*AMatrix;
+
+invA = inv(A);
+for t = 1:nSteps
+   X = invA*X;
+end
+
+nNodes = length(X)/2;
+NodalWaterPressure = (zeros(nNodes, 1));
+NodalDisplacement = (zeros(nNodes, 1));
+for i = 1:nNodes
+    NodalWaterPressure(i) = X(2*(i-1)+2);
+    NodalDisplacement(i) = X(2*(i-1)+1);
+    
+end
 
 
-function [L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( XX, TT, NodalWaterPressure, NodalDisplacement, NWA, NDA)
+
+function [L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( XX, TT, NodalWaterPressure, NodalDisplacement, NWA, NDA, M)
 
 nGP = 3;
 [xGP, pwGP] = EvalConsolidationGP(XX, TT, nGP);
@@ -192,9 +303,11 @@ LInf = max( abs(NodalWaterPressure - NWA));
 
 [xGP, uuGP] = EvalConsolidationGPDISPL(XX, TT, nGP);
 uuGP = interp1(XX, NDA, xGP);
+
 L2DISPL = EvaluateL2( XX, uuGP, NodalDisplacement, nGP);
 
 uu = EvalConsolidationDISPL(XX, TT);
+uu = uu/M;
 LInfDISPL = max( abs(NodalDisplacement - uu'));
 LInfDISPL = max( abs(NodalDisplacement - NDA));
 
@@ -202,10 +315,10 @@ hola = 1;
 
 
 figure(101)
-plot(XX, pw, 'g', XX, NodalWaterPressure, 'r')
+plot(XX, pw, 'g', XX, NodalWaterPressure, 'r*')
 
 figure(102)
-plot(XX, uu, 'g', XX, NodalDisplacement, 'r')
+plot(XX, uu, 'g', XX, NodalDisplacement, 'r*')
 
 function [AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt)
 
@@ -284,7 +397,7 @@ Ke = [ 0, 0,    0,    0;
 
 ind = [1,3,2,4];
 Ce = Ce(ind,ind);
-Ke = Ke(ind,ind);
+Ke = -Ke(ind,ind);
 
 
 

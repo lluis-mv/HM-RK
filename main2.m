@@ -2,16 +2,16 @@
 clear all; close all;
 
 % define some constants
-syms h positive
-syms M positive
-syms k positive
-syms dt positive
-syms QBiot positive
+syms h real
+syms M real
+syms k real
+syms dt real
+syms QBiot real
 syms AlphaStab real
-% syms DeltaPW positive
+
 
 % Define shape functions (to then integrate)
-syms x positive
+syms x real
 N = [(h-x)/h; x/h];
 DN_DX = diff(N, x);
 
@@ -46,6 +46,7 @@ Ke = Ke(ind,ind);
 DeltaPW = -1;
 
 for nNodes = [2:8]%, 15]
+    
     % Create the system matrix
     C = sym( zeros(2*nNodes, 2*nNodes) );
     K = C;
@@ -68,17 +69,16 @@ for nNodes = [2:8]%, 15]
     C(nn, :) = 0;
     C(nn,nn) = 1;
     
-    %Right hand side (water pressure at dirichlet)
-    FFExt = sym(zeros(2*nNodes, 1));
-    FFExt(2) = DeltaPW/dt;
     
-    Solution0 = 0*FFExt;
+    AMatrix = C\(-K);
+    
+    Solution0 = sym(zeros(2*nNodes, 1));
     for i = 1:nNodes
         Solution0(2*i) = 1;
     end
     Solution0(2) = 0;
     % Solve the system of matrices
-    Solution = Solution0 + dt* ( -C\(K*Solution0) + 0*FFExt)
+    Solution = Solution0 + dt* ( -C\(K*Solution0) )
     
     %Solution = Solution + dt* ( -C\(K*Solution))
     %Solution = Solution + dt* ( C\(K*Solution))
@@ -86,8 +86,28 @@ for nNodes = [2:8]%, 15]
     
     
     % Other way, LMV
-    aa = eye(2*nNodes, 2*nNodes) + (dt*(C\(-K)));
+    aa = eye(2*nNodes, 2*nNodes) - (dt*AMatrix);
     bb = eig(aa);
+    m = bb(end);
+    
+    
+    m = subs(m, h, 0.01)
+    m = subs(m, M, 1);
+    m = subs(m, k, 1);
+    m = subs(m, AlphaStab, 0);
+    ezplot(m);
+    
+    m2 = bb(end);
+    m2 = subs(m2, h, 0.01)
+    m2 = subs(m2, M, 1);
+    m2 = subs(m2, k, 1);
+    AA = solve(m2+1, AlphaStab)
+    m2 = subs(m2, AlphaStab, AA);
+    
+    hold on
+    ezplot(m2);
+    hold off
+    
     
     if (nNodes > 2)
         e1 = bb(end);
@@ -106,10 +126,10 @@ for nNodes = [2:8]%, 15]
     
     % Now the same but second order
     
-    K1 = ( -C\(K*Solution0) + 0*FFExt);
+    K1 = ( -C\(K*Solution0) );
     
     X2 = Solution0 + dt*1*K1;
-    K2 = ( -C\(K*X2) + 0*FFExt);
+    K2 = ( -C\(K*X2) );
     
     XEnd = Solution0 + 0.5*dt*K1 + 0.5*K2*dt;
     
@@ -147,60 +167,3 @@ for nNodes = [2:8]%, 15]
         disp(a)
     end
 end
-
-% Plot the obtained solution for several Gamma*AlphaStab
-% First substitute the parameters
-
-syms Gamma real;
-hEval = 1/(nNodes-1); dtEval = 0.0001; MEval = 1; kEval=1; QBiotEval=1E9;
-Solution = subs(Solution, h, hEval);
-Solution = subs(Solution, dt, dtEval);
-Solution = subs(Solution, M, MEval);
-Solution = subs(Solution, k, kEval);
-Solution = subs(Solution, QBiot, QBiotEval);
-Solution = subs(Solution, DeltaPW, 1);
-
-SavedSolution = Solution;
-
-% plot analytical solution
-xx = linspace(0,1,100);
-pw = 0*xx; 
-TT = MEval * dtEval;
-for i = 1:length(xx)
-    for m = 0:400
-        aux = pi/2*(2*m+1);
-        pw(i) = pw(i) + 2/aux * sin( aux * xx(i)) * exp( - aux^2 * TT);
-    end
-end
-figure(1); clf;
-plot(xx, pw, 'k', 'linewidth', 3); hold on
-figure(2); clf;
-for Gamma = 0:0.25:1.5
-    AlphaEval = 3/MEval - 12 * dtEval * kEval /(hEval^2);
-    if ( AlphaEval > 0)
-        AlphaEval = Gamma * AlphaEval;
-    else
-        AlphaEval = 0;
-    end
-    Solution = subs(SavedSolution, AlphaEval);
-    figure(1)
-    plot( linspace(0,1,nNodes), 1-Solution(2:2:2*nNodes), '*-');
-    xlabel('x/H'); ylabel('Water pressure')
-    set(gca, 'FontSize', 12)
-    hold on
-    figure(2)
-    plot( linspace(0,1,nNodes), Solution(1:2:2*nNodes-1), '*-');
-    set(gca, 'FontSize', 12)
-    xlabel('x/H'); ylabel('Displacement')
-    hold on
-end
-
-figure(1)
-legend('Analytical', '\gamma=0', '\gamma=0.25', '\gamma=0.5', '\gamma=0.75', '\gamma=1', '\gamma=1.25', '\gamma=1.5', 'location', 'best')
-figure(2)
-legend('\gamma=0', '\gamma=0.25', '\gamma=0.5', '\gamma=0.75', '\gamma=1', '\gamma=1.25', '\gamma=1.5', 'location', 'best')
-
-figure(1)
-print('../figures/MATLAB_FIGURES/water_pressure_1', '-dpdf')
-figure(2)
-print('../figures/MATLAB_FIGURES/displacement_1', '-dpdf')
