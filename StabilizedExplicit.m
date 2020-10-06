@@ -1,8 +1,17 @@
 function [] = StabilizedExplicit()
 
-dt = 1E-2;
+T = 0.8;
+nSteps = 10;
 
-eSize = 0.05;
+CP.E = 1000;
+CP.nu = 0.3;
+CP.k = 1E-7;
+nu = CP.nu;
+CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
+
+dt = T/nSteps/CP.M/CP.k;
+
+eSize = 0.040;
 model = createpde(1);
 
 dx = 0.1; dy = 1;
@@ -27,34 +36,62 @@ nElements = size(Elements, 1);
 
 
 
-[ElementMatrices] = ComputeElementalMatrices(Nodes, Elements);
+[ElementMatrices] = ComputeElementalMatrices(Nodes, Elements, CP);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, ElementMatrices, dt);
+[C, K ] = EnsambleMatrices(Nodes, Elements, ElementMatrices, CP, dt);
 
-[C, K, X0] = ApplyBC(Nodes, C, K);
+[C, K, X0, f] = ApplyBC(Nodes, Elements, C, K);
 
-A = C\(-K);
+A = C\(K);
 hola = 1;
-
 
 ii = eye(3*nNodes, 3*nNodes);
-
-
-
 B = ii+dt*A;
+b = eig(B);
 
+[C2, K2 ] = EnsambleMatrices(Nodes, Elements, ElementMatrices, CP, dt, 0);
+
+[C2, K2, ~, ~] = ApplyBC(Nodes, Elements, C2, K2);
+
+A2 = C2\(K2);
+hola = 1;
+
+ii = eye(3*nNodes, 3*nNodes);
+B2 = ii+dt*A2;
+b2 = eig(B2);
+
+figure(900)
+plot(sort(b2), 'r')
+hold on
+plot( sort(b), 'k-.');
+hold off;
+ylim([-1.5,1.5])
+
+
+fa = f*0;
+Xa = X0;
+
+X = 0*X0;
 X = X0;
 
+f = 0*f; X= X0;
 
-b = eig(B);
-figure(900)
-plot(sort(b));
 
-for t = 1:50
-    X = B*X;
+
+
+invCf = (C\f);
+for i = 1:nSteps
+    X = B*X + (1/nSteps)* invCf;
 end
 
-hola = 1;
+
+
+
+% %  implicit integration
+% B = ii-dt*A;
+% X = zeros(size(X));
+% X = B\(0*X+ C\fa);
+
 
 
 dofsWP = 3*([1:nNodes]-1)+3;
@@ -64,9 +101,12 @@ view(0, 90)
 colorbar
 axis equal
 hola = 1;
-function [C, K, X0] = ApplyBC(Nodes, C, K)
+
+
+function [C, K, X0, f] = ApplyBC(Nodes, Elements, C, K)
 
 nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
 
 nodesBottom = find(Nodes(:,2) == 0);
 nodesTop = find(Nodes(:,2) == max(Nodes(:,2)));
@@ -75,6 +115,8 @@ nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 % Fix wp on top
 dofs = 3*(nodesTop-1)+3;
+
+% dofs = 3*( [1:nNodes ]-1)+3;
 
 C(dofs,:) = 0;
 K(dofs,:) = 0;
@@ -102,25 +144,105 @@ end
 dofs = 3*(nodesTop-1)+3;
 X0(dofs) = 0;
 
-function [C, K] = EnsambleMatrices(Nodes, Elements, ElementMatrices, dt)
+f = zeros(3*nNodes, 1);
 
+for el = 1:nElements
+    Cel = Elements(el,:);
+    found = false;
+    for i = 1:3
+        for j = i+1:3
+            if ( any(Cel(i) == nodesTop))
+                if ( any(Cel(j) == nodesTop))
+                  found = true;
+                  ii = i;
+                  jj = j;
+                end
+            end
+        end
+    end
+    if (found)
+        nodi = Cel(ii);
+        nodj = Cel(jj);
+        XX = Nodes(nodi,:)-Nodes(nodj,:);
+        
+        normal = [XX(2), -XX(1)];
+        normal = normal/norm(normal);
+        fe = 0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
+        
+        index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
+        f(index) = f(index) + fe;
+     
+    end
+end
+        
 
+function [C, K] = EnsambleMatrices(Nodes, Elements, ElementMatrices, CP, dt, AlphaStabM)
+
+if (nargin == 5)
+    AlphaStabM = 1;
+end
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 nSystem = 3*nNodes;
 
-C = sparse(nSystem, nSystem);
+C = zeros(nSystem, nSystem);
 K = C;
 
-perme = 1E-3;
+
 one = [1,1,0]';
 
+perme = CP.k;
+ConstModulus=CP.M;
+
+for el = 1:nElements
+    ind = Elements(el,:);
+    index = [];
+    for ii = 1:length(ind)
+        index = [ index, (ind(ii)-1)*3 + [1,2,3] ];
+    end
+    
+    kke = ElementMatrices(el).B'*ElementMatrices(el).D*ElementMatrices(el).B;
+    Q = ElementMatrices(el).B'*one * ElementMatrices(el).N;
+    H = -ElementMatrices(el).dN_dX'*perme*ElementMatrices(el).dN_dX;
+    
+    he = ElementMatrices(el).he;
+    AlphaStab = 3/ConstModulus+6*perme*dt/he^2;
+    
+    AlphaStab = 3/ConstModulus + 6*dt*perme/he^2;
+    AlphaStab = AlphaStab*2;
+    AlphaStab = AlphaStab*AlphaStabM;
+    
+    
+    Ms = ElementMatrices(el).Ms * AlphaStab;
+    Ce = [kke, Q; -Q', Ms];
+    Ke = [zeros(6,9); zeros(3,6), H];
+    
+    aux = [1,2,7,3,4,8,5,6,9];
+    
+    Ke = Ke(aux,aux);
+    Ce = Ce(aux,aux);
+    
+    K(index,index) =  K(index,index) + Ke*ElementMatrices(el).Weight;
+    C(index,index) =  C(index,index) + Ce*ElementMatrices(el).Weight;
+    
+end
+
+
+
+
+function [ElementMatrices] = ComputeElementalMatrices(Nodes, Elements, CP)
+
+
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+ndim = 2;
 
 De = zeros(6,6);
 
-E = 1000;
-nu = 0.3;
+E = CP.E;
+nu = CP.nu
 
 for i = 1:3
     for j = 1:3
@@ -137,49 +259,8 @@ De = E/(1+nu)/(1-2*nu) * De;
 
 
 De = De([1,2,4], [1,2,4]);
-M=E*(1-nu)/(1+nu)/(1-2*nu);
-
-for el = 1:nElements
-    ind = Elements(el,:);
-    index = [];
-    for ii = 1:length(ind)
-        index = [ index, (ind(ii)-1)*3 + [1,2,3] ];
-    end
-    
-    kke = ElementMatrices(el).B'*De*ElementMatrices(el).B;
-    Q = ElementMatrices(el).B'*one * ElementMatrices(el).N;
-    H = -ElementMatrices(el).dN_dX'*perme*ElementMatrices(el).dN_dX;
-    
-    he = ElementMatrices(el).he;
-    AlphaStab = 3/M+6*perme*dt/he^2;
-    
-    AlphaStab = 3/M + 6*dt*perme/he^2;
-    AlphaStab = -AlphaStab*1.5;
-    
-    Ms = ElementMatrices(el).Ms * AlphaStab;
-    Ce = [kke, Q; Q', Ms];
-    Ke = [zeros(6,9); zeros(3,6), H];
-    
-    aux = [1,2,7,3,4,8,5,6,9];
-    
-    Ke = Ke(aux,aux);
-    Ce = Ce(aux,aux);
-    
-    K(index,index) =  K(index,index) + Ke*ElementMatrices(el).Weight;
-    C(index,index) =  C(index,index) + Ce*ElementMatrices(el).Weight;
-    
-end
 
 
-
-
-function [ElementMatrices] = ComputeElementalMatrices(Nodes, Elements)
-
-
-
-nNodes = size(Nodes, 1);
-nElements = size(Elements, 1);
-ndim = 2;
 
 for el = 1:nElements
     
@@ -228,4 +309,5 @@ for el = 1:nElements
     ElementMatrices(el).Nu = Nu;
     ElementMatrices(el).he = he;
     ElementMatrices(el).Ms = Ms;
+    ElementMatrices(el).D = De;
 end
