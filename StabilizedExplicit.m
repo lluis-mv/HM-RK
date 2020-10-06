@@ -1,10 +1,11 @@
 function [] = StabilizedExplicit()
 
+dt = 1E-2;
 
-eSize = 0.55;
+eSize = 0.05;
 model = createpde(1);
-R1 = [3,4,-3,3,3,-3,1,1,-1,-1]';
-dx = 1; dy = 3;
+
+dx = 0.1; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -28,14 +29,44 @@ nElements = size(Elements, 1);
 
 [ElementMatrices] = ComputeElementalMatrices(Nodes, Elements);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, ElementMatrices);
+[C, K ] = EnsambleMatrices(Nodes, Elements, ElementMatrices, dt);
 
-[C, K] = ApplyBC(Nodes, C, K);
+[C, K, X0] = ApplyBC(Nodes, C, K);
 
 A = C\(-K);
 hola = 1;
 
-function [C, K] = ApplyBC(Nodes, C, K)
+
+ii = eye(3*nNodes, 3*nNodes);
+
+
+
+B = ii+dt*A;
+
+X = X0;
+
+
+b = eig(B);
+figure(900)
+plot(sort(b));
+
+for t = 1:50
+    X = B*X;
+end
+
+hola = 1;
+
+
+dofsWP = 3*([1:nNodes]-1)+3;
+figure(1)
+s = trimesh(Elements, Nodes(:,1), Nodes(:,2), X(dofsWP), 'FaceColor', 'interp', 'EdgeColor', 'none');
+view(0, 90)
+colorbar
+axis equal
+hola = 1;
+function [C, K, X0] = ApplyBC(Nodes, C, K)
+
+nNodes = size(Nodes, 1);
 
 nodesBottom = find(Nodes(:,2) == 0);
 nodesTop = find(Nodes(:,2) == max(Nodes(:,2)));
@@ -63,9 +94,15 @@ C(dofs,:) = 0;
 K(dofs,:) = 0;
 C(dofs,dofs) =eye(length(dofs));
 
+X0 = zeros(3*nNodes, 1);
+for i = 1:nNodes
+    X0(3*(i-1)+3) = 1;
+end
+% Fix wp on top
+dofs = 3*(nodesTop-1)+3;
+X0(dofs) = 0;
 
-
-function [C, K] = EnsambleMatrices(Nodes, Elements, ElementMatrices)
+function [C, K] = EnsambleMatrices(Nodes, Elements, ElementMatrices, dt)
 
 
 
@@ -80,26 +117,27 @@ perme = 1E-3;
 one = [1,1,0]';
 
 
-  De = zeros(6,6);
-    
-    E = 1000;
-    nu = 0.3;
-    
-    for i = 1:3
-        for j = 1:3
-            if ( i==j)
-                De(i,j) = (1-nu);
-            else
-                De(i,j) = nu;
-            end
+De = zeros(6,6);
+
+E = 1000;
+nu = 0.3;
+
+for i = 1:3
+    for j = 1:3
+        if ( i==j)
+            De(i,j) = (1-nu);
+        else
+            De(i,j) = nu;
         end
-        De(i+3, i+3) = (1-2*nu)/2;
     end
-    
-    De = E/(1+nu)/(1-2*nu) * De;
-    
-    
-    De = De([1,2,4], [1,2,4]);
+    De(i+3, i+3) = (1-2*nu)/2;
+end
+
+De = E/(1+nu)/(1-2*nu) * De;
+
+
+De = De([1,2,4], [1,2,4]);
+M=E*(1-nu)/(1+nu)/(1-2*nu);
 
 for el = 1:nElements
     ind = Elements(el,:);
@@ -110,9 +148,16 @@ for el = 1:nElements
     
     kke = ElementMatrices(el).B'*De*ElementMatrices(el).B;
     Q = ElementMatrices(el).B'*one * ElementMatrices(el).N;
-    H = ElementMatrices(el).dN_dX'*perme*ElementMatrices(el).dN_dX;
+    H = -ElementMatrices(el).dN_dX'*perme*ElementMatrices(el).dN_dX;
     
-    Ce = [kke, Q; Q', zeros(3,3)];
+    he = ElementMatrices(el).he;
+    AlphaStab = 3/M+6*perme*dt/he^2;
+    
+    AlphaStab = 3/M + 6*dt*perme/he^2;
+    AlphaStab = -AlphaStab*1.5;
+    
+    Ms = ElementMatrices(el).Ms * AlphaStab;
+    Ce = [kke, Q; Q', Ms];
     Ke = [zeros(6,9); zeros(3,6), H];
     
     aux = [1,2,7,3,4,8,5,6,9];
@@ -122,9 +167,9 @@ for el = 1:nElements
     
     K(index,index) =  K(index,index) + Ke*ElementMatrices(el).Weight;
     C(index,index) =  C(index,index) + Ce*ElementMatrices(el).Weight;
-
-end
     
+end
+
 
 
 
@@ -169,7 +214,7 @@ for el = 1:nElements
     for i = 1:3
         aux = 0;
         for j = 1:2
-           aux = aux + dN_dX(j,i);
+            aux = aux + dN_dX(j,i);
         end
         he = he + abs(aux);
     end
@@ -184,4 +229,3 @@ for el = 1:nElements
     ElementMatrices(el).he = he;
     ElementMatrices(el).Ms = Ms;
 end
-    
