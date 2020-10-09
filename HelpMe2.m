@@ -1,62 +1,123 @@
-function [] = StabilizedExplicit()
+function [] = HelpMe2()
+
+% load('thisFile.mat')
+% x0 = x;
+
+x0 = [9];
 
 
-nSteps = 10.^linspace(0, 5, 10);
-nSteps = floor(nSteps); nSteps = sort(nSteps);
+x0 = [9];
+ComputeThisErrors(x0)
+hold on
 
-i = 1;
-for n = nSteps
-    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeThisProblem(n);
-    
-    figure(99)
-    subplot(2,2,1)
-    loglog( nSteps(1:i), L2, '*-.')
-    xlabel('nSteps')
-    ylabel('L2');
-    %         hold on
-    
-    subplot(2,2,2)
-    loglog( nSteps(1:i), LInf, '*-.')
-    xlabel('nSteps')
-    ylabel('LInf');
-    %         hold on
-    
-    subplot(2,2,3)
-    loglog( nSteps(1:i), L2U, '*-.')
-    xlabel('nSteps')
-    ylabel('L2 u');
-    %         hold on
-    
-    subplot(2,2,4)
-    loglog( nSteps(1:i), LInfU, '*-.')
-    xlabel('nSteps')
-    ylabel('LInf u');
-    %         hold on
-    
-    i = i+1;
-end
+x0 = [7];
+ComputeThisErrors(x0)
+hold on
+
+x0 = [5];
+ComputeThisErrors(x0)
+hold on
 
 
+x0 = [4.5];
+ComputeThisErrors(x0)
+hold off
+
+return
+
+fun = @(x) ComputeThisErrors(x);
+options = optimset('PlotFcns',@optimplotfval);
+x = fminsearch(fun,x0,options)
+save('thisFile', 'x')
 
 
-function [L2, L2U, LInf, LInfU] = ComputeThisProblem(nSteps)
+function [L2] = ComputeThisErrors(x)
+x
 
-T = 1E-3;
-% nSteps = 10;
+a = 0;
+b = x(1);
+
 
 CP.E = 100;
 CP.nu = 0.3;
-CP.k = 1E-3;
+CP.k = 1E-1;
+CP.a = a;
+CP.b = b;
+
+i = 1;
+Ni = [1,10,100,1000];
+for n = Ni
+    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeThisProblem(n, CP,1E-1,1);
+    i = i+1;
+end
+for n = Ni
+    CP.E = 1000;
+    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeThisProblem(n, CP,1E-3,10);
+    i = i+1;
+end
+N = [Ni, 10*Ni(end)*Ni];
+
+for n = Ni
+    CP.k = 1E-4;
+    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeThisProblem(n, CP,1E-5,5);
+    i = i+1;
+end
+for n = Ni
+    CP.k = 1E-6;
+    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeThisProblem(n, CP,1E-7,0.5);
+    i = i+1;
+end
+N = [N, 10*N(end)*N];
+
+
+
+
+
+
+
+figure(900)
+loglog(N, L2, 'b*-.',N, LInf, 'c*-.',N, L2U, 'r*-.',N, LInfU, 'm*-.')
+xlabel('nSteps')
+ylabel('error norms')
+
+
+
+
+index = find(isnan(L2));
+
+ind2 = find(L2 < 10E500);
+L2 = sum(L2(ind2))*10^length(index);
+
+
+
+
+
+
+
+function [L2, L2U, LInf, LInfU] = ComputeThisProblem(nSteps, CP, T, H)
+
+if (nargin == 2)
+    T = 1E-1;
+end
+% nSteps = 10;
+
+if (nargin == 1)
+    CP.E = 100;
+    CP.nu = 0.3;
+    CP.k = 1E-3;
+end
+
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 t = T/CP.M/CP.k;
 dt = T/nSteps/CP.M/CP.k;
 
-eSize = 0.015;
+eSize = H/30;
 model = createpde(1);
 
-dx = 0.1; dy = 1;
+dx = H/10; 
+dy = H;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -72,7 +133,7 @@ mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
-nNodes = size(Nodes, 1);
+nNodes = size(Nodes, 1)
 nElements = size(Elements, 1);
 
 
@@ -89,6 +150,8 @@ hola = 1;
 
 ii = eye(3*nNodes, 3*nNodes);
 B = ii+dt*A;
+% Second order RK
+B = ii+0.5*dt*A+0.5*dt*A*(ii+dt*A);
 b = eig(B);
 
 % analytical solution
@@ -116,12 +179,12 @@ ii = eye(3*nNodes, 3*nNodes);
 B2 = ii+dt*Aa;
 b2 = eig(B2);
 
-figure(900)
-plot(sort(b2), 'r')
-hold on
-plot( sort(b), 'k-.');
-hold off;
-ylim([-1.5,1.5])
+% figure(900)
+% plot(sort(b2), 'r')
+% hold on
+% plot( sort(b), 'k-.');
+% hold off;
+% ylim([-1.5,1.5])
 
 
 
@@ -131,9 +194,9 @@ f = 0*f; X= X0;
 
 
 
-invCf = (C\f);
+
 for i = 1:nSteps
-    X = B*X + (1/nSteps)* invCf;
+    X = B*X;
 end
 
 
@@ -149,20 +212,20 @@ end
 
 
 dofsWP = 3*([1:nNodes]-1)+3;
-figure(1)
-s = trimesh(Elements, Nodes(:,1), Nodes(:,2), X(dofsWP), 'FaceColor', 'interp', 'EdgeColor', 'none');
-view(0, 90)
-colorbar
-axis equal
-hola = 1;
-
-
-figure(2)
-s = trimesh(Elements, Nodes(:,1), Nodes(:,2), X(dofsWP)-XA(dofsWP), 'FaceColor', 'interp', 'EdgeColor', 'none');
-view(0, 90)
-colorbar
-axis equal
-hola = 1;
+% figure(1)
+% s = trimesh(Elements, Nodes(:,1), Nodes(:,2), X(dofsWP), 'FaceColor', 'interp', 'EdgeColor', 'none');
+% view(0, 90)
+% colorbar
+% axis equal
+% hola = 1;
+% 
+% 
+% figure(2)
+% s = trimesh(Elements, Nodes(:,1), Nodes(:,2), X(dofsWP)-XA(dofsWP), 'FaceColor', 'interp', 'EdgeColor', 'none');
+% view(0, 90)
+% colorbar
+% axis equal
+% hola = 1;
 
 function [L2, L2U, LInf, LInfU] = ComputeErrorNorms(X, Xa, Nodes, Elements, ElementMatrices, CP)
 
@@ -242,7 +305,7 @@ C(dofs,dofs) =eye(length(dofs));
 
 % Fix uX on left and Right
 dofs = 3*([nodesLeft; nodesRight]-1)+1;
-
+dofs = 3*([1:nNodes]-1)+1;
 C(dofs,:) = 0;
 K(dofs,:) = 0;
 C(dofs,dofs) =eye(length(dofs));
@@ -319,20 +382,13 @@ for el = 1:nElements
     
     he = ElementMatrices(el).he;
     he = sqrt(ElementMatrices(el).Weight);
-    AlphaStab = 3/ConstModulus+6*perme*dt/he^2;
+    AlphaStab = CP.a/ConstModulus+CP.b*perme*dt/he^2;
     
     if ( AlphaStab < 0)
         AlphaStab = 0;
     end
-    %     AlphaStab = AlphaStab*2;
-    AlphaStab = -3/ConstModulus+2000*perme*dt/he^2;
-    AlphaStab = 8*perme*dt/he^2;
-    % AlphaStab = 2*AlphaStab;
-    if ( AlphaStab < 0)
-        AlphaStab = 0;
-    end
+    
     AlphaStab = AlphaStab*AlphaStabM;
-    %AlphaStab = 0;
     
     
     Ms = ElementMatrices(el).Ms * AlphaStab;
