@@ -1,6 +1,6 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps)
+function [X, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps)
 
 
 nNodes = size(Nodes, 1);

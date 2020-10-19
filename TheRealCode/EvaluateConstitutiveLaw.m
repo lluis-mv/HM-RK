@@ -29,6 +29,7 @@ if (GP.MCC)
     X = [GP.StressPrev; GP.HistoryPrev];
     
     [Xnew, D] = ImplicitCamClay(X, DeltaStrain);
+    [Xnew, D2, D] = ExplicitCamClay(X, DeltaStrain, 1);
     
     GP.StressNew  = Xnew(1:6);
     GP.HistoryNew = Xnew(7);

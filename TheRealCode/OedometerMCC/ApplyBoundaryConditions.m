@@ -1,5 +1,5 @@
 
-function [C, K, GPInfo, X0, f] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
+function [C, K, GPInfo, X0, f] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, initialize)
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
@@ -63,7 +63,7 @@ for el = 1:nElements
         
         normal = [XX(2), -XX(1)];
         normal = normal/norm(normal);
-        fe = 10.0*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
+        fe = 1.0*0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
         
         index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
         f(index) = f(index) + fe;
@@ -71,6 +71,11 @@ for el = 1:nElements
     end
 end
 
+if ( nargin == 5)
+    return;
+end
+
+if ( initialize)
 
 for el = 1:nElements
     GPInfo(el).MCC = true;
@@ -81,8 +86,8 @@ for el = 1:nElements
     GPInfo(el).StrainNew = zeros(6,1);
     GPInfo(el).StrainPrev = zeros(6,1);
     
-    GPInfo(el).HistoryNew = [6];
-    GPInfo(el).HistoryPrev = [6];
+    GPInfo(el).HistoryNew = [500];
+    GPInfo(el).HistoryPrev = [500];
 end
     
-    
+end

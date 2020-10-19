@@ -12,7 +12,7 @@ for i = 1:4
     hold off;
 end
 
-M = 1
+M = 1;
 k = 1;
 for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     
@@ -24,7 +24,7 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
 
     i = 1;
     for nSteps = NSteps
-        dt = TT/nSteps
+        dt = TT/nSteps;
         if ( RKMethod == -1)
             [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k);
         else
@@ -54,7 +54,7 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
         xlabel('nSteps')
         ylabel('LInf u');
         hold on
-        i = i+1
+        i = i+1;
     end
     
     clear L2
@@ -191,7 +191,7 @@ drawnow
 
 [NWA, NDA] = IntegrateAnalytical(X0, AMatrixA, dt*nSteps);
 
-[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, M*k*dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA, M)
+[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, M*k*dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA, M);
 
 L2DISPL = L2DISPL*M;
 LInfDISPL = LInfDISPL*M;
@@ -211,8 +211,8 @@ hold off
 
 function [NodalWaterPressure, NodalDisplacement] = IntegrateAnalytical(X0, AMatrix, t)
 
-[vectors, values] = eig(full(AMatrix));
-
+[vectors, values] = eig(full(AMatrix), 'nobalance');
+%[vectors, values] = eig(full(AMatrix));
 x = 0*X0;
 
 c = (vectors)\X0;
@@ -221,6 +221,9 @@ for i = 1:size(values, 1)
     x = x + c(i)*exp(values(i,i)*t)*vectors(:,i);
 end
 hola = 1;
+
+max(abs(imag(x)));
+x = real(x);
 
 nNodes = length(X0)/2;
 NodalWaterPressure = (zeros(nNodes, 1));
