@@ -1,9 +1,12 @@
 % Ensamble elemtal matrices to create C and K
 % Compute the stabilization factor
 
-function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, AlphaStabM)
+function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, implicit, AlphaStabM, a, b)
 
 if (nargin == 5)
+    implicit = false;
+    AlphaStabM = 1;
+elseif (nargin == 6)
     AlphaStabM = 1;
 end
 
@@ -33,16 +36,23 @@ for el = 1:nElements
     
     
     he = sqrt(GPInfo(el).Weight);
-    %AlphaStab = 3/ConstModulus+6*perme*dt/he^2;
-    
-    %     AlphaStab = AlphaStab*2;
-    
+   
     AlphaStab = 8*perme*dt/he^2;
+    if ( implicit)
+        AlphaStab = -0.65*perme*dt/he^2;
+        AlphaStab = 0;
+    end
+    if (nargin == 9)
+        AlphaStab = a/ConstModulus;%+b*perme*dt/he^2;
+    end
+       
     AlphaStab = AlphaStab*AlphaStabM;
     
     
     Ms = GPInfo(el).Ms * AlphaStab;
     Ce = [kke, Q; -Q', Ms];
+    
+    
     Ke = [zeros(6,9); zeros(3,6), H];
     
     aux = [1,2,7,3,4,8,5,6,9];

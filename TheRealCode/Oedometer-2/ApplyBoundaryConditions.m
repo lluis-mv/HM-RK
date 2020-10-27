@@ -32,9 +32,7 @@ K(dofs,:) = 0;
 C(dofs,dofs) =eye(length(dofs));
 
 X0 = zeros(3*nNodes, 1);
-for i = 1:nNodes
-    X0(3*(i-1)+3) = 1;
-end
+
 % Fix wp on top
 dofs = 3*(nodesTop-1)+3;
 X0(dofs) = 0;
@@ -69,6 +67,5 @@ for el = 1:nElements
         
     end
 end
-
-f = 0*f;
 fini = f;
+f = 0*f;

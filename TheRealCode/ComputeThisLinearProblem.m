@@ -9,26 +9,30 @@ nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt);
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false);
 
-[C, K, GPInfo, X, f] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+[C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+
+[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false, 1, 2, 0);
+
+[C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K2);
+
 
 A = C\(K);
-
-%[l, u] = lu(C); 
-
 ii = eye(3*nNodes, 3*nNodes);
 B = ii+dt*A;
 
+invCf = (C2\f);
+invCfini = (C2\fini);
 
-%X2 = X;
-
-invCf = (C\f);
-
-for i = 1:nSteps
-%     X2 = dt*(u\(l\(K*X2)))+X2;
+X = B*X+invCfini;
+hola = 1;
+for i = 2:nSteps
     X = B*X + (1/nSteps)* invCf;
 end
+
+
+
 % Linear, 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);

@@ -1,19 +1,25 @@
 % Functions to perform the implicit integration of the Modified Cam Clay
 
-function [Xnew, Dcontinuous] = ImplicitCamClay(X, DeltaStrain)
+function [Xnew, D] = ImplicitCamClay(X, DeltaStrain, consistent)
 
+if (nargin == 2)
+    consistent = false;
+end
 
 global tolerance
 tolerance = 5E-13;
 
+if ( consistent)
 
-[Xnew, plastic] = ReturnMapping(X, DeltaStrain);
+    [Xnew, plastic, D] = ReturnMapping(X, DeltaStrain);
+else
+    [Xnew, plastic] = ReturnMapping(X, DeltaStrain);
+
+    [D] = GetContinuousConstitutiveMatrix(Xnew, plastic);
+end
 
 
-[Dcontinuous] = GetContinuousConstitutiveMatrix(Xnew, plastic);
-
-
-function [XNew, plastic] = ReturnMapping( X, DeltaStrain)
+function [XNew, plastic, D] = ReturnMapping( X, DeltaStrain)
 
 global tolerance
 
@@ -122,8 +128,26 @@ end
 
 XNew = [p*mIdentity+s; pc];
 
+if (nargout == 2)
+    return;
+end
 
 
+% Now we have to obtain the stiffness matrix.....
+dXdV = zeros(7,9);
+dXdV(1:3,1) = 1;
+dXdV(7,2) = 1;
+dXdV(1:6,4:9) = eye(6);
+
+dRdE = (zeros(9,6));
+dRdE(1,1:3) = -p0*exp( (DeltaStrainVol-2*gamma*(p-pc) )/kappa)/kappa;
+dRdE(4:9,1) =  6*gamma/M^2* 3*(1-2*nu)/2/(1+nu)/kappa;
+dRdE(4:9,1:6) = -2*G*(eye(6)-1/3*mIdentity*mIdentity')*ThisDev;
+
+dRdV = Jacobian;
+
+dVdE = -(dRdV)\(dRdE);
+D = dXdV*dVdE;
 
 
 

@@ -11,12 +11,15 @@ nElements = size(Elements, 1);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt);
 
-[C, K, GPInfo,  X, f] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, true);
+[C, K, GPInfo,  X, f] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 
 ii = eye(3*nNodes, 3*nNodes);
 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
+
+GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
+[GPInfo] = InitializeConstitutiveLaw(GPInfo);
 
 for i = 1:nSteps
     

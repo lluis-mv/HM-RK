@@ -3,23 +3,24 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-2;
+T = 1E-8;
 
 
-CP.E = 1000;
+CP.E = 100;
 CP.nu = 0.3;
-CP.k = 1E-1;
+CP.k = 1E-3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 t = T/CP.M/CP.k;
 
 
-eSize = 0.04;
-
+eSize = 0.015;
+eSize = 0.02;
+% eSize = 0.0075;
 model = createpde(1);
 
-dx = 0.1; dy = 1;
+dx = 0.01; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -94,26 +95,21 @@ end
 
 function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo, Xnum)
 Xa = 0*Xnum;
-
-% analytical solution
-[Ca, Ka ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, 3, false, 0);
-
-[Ca, Ka, X0, ~] = ApplyBoundaryConditions(Nodes, Elements, Ca, Ka);
-
-Aa = Ca\(Ka);
-
-[vectors, values] = eig(full(Aa), 'nobalance');
-
-Xa = 0*Xnum;
-
-c = (vectors)\X0;
-
-for i = 1:size(values, 1)
-    Xa = Xa + c(i)*exp(values(i,i)*t)*vectors(:,i);
+% Other analytical solution...
+nNodes = size(Nodes,1);
+M = CP.M;
+k = CP.k;
+for nod = 1:nNodes
+    xx = 1-Nodes(nod,2);
+    TT = M * t*k;
+    pw = 0;
+    for m = 0:400
+        aux = pi/2*(2*m+1);
+        pw = pw + 2/aux * sin( aux * xx) * exp( - aux^2 * TT);
+    end
+    Xa(3*(nod-1)+3) = pw;
 end
 
-
-Xa = real(Xa);
 
 
 
