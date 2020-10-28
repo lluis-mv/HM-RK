@@ -1,9 +1,10 @@
+
 function [] = OedometerElastic()
 
 addpath('../')
 % 1. Define the problem
 
-T = 1E-8;
+T = 1E-2;
 
 
 CP.E = 100;
@@ -16,11 +17,11 @@ t = T/CP.M/CP.k;
 
 
 eSize = 0.015;
-eSize = 0.02;
+eSize = 0.015;
 % eSize = 0.0075;
 model = createpde(1);
 
-dx = 0.01; dy = 1;
+dx = 0.05; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
