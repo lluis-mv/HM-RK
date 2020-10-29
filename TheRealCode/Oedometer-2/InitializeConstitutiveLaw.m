@@ -1,0 +1,1 @@
+function [GPInfo] = InitializeConstitutiveLaw(GPInfo)

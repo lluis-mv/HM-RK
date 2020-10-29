@@ -1,3 +1,4 @@
+
 % Solver for a linear problem
 
 function [X, GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps)
@@ -15,10 +16,11 @@ nElements = size(Elements, 1);
 
 ii = eye(3*nNodes, 3*nNodes);
 
+
+
+[GPInfo] = InitializeConstitutiveLaw(GPInfo);
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
 
 for i = 1:nSteps
     

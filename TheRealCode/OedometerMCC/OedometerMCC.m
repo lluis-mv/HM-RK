@@ -17,7 +17,7 @@ t = 0.1;
 
 eSize = 0.05;
 eSize = 0.5;
-eSize = 4;
+eSize = 0.03;
 
 model = createpde(1);
 
@@ -47,10 +47,11 @@ i = 1;
 err = 0*NSteps;
 for nSteps = NSteps
     dt = t/nSteps;
-    [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
-    err(i) = abs(GPInfo(end).StressNew(2)-11)
+    [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
+    err(i) = abs(GPInfo(end).StressNew(2)-2)
     loglog(NSteps, err, '*-.')
     i = i+1;
+    return;
 end
 
 
