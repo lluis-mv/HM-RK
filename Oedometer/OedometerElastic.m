@@ -3,7 +3,7 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-9;
+T = 1E-2;
 
 
 CP.E = 1000;

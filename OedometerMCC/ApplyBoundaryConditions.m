@@ -65,12 +65,12 @@ for el = 1:nElements
         
         normal = [XX(2), -XX(1)];
         normal = normal/norm(normal);
-        fe = 12*0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
+        fe = 1*0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
         
         index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
         f(index) = f(index) + fe;
         
     end
 end
-fini = f;
-f = 0*f;
+fini = 0*f;
+f = f;

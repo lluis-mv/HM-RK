@@ -1,6 +1,6 @@
 % Compute stress, stiffness....
 
-function GPInfo = EvaluateConstitutiveLaw(GPInfo, U, C, implicit)
+function GPInfo = EvaluateConstitutiveLaw(GPInfo, U, C, consistent)
 
 nElem = size(C,1);
 
@@ -13,7 +13,7 @@ for el = 1:nElem
     
     GPInfo(el).StrainNew([1,2,4]) = GPInfo(el).B*Uel;
     
-    GPInfo(el) = EvaluateLaw( GPInfo(el), implicit);
+    GPInfo(el) = EvaluateLaw( GPInfo(el), consistent);
     
 end
 

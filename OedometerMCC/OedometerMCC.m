@@ -1,9 +1,7 @@
 function [] = OedometerMCC()
 
 addpath('../')
-% 1. Define the problem
-
-
+addpath('../ModifiedCamClay/')
 
 
 CP.E = 100;
@@ -17,11 +15,11 @@ t = 0.1;
 
 eSize = 0.05;
 eSize = 0.5;
-eSize = 0.03;
+eSize = 0.05;
 
 model = createpde(1);
 
-dx = 1; dy = 1;
+dx = 0.1; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -44,14 +42,26 @@ NSteps = 10.^linspace(0, 3, 10);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 % NSteps = [1,2];
 i = 1;
-err = 0*NSteps;
+errI = 0*NSteps;
+errE = 0*NSteps;
+errE2 = 0*NSteps;
+
 for nSteps = NSteps
     dt = t/nSteps;
-    [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
-    err(i) = abs(GPInfo(end).StressNew(2)-2)
-    loglog(NSteps, err, '*-.')
+%      [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
+%      errI(i) = abs(GPInfo(end).StressNew(2)-11)
+%     
+    
+    [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
+    errE(i) = abs(GPInfo(end).StressNew(2)-11)
+    
+   
+    
+    
+    figure(1)
+    loglog(NSteps, errI, 'r*-.', NSteps, errE, 'b*-.',  NSteps, errE2, 'g*-.')
+    
     i = i+1;
-    return;
 end
 
 

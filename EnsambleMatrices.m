@@ -40,7 +40,7 @@ for el = 1:nElements
     AlphaStab = 8*perme*dt/he^2;
     if ( implicit)
         AlphaStab = -0.65*perme*dt/he^2;
-        AlphaStab = 2/ConstModulus -12*perme*dt/he^2;
+%         AlphaStab = 2/ConstModulus -12*perme*dt/he^2;
         if (AlphaStab < 0)
             AlphaStab = 0;
         end

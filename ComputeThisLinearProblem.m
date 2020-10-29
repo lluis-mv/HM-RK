@@ -34,7 +34,7 @@ end
 
 
 % Linear, 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements);
+GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);
 
 
