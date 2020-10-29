@@ -6,7 +6,7 @@ addpath('../ModifiedCamClay/')
 
 CP.E = 100;
 CP.nu = 0.3;
-CP.k = 1E-0;
+CP.k = 1E-3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
@@ -46,6 +46,9 @@ errI = 0*NSteps;
 errE = 0*NSteps;
 errE2 = 0*NSteps;
 
+err2E = 0*NSteps;
+err2E2 = 0*NSteps;
+
 for nSteps = NSteps
     dt = t/nSteps;
 %      [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
@@ -55,11 +58,13 @@ for nSteps = NSteps
     [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
     errE(i) = abs(GPInfo(end).StressNew(2)-11)
     
-   
+   [U,GPInfo, err2E2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, true);
+    err2E(i) = abs(GPInfo(end).StressNew(2)-11)
     
     
     figure(1)
-    loglog(NSteps, errI, 'r*-.', NSteps, errE, 'b*-.',  NSteps, errE2, 'g*-.')
+    %loglog(NSteps, errI, 'r*-.', NSteps, errE, 'b*-.',  NSteps, errE2, 'g*-.')
+    loglog( NSteps, errE, 'b*-.',  NSteps, errE2, 'r*-.', NSteps, err2E, 'c*-.',  NSteps, err2E2, 'm*-.')
     
     i = i+1;
 end

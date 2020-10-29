@@ -14,7 +14,7 @@ nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 dofs = 3*(nodesTop-1)+3;
 nDirichlet = [nDirichlet; dofs];
 
-dofs = 3*( [1:nNodes ]-1)+3;
+%dofs = 3*( [1:nNodes ]-1)+3;
 
 C(dofs,:) = 0;
 K(dofs,:) = 0;
