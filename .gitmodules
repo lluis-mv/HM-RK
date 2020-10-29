@@ -1,0 +1,3 @@
+[submodule "ModifiedCamClay"]
+	path = ModifiedCamClay
+	url = https://github.com/lluis-mv/ExplicitStressIntegration
