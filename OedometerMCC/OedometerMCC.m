@@ -55,10 +55,10 @@ for nSteps = NSteps
 %      errI(i) = abs(GPInfo(end).StressNew(2)-11)
 %     
     
-    [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
+    [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 1E-8);
     errE(i) = abs(GPInfo(end).StressNew(2)-11)
     
-   [U,GPInfo, err2E2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, true);
+   [U,GPInfo, err2E2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 2);
     err2E(i) = abs(GPInfo(end).StressNew(2)-11)
     
     

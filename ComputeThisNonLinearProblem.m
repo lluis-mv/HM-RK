@@ -41,6 +41,10 @@ for i = 1:nSteps
     [C2, ~ ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false, 1, 2, 0);
 
     [C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K);
+    
+    [C3, ~ ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false, 1, drift, 0);
+
+    [C3, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C3, K);
     %C2 = C;
     
     A = C\(K);
@@ -50,7 +54,7 @@ for i = 1:nSteps
     
     
     if ( drift)
-        invCf2 = C2\(UnbalancedForces) ;
+        invCf2 = C3\(UnbalancedForces) ;
         invCf = invCf+invCf2;
     end
         
@@ -73,7 +77,7 @@ for i = 1:nSteps
 end
 
 if ( drift)
-    invCf2 = C2\(UnbalancedForces) ;
+    invCf2 = C3\(UnbalancedForces) ;
     X = X + invCf2;
     % Compute stress and D
     GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
