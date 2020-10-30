@@ -1,4 +1,5 @@
 function []=OneDimensionalEqual()
+addpath('../ModifiedCamClay/')
 
 nodes = linspace(0, 1, 25);
 
@@ -14,7 +15,7 @@ end
 
 M = 1;
 k = 1;
-for RKMethod = [-1, 1,2,3,4,5,6,7,8]
+for RKMethod = [ 1,2,3,4,5,6,7,8]
     
     
     TT = 1E-4;
@@ -25,17 +26,14 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     i = 1;
     for nSteps = NSteps
         dt = TT/nSteps;
-        if ( RKMethod == -1)
-            [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k);
-        else
         [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, M, k);
-        end
         
-        figure(1)
-        loglog( NSteps(1:i), L2, '*-.')
-        xlabel('nSteps')
-        ylabel('L2');
-        hold on
+        
+%         figure(1)
+%         loglog( NSteps(1:i), L2, '*-.')
+%         xlabel('nSteps')
+%         ylabel('L2');
+%         hold on
         
         figure(2)
         loglog( NSteps(1:i), LInf, '*-.')
@@ -43,11 +41,11 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
         ylabel('LInf');
         hold on
         
-        figure(3)
-        loglog( NSteps(1:i), L2DISPL, '*-.')
-        xlabel('nSteps')
-        ylabel('L2 u');
-        hold on
+%         figure(3)
+%         loglog( NSteps(1:i), L2DISPL, '*-.')
+%         xlabel('nSteps')
+%         ylabel('L2 u');
+%         hold on
         
         figure(4)
         loglog( NSteps(1:i), LInfDISPL, '*-.')
@@ -153,25 +151,9 @@ end
 
 h = nodes(2)-nodes(1);
 
-AlphaStab = dt*(-3*h^2 + 6*M*k)/(M*h^2)
-AlphaStab = 6*dt*k/h^2 + 3/M;
 
-AlphaStab = 12*dt*k/h^2
-
-
-AlphaStab = 12*dt*k/h^2*(1-exp(- (14*dt*k/h^2)^1.0 ));
-% if (substepping)
-%     dt2 = dt/alfa;
-%     AlphaStab = dt2*(-3*h^2 + 10*M*k)/(M*h^2)
-% end
-
-AlphaStab = 12*dt*k/h^2*(1-1*exp(- (1400*dt*k/h^2)^1 ));
 AlphaStab = 12*dt*k/h^2*(1-exp(- (1400*dt*k/h^2)^(2*RKMethod) ));
 
-if (AlphaStab < 0)
-    AlphaStab = 0;
-end
-AlphaStab
 
 
 
@@ -203,14 +185,14 @@ figure(101)
 hold on
 plot(nodes, NWA, 'k:')
 hold off
+ylabel('water pressure')
 
 
 figure(102)
 hold on
 plot(nodes, NDA, 'k:')
 hold off
-
-
+ylabel('displacement')
 
 function [NodalWaterPressure, NodalDisplacement] = IntegrateAnalytical(X0, AMatrix, t)
 
@@ -370,7 +352,7 @@ FFExt = (zeros(2*nNodes, 1));
 FFExt(2) = DeltaPW/dt;
 
 AMatrix = CC\KK;
-AMatrix(2,:) = 0;
+
 
 FFExt = 0*FFExt;
 X0(2) = 0;

@@ -21,7 +21,7 @@ end
 
 M = 1;
 k = 1;
-for RKMethod = [-1, 1,2,3,4,5,6,7,8]
+for RKMethod = [ 1,2,3,4,5,6,7,8]
     
     
     TT = 1E-5;
@@ -32,11 +32,8 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     i = 1;
     for nSteps = NSteps
         dt = TT/nSteps;
-        if ( RKMethod == -1)
-            [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, C, nSteps, dt, RKMethod, M, k);
-        else
         [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, C, nSteps, dt, RKMethod, M, k);
-        end
+
         
 %         figure(1)
 %         loglog( NSteps(1:i), L2, '*-.')
@@ -69,76 +66,6 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     clear L2DISPL
     clear LInfDISPL
 end
-
-
-
-
-function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNormsImplicit(nodes, C, nSteps, dt, RKMethod, M, k)
-
-% M = 1;
-
-
-% M = 1e-3;
-% k = 1;
-dt = dt/(M*k);
-
-
-substepping = false;
-if ( RKMethod > 10)
-    alfa = floor(RKMethod/10);
-    substepping = true;
-end
-
-
-h = nodes(2)-nodes(1);
-
-
-
-AlphaStab = 0;
-if ( dt < h^2/M/k/6)
-    AlphaStab = 2/M-12*k*dt/h^2;
-end
-AlphaStab = 0;
-
-[AMatrix, FFExt, X0] = ConstructMatrices(nodes, C, M, k, AlphaStab, dt);
-B = inv(eye(size(AMatrix))-dt*AMatrix);
-b = eig(B);
-min(b)
-max(b)
-figure(900)
-plot(sort((b)), 'r')
-[AMatrixA] = ConstructMatrices(nodes, C, M, k, 0, dt);
-figure(900)
-B = inv(eye(size(AMatrix))-dt*AMatrixA);
-hold on
-b = eig(B);
-plot(sort((b)), 'k')
-ylim([-1.2, 1.2])
-drawnow
-hold off
-drawnow
-[X, NodalWaterPressure, NodalDisplacement] = IntegrateProblemImplicit(AMatrix, FFExt, X0, RKMethod, dt, nSteps);
-
-[NWA, NDA] = IntegrateAnalytical(X0, AMatrixA, dt*nSteps);
-
-[L2, LInf, L2DISPL, LInfDISPL ] = ComputeNorms( nodes, M*k*dt*nSteps, NodalWaterPressure, NodalDisplacement, NWA, NDA, M);
-
-L2DISPL = L2DISPL*M;
-LInfDISPL = LInfDISPL*M;
-
-[n2, ind] = sort(nodes);
-
-figure(101)
-hold on
-plot(nodes(ind), NWA(ind), 'k:')
-hold off
-
-
-figure(102)
-hold on
-plot(nodes(ind), NDA(ind), 'k:')
-hold off
-
 
 
 
@@ -211,12 +138,14 @@ figure(101)
 hold on
 plot(nodes(ind), NWA(ind), 'k:')
 hold off
+ylabel('water pressure')
 
 
 figure(102)
 hold on
 plot(nodes(ind), NDA(ind), 'k:')
 hold off
+ylabel('displacement')
 
 function [NodalWaterPressure, NodalDisplacement] = IntegrateAnalytical(X0, AMatrix, t)
 
@@ -340,17 +269,6 @@ CC = sparse(nNodes*2, nNodes*2);
 KK = CC;
 DeltaPW = -1;
 
-% % for i = 1:nNodes-1
-% %     h = nodes(i+1)-nodes(i);
-% %     % ComputeElementalMatrix
-% %     [Ke, Ce] = ComputeElemental(h, AlphaStab, M, k);
-% %     
-% %     % Ensamble Elemental Matrix
-% %     CC( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
-% %         CC( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ce;
-% %     KK( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
-% %         KK( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ke;
-% % end
 
 for el = 1:nElem
     Cel = C(el,:);
@@ -391,7 +309,7 @@ FFExt = (zeros(2*nNodes, 1));
 FFExt(2) = DeltaPW/dt;
 
 AMatrix = CC\KK;
-AMatrix(2,:) = 0;
+
 
 FFExt = 0*FFExt;
 X0(2) = 0;
@@ -412,17 +330,6 @@ end
 
 function [Ke, Ce] = ComputeElemental(h, AlphaStab, M, k)
 
-Ce =[  M/h, -M/h,               1/2,               1/2;
-    -M/h,  M/h,              -1/2,              -1/2;
-    -1/2,  1/2,  (AlphaStab*h)/12, -(AlphaStab*h)/12;
-    -1/2,  1/2, -(AlphaStab*h)/12,  (AlphaStab*h)/12];
-Ce = [ (7*M)/(3*h), (2*M)/(3*h),     M/(3*h),               5/6,               1/6,    0;
- (2*M)/(3*h),     M/(3*h), (2*M)/(3*h),               1/6,              -1/6,    0;
-     M/(3*h), (2*M)/(3*h), (7*M)/(3*h),              -1/6,              -5/6,    0;
-        -5/6,        -1/6,         1/6,  (AlphaStab*h)/12, -(AlphaStab*h)/12,    0;
-        -1/6,         1/6,         5/6, -(AlphaStab*h)/12,  (AlphaStab*h)/12,    0;
-           0,           0,           0,                 1,                 1, -1/2];
- 
 Ce =[  (7*M)/(3*h),      M/(3*h), -(8*M)/(3*h),  1/2, -1/6,  2/3;
       M/(3*h),  (7*M)/(3*h), -(8*M)/(3*h),  1/6, -1/2, -2/3;
  -(8*M)/(3*h), -(8*M)/(3*h), (16*M)/(3*h), -2/3,  2/3,    0;
