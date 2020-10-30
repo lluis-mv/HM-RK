@@ -1,13 +1,6 @@
 function []=OneDimensionalEqual()
-addpath('../ModifiedCamClay/')
-nodes = linspace(0, 1, 20);
 
-% create element list
-nn = length(nodes);
-for i = 1:nn-1
-    C(i,:) = [i, i+1,nn+i];
-    nodes = [nodes, mean(nodes(i:i+1))];
-end
+nodes = linspace(0, 1, 25);
 
 
 % dt = 0.01;
@@ -24,7 +17,7 @@ k = 1;
 for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     
     
-    TT = 1E-1;
+    TT = 1E-4;
     NSteps = 10.^linspace(0, 5, 10);
     NSteps = floor(NSteps);
     
@@ -33,16 +26,16 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     for nSteps = NSteps
         dt = TT/nSteps;
         if ( RKMethod == -1)
-            [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, C, nSteps, dt, RKMethod, M, k);
+            [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k);
         else
-        [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, C, nSteps, dt, RKMethod, M, k);
+        [L2(i), LInf(i), L2DISPL(i), LInfDISPL(i)] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, M, k);
         end
         
-%         figure(1)
-%         loglog( NSteps(1:i), L2, '*-.')
-%         xlabel('nSteps')
-%         ylabel('L2');
-%         hold on
+        figure(1)
+        loglog( NSteps(1:i), L2, '*-.')
+        xlabel('nSteps')
+        ylabel('L2');
+        hold on
         
         figure(2)
         loglog( NSteps(1:i), LInf, '*-.')
@@ -50,12 +43,12 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
         ylabel('LInf');
         hold on
         
-%         figure(3)
-%         loglog( NSteps(1:i), L2DISPL, '*-.')
-%         xlabel('nSteps')
-%         ylabel('L2 u');
-%         hold on
-         
+        figure(3)
+        loglog( NSteps(1:i), L2DISPL, '*-.')
+        xlabel('nSteps')
+        ylabel('L2 u');
+        hold on
+        
         figure(4)
         loglog( NSteps(1:i), LInfDISPL, '*-.')
         xlabel('nSteps')
@@ -73,7 +66,7 @@ end
 
 
 
-function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNormsImplicit(nodes, C, nSteps, dt, RKMethod, M, k)
+function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNormsImplicit(nodes, nSteps, dt, RKMethod, M, k)
 
 % M = 1;
 
@@ -92,16 +85,22 @@ end
 
 h = nodes(2)-nodes(1);
 
-AlphaStab = 0;
 
-[AMatrix, FFExt, X0] = ConstructMatrices(nodes, C, M, k, AlphaStab, dt);
+
+AlphaStab = 0;
+if ( dt < h^2/M/k/6)
+    AlphaStab = 2/M-12*k*dt/h^2;
+end
+
+
+[AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt);
 B = inv(eye(size(AMatrix))-dt*AMatrix);
 b = eig(B);
 min(b)
 max(b)
 figure(900)
 plot(sort((b)), 'r')
-[AMatrixA] = ConstructMatrices(nodes, C, M, k, 0, dt);
+[AMatrixA] = ConstructMatrices(nodes, M, k, 0, dt);
 figure(900)
 B = inv(eye(size(AMatrix))-dt*AMatrixA);
 hold on
@@ -120,26 +119,22 @@ drawnow
 L2DISPL = L2DISPL*M;
 LInfDISPL = LInfDISPL*M;
 
-[n2, ind] = sort(nodes);
-
 figure(101)
 hold on
-plot(nodes(ind), NWA(ind), 'k:')
+plot(nodes, NWA, 'k:')
 hold off
-ylabel('water pressure')
 
 
 figure(102)
 hold on
-plot(nodes(ind), NDA(ind), 'k:')
+plot(nodes, NDA, 'k:')
 hold off
-ylabel('displacement')
 
 
 
 
 
-function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNorms(nodes,C, nSteps, dt, RKMethod, M, k)
+function [L2, LInf, L2DISPL, LInfDISPL ] = CalculateProblemAndNorms(nodes, nSteps, dt, RKMethod, M, k)
 
 % M = 1;
 
@@ -158,37 +153,35 @@ end
 
 h = nodes(2)-nodes(1);
 
-% % AlphaStab = dt*(-3*h^2 + 6*M*k)/(M*h^2)
-% % AlphaStab = 6*dt*k/h^2 + 3/M;
-% % 
-AlphaStab = 12*dt*k/h^2 + 3/M;
-AlphaStab = 6*(dt)*k/h^2;
-AlphaStab = AlphaStab^(RKMethod/2+0.5);
-AlphaStab = AlphaStab;
-% % 
-% % if (substepping)
-% %     dt2 = dt/alfa;
-% %     AlphaStab = dt2*(-3*h^2 + 10*M*k)/(M*h^2)
-% % end
+AlphaStab = dt*(-3*h^2 + 6*M*k)/(M*h^2)
+AlphaStab = 6*dt*k/h^2 + 3/M;
 
-%AlphaStab = 0;
+AlphaStab = 12*dt*k/h^2
 
 
-AlphaStab = 6*dt*k/h^2*(1-exp(- (5*dt*k/h^2)^(2*RKMethod) ));
-% AlphaStab = 6*dt*k/h^2;
-% if ( dt < h^2/(6*k*M) )
-%     AlphaStab = 0;
+AlphaStab = 12*dt*k/h^2*(1-exp(- (14*dt*k/h^2)^1.0 ));
+% if (substepping)
+%     dt2 = dt/alfa;
+%     AlphaStab = dt2*(-3*h^2 + 10*M*k)/(M*h^2)
 % end
 
+AlphaStab = 12*dt*k/h^2*(1-1*exp(- (1400*dt*k/h^2)^1 ));
+AlphaStab = 12*dt*k/h^2*(1-exp(- (1400*dt*k/h^2)^(2*RKMethod) ));
+
+if (AlphaStab < 0)
+    AlphaStab = 0;
+end
+AlphaStab
 
 
-[AMatrix, FFExt, X0] = ConstructMatrices(nodes,C, M, k, AlphaStab, dt);
+
+[AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt);
 b = eig(eye(size(AMatrix))+dt*AMatrix);
 min(b)
 max(b)
 figure(900)
 plot(sort((b)), 'r')
-[AMatrixA] = ConstructMatrices(nodes, C, M, k, 0, dt);
+[AMatrixA] = ConstructMatrices(nodes, M, k, 0, dt);
 figure(900)
 hold on
 b = eig(eye(size(AMatrixA))+dt*AMatrixA);
@@ -206,20 +199,18 @@ drawnow
 L2DISPL = L2DISPL*M;
 LInfDISPL = LInfDISPL*M;
 
-[n2, ind] = sort(nodes);
-
 figure(101)
 hold on
-plot(nodes(ind), NWA(ind), 'k:')
+plot(nodes, NWA, 'k:')
 hold off
-ylabel('water pressure')
 
 
 figure(102)
 hold on
-plot(nodes(ind), NDA(ind), 'k:')
+plot(nodes, NDA, 'k:')
 hold off
-ylabel('displacement')
+
+
 
 function [NodalWaterPressure, NodalDisplacement] = IntegrateAnalytical(X0, AMatrix, t)
 
@@ -329,52 +320,35 @@ LInfDISPL = max( abs(NodalDisplacement - NDA));
 hola = 1;
 
 
-[X2, ind] = sort(XX);
 figure(101)
-plot(XX(ind), pw(ind), 'g', XX(ind), NodalWaterPressure(ind), 'r*')
+plot(XX, pw, 'g', XX, NodalWaterPressure, 'r*')
 
 figure(102)
-plot(XX(ind), uu(ind), 'g', XX(ind), NodalDisplacement(ind), 'r*')
+plot(XX, uu, 'g', XX, NodalDisplacement, 'r*')
 
-function [AMatrix, FFExt, X0] = ConstructMatrices(nodes, C, M, k, AlphaStab, dt)
-nElem = size(C,1);
+function [AMatrix, FFExt, X0] = ConstructMatrices(nodes, M, k, AlphaStab, dt)
+
 nNodes = length(nodes);
 CC = sparse(nNodes*2, nNodes*2);
 KK = CC;
 DeltaPW = -1;
 
-% % for i = 1:nNodes-1
-% %     h = nodes(i+1)-nodes(i);
-% %     % ComputeElementalMatrix
-% %     [Ke, Ce] = ComputeElemental(h, AlphaStab, M, k);
-% %     
-% %     % Ensamble Elemental Matrix
-% %     CC( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
-% %         CC( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ce;
-% %     KK( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
-% %         KK( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ke;
-% % end
-
-for el = 1:nElem
-    Cel = C(el,:);
-    h = nodes(Cel(2))-nodes(Cel(1));
+for i = 1:nNodes-1
+    h = nodes(i+1)-nodes(i);
+    % ComputeElementalMatrix
     [Ke, Ce] = ComputeElemental(h, AlphaStab, M, k);
-
-    ind = [];
-    for ii = 1:3
-        ind = [ind, 2*(Cel(ii)-1)+[1:2]];
-    end
-    CC(ind,ind) = CC(ind,ind)+Ce;
-    KK(ind,ind) = KK(ind,ind)+Ke;
+    
+    % Ensamble Elemental Matrix
+    CC( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
+        CC( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ce;
+    KK( 2*(i-1) + [1:4], 2*(i-1) + [1:4]) = ...
+        KK( 2*(i-1) + [1:4] , 2*(i-1) + [1:4]) + Ke;
 end
-        
 
 X0 = zeros(2*nNodes, 1);
 for i = 1:nNodes
     X0(2*i) = 1;
 end
-thisNode = nElem+1+1;
-X0(2*(thisNode-1)+2) = 0.5;
 
 
 % Apply dirichlet conditions
@@ -384,9 +358,9 @@ CC(2,2) = 1;
 KK(2,:) = 0;
 
 
-ind = find(max(nodes)==nodes);
+
 % Displacement
-nn = 2*(ind -1)+1;
+nn = 2*(nNodes -1)+1;
 CC(nn, :) = 0;
 CC(nn,nn) = 1;
 
@@ -396,7 +370,7 @@ FFExt = (zeros(2*nNodes, 1));
 FFExt(2) = DeltaPW/dt;
 
 AMatrix = CC\KK;
-%AMatrix(2,:) = 0;
+AMatrix(2,:) = 0;
 
 FFExt = 0*FFExt;
 X0(2) = 0;
@@ -417,22 +391,17 @@ end
 
 function [Ke, Ce] = ComputeElemental(h, AlphaStab, M, k)
 
-pen = 1;
-Ce = [  (7*M)/(3*h),      M/(3*h), -(8*M)/(3*h),               5/6,               1/6,    0;
-      M/(3*h),  (7*M)/(3*h), -(8*M)/(3*h),              -1/6,              -5/6,    0;
- -(8*M)/(3*h), -(8*M)/(3*h), (16*M)/(3*h),              -2/3,               2/3,    0;
-         -5/6,          1/6,          2/3,  (AlphaStab*h)/12, -(AlphaStab*h)/12,    0;
-         -1/6,          5/6,         -2/3, -(AlphaStab*h)/12,  (AlphaStab*h)/12,    0;
-            0,            0,            0,                 pen,                 pen, -2*pen];
-Ke = [ 0, 0, 0,    0,    0, 0;
- 0, 0, 0,    0,    0, 0;
- 0, 0, 0,    0,    0, 0;
- 0, 0, 0,  k/h, -k/h, 0;
- 0, 0, 0, -k/h,  k/h, 0;
- 0, 0, 0,    0,    0, 0];
- 
+Ce =[  M/h, -M/h,               1/2,               1/2;
+    -M/h,  M/h,              -1/2,              -1/2;
+    -1/2,  1/2,  (AlphaStab*h)/12, -(AlphaStab*h)/12;
+    -1/2,  1/2, -(AlphaStab*h)/12,  (AlphaStab*h)/12];
 
-ind = [1,4,2,5,3,6];
+Ke = [ 0, 0,    0,    0;
+    0, 0,    0,    0;
+    0, 0,  k/h, -k/h;
+    0, 0, -k/h,  k/h];
+
+ind = [1,3,2,4];
 Ce = Ce(ind,ind);
 Ke = -Ke(ind,ind);
 

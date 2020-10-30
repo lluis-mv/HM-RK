@@ -14,8 +14,9 @@ syms AlphaStab real
 syms x positive
 Np = [(h-x)/h; x/h];
 Nu = inv(h^2/2)*[ (h/2-x)*(h-x);
-    (-x)*(h-x)/2;
-    (-x)*(h/2-x)];
+    (-x)*(h/2-x)
+    -2*(-x)*(h-x);
+    ];
 DN_DX = diff(Nu, x);
 
 DN_DXp = diff(Np, x);
@@ -43,6 +44,5 @@ Mstab = AlphaStab*h/12*[1, -1; -1 1];
 
 Ce = [K, Qt; Q, Mstab];
 Ke = [0*K, 0*Qt; 0*Q, H];
-
 Ce = [Ce, zeros(5,1); 0,0,0,1,1,-0.5];
 Ke = [Ke, zeros(5,1); zeros(1,6)];

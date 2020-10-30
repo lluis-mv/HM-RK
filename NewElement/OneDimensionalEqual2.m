@@ -28,7 +28,6 @@ for RKMethod = [-1, 1,2,3,4,5,6,7,8]
     NSteps = 10.^linspace(0, 5, 10);
     NSteps = floor(NSteps);
     
-%     NSteps = 1;
 
     i = 1;
     for nSteps = NSteps
