@@ -5,15 +5,17 @@ function GPInfo = EvaluateConstitutiveLaw(GPInfo, U, C, consistent)
 nElem = size(C,1);
 
 for el = 1:nElem
+    for gp = 1:size(GPInfo,2)
     
-    Ce = C(el,:);
+        Ce = C(el,:);
     
-    nSystem = [3*(Ce(1)-1)+[1,2],3*(Ce(2)-1)+[1,2], 3*(Ce(3)-1)+[1,2]];
-    Uel = U(nSystem);
+        nSystem = GPInfo(el,gp).dofsU;
+        Uel = U(nSystem);
     
-    GPInfo(el).StrainNew([1,2,4]) = GPInfo(el).B*Uel;
+        GPInfo(el,gp).StrainNew([1,2,4]) = GPInfo(el,gp).B*Uel;
     
-    GPInfo(el) = EvaluateLaw( GPInfo(el), consistent);
+        GPInfo(el,gp) = EvaluateLaw( GPInfo(el,gp), consistent);
+    end
     
 end
 

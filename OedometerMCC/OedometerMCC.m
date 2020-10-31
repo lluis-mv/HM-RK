@@ -15,7 +15,7 @@ t = 0.1;
 
 eSize = 0.05;
 eSize = 0.5;
-eSize = 0.05;
+eSize = 5;
 
 model = createpde(1);
 
@@ -26,14 +26,13 @@ geometryFromEdges(model, g);
 
 mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
 
-% figure(1)
-% pdeplot(model)
-% drawnow
-
-
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
+mesh = generateMesh(model, 'Hmax', eSize);
+
+Nodes2 = mesh.Nodes';
+Elements2 = mesh.Elements';
 
 
 
@@ -51,14 +50,14 @@ err2E2 = 0*NSteps;
 
 for nSteps = NSteps
     dt = t/nSteps;
-%      [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
-%      errI(i) = abs(GPInfo(end).StressNew(2)-11)
-%     
+     [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps);
+     errI(i) = abs(GPInfo(end).StressNew(2)-11)
     
-    [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 1E-8);
+    
+    [U,GPInfo, errE2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1E-8);
     errE(i) = abs(GPInfo(end).StressNew(2)-11)
     
-   [U,GPInfo, err2E2(i)] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 2);
+   [U,GPInfo, err2E2(i)] = ComputeThisNonLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6', 2);
     err2E(i) = abs(GPInfo(end).StressNew(2)-11)
     
     

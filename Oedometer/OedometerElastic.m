@@ -3,10 +3,10 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-2;
+T = 1E-3;
 
 
-CP.E = 1000;
+CP.E = 100000;
 CP.nu = 0.3;
 CP.k = 1E-1;
 nu = CP.nu;
@@ -15,7 +15,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.05;
+eSize = 4;
 
 model = createpde(1);
 
@@ -26,14 +26,13 @@ geometryFromEdges(model, g);
 
 mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
 
-% figure(1)
-% pdeplot(model)
-% drawnow
-
-
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
+mesh = generateMesh(model, 'Hmax', eSize);
+
+Nodes2 = mesh.Nodes';
+Elements2 = mesh.Elements';
 
 
 
@@ -48,16 +47,19 @@ firstTime = true;
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps);   
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
     
     if ( firstTime)
         [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo,U);
-        firstTime = false;
     end
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
     
-    [U,GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps);   
-    [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt/2, 2*nSteps, 'T6T6');
+    if ( firstTime)
+        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2, t, CP, GPInfo,U);
+        firstTime = false;
+    end
+    [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa2, Nodes2, Elements2, GPInfo, CP);
     
     
     figure(99)
@@ -144,20 +146,20 @@ alfa = 1/6; beta = 1/6;
 N2 = [ 1 - alfa - beta, alfa,  beta];
 alfa = 1/6; beta = 2/3;
 N3 = [ 1 - alfa - beta, alfa,  beta];
-
-for el = 1:nElements
-    Cel = Elements(el,:);
-    indWP = 3*(Cel-1)+3;
-    err = ( Xa(indWP)-X(indWP));
-    L2 = L2 + GPInfo(el).Weight/3* ( abs(N1*err) + abs(N2*err)+abs(N3*err));
-    
-    indx = 3*(Cel-1)+1;
-    indy = 3*(Cel-1)+2;
-    ux = Xa(indx)-X(indx);
-    uy = Xa(indy)-X(indy);
-    L2U = L2U + GPInfo(el).Weight/3* ( norm(N1*[ux,uy]) + norm(N2*[ux,uy])+norm(N3*[ux,uy]));
-    
-end
+% % 
+% % for el = 1:nElements
+% %     Cel = Elements(el,:);
+% %     indWP = 3*(Cel-1)+3;
+% %     err = ( Xa(indWP)-X(indWP));
+% %     L2 = L2 + GPInfo(el).Weight/3* ( abs(N1*err) + abs(N2*err)+abs(N3*err));
+% %     
+% %     indx = 3*(Cel-1)+1;
+% %     indy = 3*(Cel-1)+2;
+% %     ux = Xa(indx)-X(indx);
+% %     uy = Xa(indy)-X(indy);
+% %     L2U = L2U + GPInfo(el).Weight/3* ( norm(N1*[ux,uy]) + norm(N2*[ux,uy])+norm(N3*[ux,uy]));
+% %     
+% % end
 
 
 

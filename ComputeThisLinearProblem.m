@@ -1,15 +1,18 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps)
+function [X, GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
+
+
 
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
 
-[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP);
+[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false);
+
 
 [C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
 

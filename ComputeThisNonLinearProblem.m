@@ -1,17 +1,17 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, drift)
+function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, drift)
 
-if (nargin == 5)
-    drift = false;
-end
+
+drift = false;
+
 
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
-[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP);
+[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt);
 
