@@ -185,22 +185,23 @@ for el = 1:nElements
         elseif ( gp == 3)
             alfa = 1/6; beta = 2/3;
         end
-       
+        
+        
         
         Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
-            alfa*(2*beta-1);
+            alfa*(2*alfa-1);
             beta*(2*beta-1);
             4*alfa*(1-alfa-beta);
             4*alfa*beta;
             4*beta*(1-alfa-beta)];
-            
+        
         Nsmall_chi = [ 4*alfa + 4*beta - 3, 4*alfa + 4*beta - 3;
             4*alfa - 1,                   0;
             0,          4*beta - 1;
             4 - 4*beta - 8*alfa,             -4*alfa;
             4*beta,              4*alfa;
             -4*beta, 4 - 8*beta - 4*alfa];
-
+        
         Nu = (zeros(ndim, 6*ndim));
         for i = 1:6
             for dd = 1:2
@@ -322,22 +323,21 @@ for el = 1:nElements
         elseif ( gp == 4)
             alfa = 1/5; beta = 1/5;
         end
-       
         
         Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
-            alfa*(2*beta-1);
+            alfa*(2*alfa-1);
             beta*(2*beta-1);
             4*alfa*(1-alfa-beta);
             4*alfa*beta;
             4*beta*(1-alfa-beta)];
-            
+        
         Nsmall_chi = [ 4*alfa + 4*beta - 3, 4*alfa + 4*beta - 3;
             4*alfa - 1,                   0;
             0,          4*beta - 1;
             4 - 4*beta - 8*alfa,             -4*alfa;
             4*beta,              4*alfa;
             -4*beta, 4 - 8*beta - 4*alfa];
-
+        
         Nu = (zeros(ndim, 6*ndim));
         for i = 1:6
             for dd = 1:2
@@ -375,8 +375,8 @@ for el = 1:nElements
         else
             GPInfo(el,gp).Weight = GPInfo(el,gp).Weight*(25/96);
         end
-            
-            
+        
+        
         GPInfo(el,gp).B = B;
         GPInfo(el,gp).dN_dX = dN_dX;
         GPInfo(el,gp).N = Nsmall';
