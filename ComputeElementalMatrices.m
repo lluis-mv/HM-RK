@@ -6,6 +6,8 @@ if ( all(ElementType == 'T3T3') )
     [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP);
 elseif ( all(ElementType == 'T6T6') )
     [GPInfo] = ComputeElementalMatricesT6T6(Nodes, Elements, CP);
+elseif ( all(ElementType == 'T6T3') )
+    [GPInfo] = ComputeElementalMatricesT6T3(Nodes, Elements, CP);
 end
 
 hola = 1;
@@ -231,7 +233,13 @@ for el = 1:nElements
         he = sqrt(2)*he;
         he = 4/he;
         
-        Ms = zeros(6,6);
+        Ms = 1/150*[   1, 1/3, 1/3,   -1,  1/3,   -1;
+            1/3,   1, 1/3,   -1,   -1,  1/3;
+            1/3, 1/3,   1,  1/3,   -1,   -1;
+            -1,  -1, 1/3,  7/3, -1/3, -1/3;
+            1/3,  -1,  -1, -1/3,  7/3, -1/3;
+            -1, 1/3,  -1, -1/3, -1/3,  7/3];
+
         
         GPInfo(el,gp).Weight = Area/3;
         GPInfo(el,gp).B =B;
@@ -264,8 +272,7 @@ end
 
 
 
-
-function [GPInfo] = ComputeElementalMatricesT6T7(Nodes, Elements, CP)
+function [GPInfo] = ComputeElementalMatricesT6T3(Nodes, Elements, CP)
 
 
 
@@ -298,7 +305,7 @@ D = De([1,2,4], [1,2,4]);
 
 
 for el = 1:nElements
-    for gp = 1:4
+    for gp = 1:3
         
         Cel = Elements(el,:);
         X = Nodes(Cel,:);
@@ -315,14 +322,15 @@ for el = 1:nElements
         
         
         if ( gp == 1)
-            alfa = 1/3; beta = 1/3;
+            alfa = 2/3; beta = 1/6;
         elseif ( gp == 2)
-            alfa = 3/5; beta = 1/5;
+            alfa = 1/6; beta = 1/6;
         elseif ( gp == 3)
-            alfa = 1/5; beta = 3/5;
-        elseif ( gp == 4)
-            alfa = 1/5; beta = 1/5;
+            alfa = 1/6; beta = 2/3;
         end
+        
+        NsmallP =  [ 1 - alfa - beta; alfa;  beta];
+        Nsmall_chiP = [-1 -1; 1 0; 0 1];
         
         Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
             alfa*(2*alfa-1);
@@ -345,7 +353,7 @@ for el = 1:nElements
             end
         end
         J = Nsmall_chi'*X;
-        dN_dX = inv(J)*Nsmall_chi';
+        dN_dX = J\Nsmall_chi';
         
         B = [];
         for i = 1:6
@@ -356,32 +364,17 @@ for el = 1:nElements
         
         Area = det(J)/2;
         
-        he = 0;
-        for i = 1:3
-            aux = 0;
-            for j = 1:2
-                aux = aux + dN_dX(j,i);
-            end
-            he = he + abs(aux);
-        end
-        he = sqrt(2)*he;
-        he = 4/he;
-        
-        Ms = zeros(6,6);
-        
-        GPInfo(el,gp).Weight = Area*2;
-        if ( gp == 1)
-            GPInfo(el,gp).Weight = GPInfo(el,gp).Weight*(-9/32);
-        else
-            GPInfo(el,gp).Weight = GPInfo(el,gp).Weight*(25/96);
-        end
         
         
-        GPInfo(el,gp).B = B;
-        GPInfo(el,gp).dN_dX = dN_dX;
-        GPInfo(el,gp).N = Nsmall';
+         Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
+
+        
+        GPInfo(el,gp).Weight = Area/3;
+        GPInfo(el,gp).B =B;
+        GPInfo(el,gp).dN_dX = J\Nsmall_chiP';
+        GPInfo(el,gp).N = NsmallP';
         GPInfo(el,gp).Nu = Nu;
-        GPInfo(el,gp).he = he;
+
         GPInfo(el,gp).Ms = Ms;
         GPInfo(el,gp).D = D;
         GPInfo(el,gp).D6 = De;
@@ -404,5 +397,7 @@ for el = 1:nElements
         GPInfo(el,gp).IndexReorder = [1,2,13, 3,4,14, 5,6,15, 7,8,16, 9,10,17, 11,12,18];
     end
 end
+
+
 
 

@@ -3,19 +3,19 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-3;
+T = 1E-2;
 
 
-CP.E = 100000;
+CP.E = 1000;
 CP.nu = 0.3;
-CP.k = 1E-1;
+CP.k = 1E-2;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 t = T/CP.M/CP.k;
 
 
-eSize = 4;
+eSize = 0.05;
 
 model = createpde(1);
 
@@ -50,39 +50,47 @@ for nSteps = NSteps
     [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
     
     if ( firstTime)
-        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo,U);
+        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, 'T3T3', t, CP, GPInfo,U);
     end
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt/2, 2*nSteps, 'T6T6');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6');
     if ( firstTime)
-        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2, t, CP, GPInfo,U);
-        firstTime = false;
+        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T6',  t, CP, GPInfo,U);
     end
     [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa2, Nodes2, Elements2, GPInfo, CP);
+    
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt/2, 2*nSteps, 'T6T3');
+    if ( firstTime)
+        [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
+        firstTime = false;
+    end
+    [L2g(i), L2Ug(i), LInfg(i), LInfUg(i)] = ComputeErrorNorms(U, Xa3, Nodes2, Elements2, GPInfo, CP);
+    
+    
     
     
     figure(99)
     subplot(2,2,1)
-    loglog( NSteps(1:i), L2, 'b*-.', NSteps(1:i), L2i, 'r*-.')
+    loglog( NSteps(1:i), L2, 'b*-.', NSteps(1:i), L2i, 'r*-.',  NSteps(1:i), L2g, 'g*-.')
     xlabel('nSteps')
     ylabel('L2');
     
     
     subplot(2,2,2)
-    loglog( NSteps(1:i), LInf, 'b*-.', NSteps(1:i), LInfi, 'r*-.')
+    loglog( NSteps(1:i), LInf, 'b*-.', NSteps(1:i), LInfi, 'r*-.', NSteps(1:i), LInfg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf');
     
     
     subplot(2,2,3)
-    loglog( NSteps(1:i), L2U, 'b*-.', NSteps(1:i), L2Ui, 'r*-.')
+    loglog( NSteps(1:i), L2U, 'b*-.', NSteps(1:i), L2Ui, 'r*-.', NSteps(1:i), L2Ug, 'g*-.')
     xlabel('nSteps')
     ylabel('L2 u');
     
     
     subplot(2,2,4)
-    loglog( NSteps(1:i), LInfU, 'b*-.',  NSteps(1:i), LInfUi, 'r*-.')
+    loglog( NSteps(1:i), LInfU, 'b*-.',  NSteps(1:i), LInfUi, 'r*-.',  NSteps(1:i), LInfUg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf u');
     
@@ -94,11 +102,11 @@ end
 
 
 
-function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo, Xnum)
+function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, Xnum)
 Xa = 0*Xnum;
 
 % analytical solution
-[Ca, Ka ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, 3, false, 0);
+[Ca, Ka ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 3, false, 0);
 
 [Ca, Ka, X0, ~] = ApplyBoundaryConditions(Nodes, Elements, Ca, Ka);
 

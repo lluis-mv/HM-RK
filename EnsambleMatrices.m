@@ -1,12 +1,9 @@
 % Ensamble elemtal matrices to create C and K
 % Compute the stabilization factor
 
-function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, implicit, AlphaStabM, a, b)
+function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, dt, implicit, AlphaStabM, a, b)
 
-if (nargin == 5)
-    implicit = false;
-    AlphaStabM = 1;
-elseif (nargin == 6)
+if (nargin == 7)
     AlphaStabM = 1;
 end
 
@@ -30,29 +27,51 @@ for el = 1:nElements
         Q = GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;
         H = -GPInfo(el,ngp).dN_dX'*perme*GPInfo(el,ngp).dN_dX;
     
-        he1 = GPInfo(el,ngp).Weight
-        he = sqrt(GPInfo(el,ngp).Weight)
+        
+        he = sqrt(GPInfo(el,ngp).Weight);
    
-        AlphaStab = 8*perme*dt/he^2;
-        if ( implicit)
-            AlphaStab = -0.65*perme*dt/he^2;
-    
-            if (AlphaStab < 0)
-                AlphaStab = 0;
+        if (all(ElementType == 'T3T3'))
+        
+            AlphaStab = 8*perme*dt/he^2;
+            if ( implicit)
+                AlphaStab = -0.65*perme*dt/he^2;
+
+                if (AlphaStab < 0)
+                    AlphaStab = 0;
+                end
             end
+        elseif ( all(ElementType == 'T6T6'))
+            he = sqrt( sum( [GPInfo(el,:).Weight]) );
+            AlphaStab = 80000*perme*dt/he^2;
+        elseif ( all(ElementType == 'T6T3'))
+            AlphaStab = 8*perme*dt/he^2; 
+        else
+            error('this element does not exist. yet')
         end
-        if (nargin == 9)
+        if (nargin == 10)
             AlphaStab = a/ConstModulus;%+b*perme*dt/he^2;
         end
 
         AlphaStab = AlphaStab*AlphaStabM;
-
+        
 
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
-        Ce = [kke, Q; -Q', Ms];
-
-
-        Ke = [0*kke, 0*Q; 0*Q', H];
+        
+        if ( all(ElementType=='T6T3') )
+            Q2 = [-Q'; zeros(3,12)];
+            Ms = [Ms, zeros(3,3);
+                1,1,0,-2,0,0;
+                 0, 1, 1, 0 ,-2, 0;
+                 1, 0, 1, 0, 0, -2];
+            Ce = [kke, Q, zeros(12,3); Q2, Ms];
+            H = [H, zeros(3,3);
+                zeros(3,6)];
+            Ke = [zeros(12,18); 0*Q2, H];
+        else
+        
+            Ce = [kke, Q; -Q', Ms];
+            Ke = [0*kke, 0*Q; 0*Q', H];
+        end
 
         aux = GPInfo(el,ngp).IndexReorder;
 

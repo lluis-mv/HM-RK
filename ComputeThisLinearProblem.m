@@ -11,12 +11,15 @@ nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false);
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, dt, false);
 
 
 [C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
 
-[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, dt, false, 1, 2, 0);
+
+
+
+[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, dt, false, 1, 2, 0);
 
 [C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K2);
 

@@ -11,8 +11,9 @@ N =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
     4*alfa*beta;
     4*beta*(1-alfa-beta)];
 
-
+xx = sym('x', [18,1], 'real')
 Na = [a,a,a,b,b,b]';
+Na = xx(1:6) + xx(7:12)*alfa+xx(13:18)*beta;
 
 term = Na*(N-Na)'
 
@@ -20,6 +21,32 @@ I = int(term, beta, [0, 1-alfa]);
 I = int(I, alfa, [0, 1])
 
 
+I = reshape(I, 36,1);
+
+
+aa = linspace(0,1,10);
+bb  = linspace(0,1,10);
+[aa,bb] = meshgrid(aa,bb);
+for i = 1:size(aa,1)
+    for j = 1:size(bb,1)
+        if ( bb(i,j) < 1-aa(i,j))
+            m = subs( sum(Na), alfa, aa(i,j));
+            m = subs(m, beta,  bb(i,j));
+            I = [I; (m-1)];
+        end
+    end
+end
+
+for i = 1:size(I,1)
+    for j = 1:length(xx)
+        J(i,j) = diff( I(i), xx(j));
+    end
+end
+
+I = matlabFunction(I, 'file', 'residual');
+J = matlabFunction(J, 'file', 'jacobian');
+
+return;
 
 
 % Numerical integral

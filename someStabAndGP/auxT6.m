@@ -13,9 +13,7 @@ a4 = [1/3,3/5,1/5,1/5];
 b4 = [1/3,1/5,3/5,1/5];
 w4 = [-27/96, 25/96*ones(1,3)];
 
-a7 = [0, 0.5, 1, 0.5, 0,   0, 1/3];
-b7 = [0,   0, 0, 0.5, 1, 1/3, 1/3];
-w7 = [1/40, 1/15, 1/40, 1/15, 1/40, 1/15, 9/40];
+
 
 wa = 0.054975871827661;
 wb = 0.1116907948390055;
@@ -46,14 +44,14 @@ wK = auxK(:,3)';
 [Mk] = Integrate2(aK,bK,wK)
 
 
-M7 = Integrate2(a7, b7, w7)
+
 
 
 
 Ma = IntegrateA();
 Ma = eval(Ma)
 
-M = IntegrateHardMethod()
+% M = IntegrateHardMethod()
 
 hola = 1;
 
@@ -61,6 +59,10 @@ function [M] = Integrate2(a,b,w)
 
 M = zeros(6,6);
 
+x0 = [ 2/5, -1/5, -1/5, 3/5, -1/5, 3/5 -3/5, 3/5, 0, 0, 4/5, -4/5 -3/5, 0, 3/5, -4/5, 4/5, 0]';
+ap = x0(1:6);
+bp = x0(7:12);
+cp = x0(13:18);
 
 for i = 1:length(w)
     alfa = a(i);
@@ -71,8 +73,11 @@ for i = 1:length(w)
         4*alfa*(1-alfa-beta);
         4*alfa*beta;
         4*beta*(1-alfa-beta)];
-  
-    M = M + N*N'*w(i);
+    Na = ap+bp*alfa+cp*beta;
+    
+    term = N*N'-Na*Na';
+    
+    M = M + term*w(i);
 end
 
 
@@ -81,7 +86,12 @@ end
 
 function [M] = IntegrateHardMethod
 
-
+    x0 = [ 2/5, -1/5, -1/5, 3/5, -1/5, 3/5, ...
+    -3/5, 3/5, 0, 0, 4/5, -4/5 ...
+    -3/5, 0, 3/5, -4/5, 4/5, 0]';
+ap = x0(1:6);
+bp = x0(7:12);
+cp = x0(13:18);
 ns = 10000
 i = 0;
 M = zeros(6,6);
@@ -98,9 +108,11 @@ while (i<ns)
         4*alfa*beta;
         4*beta*(1-alfa-beta)];
     
-    
-   
-    M = M + N*N'/ns*0.5;
+
+Na = ap+bp*alfa+cp*beta;
+
+   term = N*N'-Na*Na';
+    M = M + term/ns*0.5;
     i = i+1;
 end
 
@@ -120,8 +132,14 @@ N =  [ (1 - alfa - betta)*(1-2*alfa-2*betta);
     4*alfa*betta;
     4*betta*(1-alfa-betta)];
 
+x0 = [ 2/5, -1/5, -1/5, 3/5, -1/5, 3/5, ...
+    -3/5, 3/5, 0, 0, 4/5, -4/5 ...
+    -3/5, 0, 3/5, -4/5, 4/5, 0]';
+ap = x0(1:6);
+bp = x0(7:12);
+cp = x0(13:18);
+Na = ap+bp*alfa+cp*betta;
 
-
-
-M = int(N*N', betta, [0, 1-alfa]);
+term =N*(N)'-Na*Na';
+M = int(term, betta, [0, 1-alfa]);
 M = int(M, alfa, [0, 1]);

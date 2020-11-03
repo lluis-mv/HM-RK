@@ -1,11 +1,12 @@
-function x = aux2()
+function [] = aux2()
 
 global RES
 RES = [];
 
 
 
-x = [ones(3,1); zeros(15,1)];
+x = [121*ones(3,1); zeros(15,1)];
+% x = rand(18,1)
 load('thisVar.mat')
 yy = ComputeThisError(x)
 fun = @(x) ComputeThisError(x);
@@ -15,9 +16,10 @@ y = ComputeThisError(x)
 
 for i = 1:30
     [x, f] = fminsearch( fun, x);
-    x(7:18) = 0;
+%     x(7:18) = 0;
     f
     hola = x*6;
+    x(7:18) = 0;
     
 end
 x
@@ -69,21 +71,22 @@ for i = 1:length(wW)
          Na = (a + b*alfa + c*beta);
 
          term = Na*(N-Na)';
+         
          A = A + term*wW(i);
 end
+% A = A(4:6,:);
+Y = norm(A);
+% return;
 
-Y = 30*norm(A);
 
-
-
-x = linspace(0,1,24);
-y = linspace(0,1,40);
+x = linspace(0,1,3);
+y = linspace(0,1,3);
 [x,y] = meshgrid(x,y);
 for i = 1:size(x,1)
     for j = 1:size(x,2)
         if ( y(i,j) < 1-x(i,j))
             this = EvalPol(xx, x(i,j), y(i,j))-1;
-            Y = Y + norm(this)^2;
+            Y = Y + norm(this);
         end
     end
 end
