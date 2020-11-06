@@ -44,15 +44,25 @@ i = 1;
 
 firstTime = true;
 
+
 for nSteps = NSteps
     dt = t/nSteps;
     
     [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
     
+    figure(904)
+    plot(U(3:3:end), Nodes(:,2), 'b*')
+    
+    figure(905)
+    plot(U(2:3:end), Nodes(:,2), 'b*')
+    
+    
     if ( firstTime)
         [Xa] = ComputeAnalyticalSolution(Nodes, Elements, 'T3T3', t, CP, GPInfo,U);
     end
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
+    
+    
     
     [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6');
     if ( firstTime)
@@ -60,12 +70,33 @@ for nSteps = NSteps
     end
     [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa2, Nodes2, Elements2, GPInfo, CP);
     
+    figure(904)
+    hold on
+    plot(U(3:3:end), Nodes2(:,2), 'r*')
+    
+    
+    figure(905)
+    hold on
+    plot(U(2:3:end), Nodes2(:,2), 'r*')
+    
+    
+    
     [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt/2, 2*nSteps, 'T6T3');
     if ( firstTime)
         [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
         firstTime = false;
     end
     [L2g(i), L2Ug(i), LInfg(i), LInfUg(i)] = ComputeErrorNorms(U, Xa3, Nodes2, Elements2, GPInfo, CP);
+    
+    figure(904)
+    hold on
+    plot(U(3:3:end), Nodes2(:,2), 'g*')
+    hold off
+    
+    figure(905)
+    hold on
+    plot(U(2:3:end), Nodes2(:,2), 'g*')
+    hold off
     
     
     

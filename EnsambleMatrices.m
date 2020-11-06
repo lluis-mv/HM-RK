@@ -42,7 +42,7 @@ for el = 1:nElements
             end
         elseif ( all(ElementType == 'T6T6'))
             he = sqrt( sum( [GPInfo(el,:).Weight]) );
-            AlphaStab = 80000*perme*dt/he^2;
+            AlphaStab = 80*perme*dt/he^2;
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*perme*dt/he^2; 
         else
