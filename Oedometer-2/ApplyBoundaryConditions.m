@@ -49,11 +49,6 @@ X0 = zeros(3*nNodes, 1);
 f = zeros(3*nNodes, 1);
 
 
-
-
-
-
-
 if (size(Elements,2) == 3)
     for el = 1:nElements
         Cel = Elements(el,:);

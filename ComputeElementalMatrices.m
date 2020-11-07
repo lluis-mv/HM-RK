@@ -52,9 +52,11 @@ for el = 1:nElements
     
     dofs = [];
     dofsU = [];
+    dofsWP = [];
     for ii = 1:length(Cel)
         dofs = [ dofs, (Cel(ii)-1)*3 + [1,2,3] ];
         dofsU = [ dofsU, (Cel(ii)-1)*3 + [1,2] ];
+        dofsWP = [ dofsWP, ((Cel(ii)-1)*3 +3)];
     end
     
     
@@ -124,6 +126,7 @@ for el = 1:nElements
     
     GPInfo(el).dofs = dofs;
     GPInfo(el).dofsU = dofsU;
+    GPInfo(el).dofsWP = dofsWP;
     GPInfo(el).IndexReorder = [1,2,7,3,4,8,5,6,9];
     
 end
@@ -174,9 +177,11 @@ for el = 1:nElements
         
         dofs = [];
         dofsU = [];
+        dofsWP = [];
         for ii = 1:length(Cel)
             dofs = [ dofs, (Cel(ii)-1)*3 + [1,2,3] ];
             dofsU = [ dofsU, (Cel(ii)-1)*3 + [1,2] ];
+            dofsWP = [ dofsWP, ((Cel(ii)-1)*3 + 3) ];
         end
         
         
@@ -272,6 +277,7 @@ for el = 1:nElements
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;
+        GPInfo(el,gp).dofsWP = dofsWP;
         GPInfo(el,gp).IndexReorder = [1,2,13, 3,4,14, 5,6,15, 7,8,16, 9,10,17, 11,12,18];
     end
 end
@@ -321,9 +327,11 @@ for el = 1:nElements
         
         dofs = [];
         dofsU = [];
+        dofsWP = [];
         for ii = 1:length(Cel)
             dofs = [ dofs, (Cel(ii)-1)*3 + [1,2,3] ];
             dofsU = [ dofsU, (Cel(ii)-1)*3 + [1,2] ];
+            dofsWP = [ dofsWP, ((Cel(ii)-1)*3 + 3) ];
         end
         
         
@@ -400,6 +408,7 @@ for el = 1:nElements
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;
+        GPInfo(el,gp).dofsWP = dofsWP(1:3); % Those relevant to compute internal forces,... blahblah
         GPInfo(el,gp).IndexReorder = [1,2,13, 3,4,14, 5,6,15, 7,8,16, 9,10,17, 11,12,18];
     end
 end

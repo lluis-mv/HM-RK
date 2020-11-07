@@ -29,11 +29,6 @@ geometryFromEdges(model, g);
 
 mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
 
-% figure(1)
-% pdeplot(model)
-% drawnow
-
-
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 

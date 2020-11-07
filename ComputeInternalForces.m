@@ -21,13 +21,15 @@ for el = 1:nElements
 
         %f(index) = f(index) + GPInfo(el).B'*( GPInfo(el).StressNew([1,2,4]) + m*pw)*GPInfo(el).Weight;
         
+        
+        wP = GPInfo(el, gp).N * X( GPInfo(el,gp).dofsWP );
+        
         index = GPInfo(el,gp).dofsU;
         
-        f(index) = f(index) + GPInfo(el,gp).B'*( GPInfo(el,gp).StressNew([1,2,4]) )*GPInfo(el,gp).Weight;
+        f(index) = f(index) + GPInfo(el,gp).B'*( GPInfo(el,gp).StressNew([1,2,4]) +wP*m )*GPInfo(el,gp).Weight;
         
 
     end
 end
 
 
-disp('he de fer aquesta funció, saps....')

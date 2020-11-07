@@ -102,46 +102,27 @@ fprintf(fid, ' END values \n ');
 
 
 
-fclose(fid);
-
-return;
-
-
-
-fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
-fprintf(fid, ' values \n ');
-
-
-
-
-
-fprintf(fid, ['Result "ALMANSI_STRAIN_TENSOR" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+fprintf(fid, ['Result "Strain_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
 fprintf(fid, ' values \n ');
 for i = 1:nElem
-    Celem = T(i,:);
-    [S1, S2, S3, S4] = ComputeAlmansi( X(Celem, :), U(Celem,:));
-    fprintf( fid, '%i %e %e %e %e %e %e \n', [i, S1] );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S2 );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S3 );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S4 );
-end
-
-
-fprintf(fid, ['Result "difference_strain_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
-fprintf(fid, ' values \n ');
-for i = 1:nElem
-    Celem = T(i,:);
-    [S1, S2, S3, S4] = ComputeDifference( X(Celem, :), U(Celem,:));
-    fprintf( fid, '%i %e %e %e %e %e %e \n', [i, S1] );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S2 );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S3 );
-    fprintf( fid, '   %e %e %e %e %e %e \n', S4 );
+    fprintf( fid, '%i %e %e %e %e %e %e \n', [i; GPInfo(i,1).StrainNew] );
+    for j = 2:size(GPInfo,2)
+        fprintf( fid, '   %e %e %e %e %e %e \n', GPInfo(i,j).StrainNew );
+    end
 end
 fprintf(fid, ' END values \n ');
 
+if ( length(GPInfo(1,1).HistoryNew) > 0)
+    fprintf(fid, ['Result "Preconsolidation" "HM-RK" ', time,'  Scalar OnGaussPoints "GP" \n ']);
+    fprintf(fid, ' values \n ');
+    for i = 1:nElem
+        fprintf( fid, '%i %e  \n', [i; GPInfo(i,1).HistoryNew(1)] );
+        for j = 2:size(GPInfo,2)
+            fprintf( fid, '   %e  \n', GPInfo(i,j).HistoryNew(1) );
+        end
+    end
+    fprintf(fid, ' END values \n ');
+end
 
 fclose(fid);
 
-%system(['mv a', XFILE, '.res ',  XFILE, '.res ']);
-movefile(['a', XFILE, '.msh '],  [XFILE, '.msh ']);
-movefile(['a', XFILE, '.res '],  [XFILE, '.res ']);
