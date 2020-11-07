@@ -24,6 +24,9 @@ nElements = size(Elements, 1);
 [C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K2);
 
 
+PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+
+
 A = C\(K);
 ii = eye(3*nNodes, 3*nNodes);
 B = ii+dt*A;
@@ -32,15 +35,15 @@ invCf = (C2\f);
 invCfini = (C2\fini);
 
 X = B*X+invCfini;
-hola = 1;
+
 for i = 2:nSteps
     X = B*X + (1/nSteps)* invCf;
 end
 
-
-
-% Linear, 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);
+PostProcessResults(Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+
+
 
 

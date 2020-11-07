@@ -239,7 +239,13 @@ for el = 1:nElements
             -1,  -1, 1/3,  7/3, -1/3, -1/3;
             1/3,  -1,  -1, -1/3,  7/3, -1/3;
             -1, 1/3,  -1, -1/3, -1/3,  7/3];
-
+        
+        Ms = 1/360*[  6, -1, -1,  0, -4,  0;
+            -1,  6, -1,  0,  0, -4;
+            -1, -1,  6, -4,  0,  0;
+            0,  0, -4, 12, -4, -4;
+            -4,  0,  0, -4, 12, -4;
+            0, -4,  0, -4, -4, 12];
         
         GPInfo(el,gp).Weight = Area/3;
         GPInfo(el,gp).B =B;
@@ -366,15 +372,15 @@ for el = 1:nElements
         
         
         
-         Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
-
+        Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
+        
         
         GPInfo(el,gp).Weight = Area/3;
         GPInfo(el,gp).B =B;
         GPInfo(el,gp).dN_dX = J\Nsmall_chiP';
         GPInfo(el,gp).N = NsmallP';
         GPInfo(el,gp).Nu = Nu;
-
+        
         GPInfo(el,gp).Ms = Ms;
         GPInfo(el,gp).D = D;
         GPInfo(el,gp).D6 = De;

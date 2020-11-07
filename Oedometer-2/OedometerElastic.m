@@ -4,7 +4,7 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-2;
+T = 4E-2;
 
 
 CP.E = 100;
@@ -18,10 +18,11 @@ t = T/CP.M/CP.k;
 
 eSize = 0.015;
 eSize = 0.015;
+eSize = 0.03;
 % eSize = 0.0075;
 model = createpde(1);
 
-dx = 0.05; dy = 1;
+dx = 0.1; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -36,6 +37,10 @@ mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
+mesh = generateMesh(model, 'Hmax', eSize);
+
+Nodes2 = mesh.Nodes';
+Elements2 = mesh.Elements';
 
 
 
@@ -46,43 +51,93 @@ NSteps = floor(NSteps); NSteps = sort(NSteps);
 i = 1;
 
 firstTime = true;
+% NSteps = 1000;
 
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps);   
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
+    figure(904)
+    plot(U(3:3:end), Nodes(:,2), 'b*')
+    
+    figure(905)
+    plot(U(2:3:end), Nodes(:,2), 'b*')
+    
     
     if ( firstTime)
-        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo,U);
-        firstTime = false;
+        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, 'T3T3', t, CP, GPInfo,U);
+        
+        
     end
+    figure(905)
+    hold on
+    plot( Xa(2:3:end), Nodes(:,2), 'ms')
+    figure(904)
+    hold on
+    plot( Xa(3:3:end), Nodes(:,2), 'ms')
+    drawnow
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
     
-    [U,GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps);   
-    [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
+    
+    
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6');
+    if ( firstTime)
+        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T6',  t, CP, GPInfo,U);
+    end
+    [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa2, Nodes2, Elements2, GPInfo, CP);
+    
+    figure(904)
+    hold on
+    plot(U(3:3:end), Nodes2(:,2), 'r*')
+    
+    
+    figure(905)
+    hold on
+    plot(U(2:3:end), Nodes2(:,2), 'r*')
+    
+    
+    
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3');
+    if ( firstTime)
+        [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
+        firstTime = false;
+    end
+    [L2g(i), L2Ug(i), LInfg(i), LInfUg(i)] = ComputeErrorNorms(U, Xa3, Nodes2, Elements2, GPInfo, CP);
+    
+    figure(904)
+    hold on
+    plot(U(3:3:end), Nodes2(:,2), 'g*')
+    hold off
+    
+    figure(905)
+    hold on
+    plot(U(2:3:end), Nodes2(:,2), 'g*')
+    hold off
+    
+    
     
     
     figure(99)
     subplot(2,2,1)
-    loglog( NSteps(1:i), L2, 'b*-.', NSteps(1:i), L2i, 'r*-.')
+    loglog( NSteps(1:i), L2, 'b*-.', NSteps(1:i), L2i, 'r*-.',  NSteps(1:i), L2g, 'g*-.')
     xlabel('nSteps')
     ylabel('L2');
     
     
     subplot(2,2,2)
-    loglog( NSteps(1:i), LInf, 'b*-.', NSteps(1:i), LInfi, 'r*-.')
+    loglog( NSteps(1:i), LInf, 'b*-.', NSteps(1:i), LInfi, 'r*-.', NSteps(1:i), LInfg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf');
     
     
     subplot(2,2,3)
-    loglog( NSteps(1:i), L2U, 'b*-.', NSteps(1:i), L2Ui, 'r*-.')
+    loglog( NSteps(1:i), L2U, 'b*-.', NSteps(1:i), L2Ui, 'r*-.', NSteps(1:i), L2Ug, 'g*-.')
     xlabel('nSteps')
     ylabel('L2 u');
     
     
     subplot(2,2,4)
-    loglog( NSteps(1:i), LInfU, 'b*-.',  NSteps(1:i), LInfUi, 'r*-.')
+    loglog( NSteps(1:i), LInfU, 'b*-.',  NSteps(1:i), LInfUi, 'r*-.',  NSteps(1:i), LInfUg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf u');
     
@@ -94,7 +149,7 @@ end
 
 
 
-function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, t, CP, GPInfo, Xnum)
+function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, Xnum)
 Xa = 0*Xnum;
 % Other analytical solution...
 nNodes = size(Nodes,1);
@@ -111,6 +166,21 @@ for nod = 1:nNodes
     Xa(3*(nod-1)+3) = pw;
 end
 
+
+
+
+for nod = 1:nNodes
+    z= 1-Nodes(nod,2);
+    
+    uu = z-1;
+    
+    for m = 0:100
+        
+        term = +(exp(-(TT*pi^2*(2*m + 1)^2)/4)*(8*sin(pi*m) + 8*cos((z*pi*(2*m + 1))/2)))/(pi^2*(2*m + 1)^2);
+        uu = uu+term;
+    end
+    Xa(3*(nod-1)+2) = uu/M;
+end
 
 
 
@@ -134,6 +204,7 @@ end
 L2 = 0;
 L2U = 0;
 
+return;
 
 alfa = 2/3; beta = 1/6;
 N1 = [ 1 - alfa - beta, alfa,  beta];

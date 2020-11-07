@@ -81,7 +81,7 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt/2, 2*nSteps, 'T6T3');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3');
     if ( firstTime)
         [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
         firstTime = false;

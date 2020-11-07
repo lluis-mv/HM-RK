@@ -11,14 +11,20 @@ N =  [ (1 - alfa - betta)*(1-2*alfa-2*betta);
     4*betta*(1-alfa-betta)];
 
 a = [1, alfa, betta]';
-
+a = [1]
 De = IntegrateThis(a*a');
 Ee = IntegrateThis(a*N');
 
 
 Projection = Ee'*inv(De)*a;
 
-this = IntegrateThis( Projection*(N-Projection)')
+thisCheck = IntegrateThis( Projection*(N-Projection)')
+
+Ms = IntegrateThis( N*N' - Projection*(Projection)')
+
+Ms2 = IntegrateThis( (N-Projection)*(N- Projection)')
+
+hola = 1;
 
 function RES = IntegrateThis(f)
 syms betta real

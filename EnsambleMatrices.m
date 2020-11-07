@@ -46,6 +46,7 @@ for el = 1:nElements
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*perme*dt/he^2; 
         else
+            disp(ElementType)
             error('this element does not exist. yet')
         end
         if (nargin == 10)
