@@ -26,7 +26,7 @@ for el = 1:nElements
         
         index = GPInfo(el,gp).dofsU;
         
-        f(index) = f(index) + GPInfo(el,gp).B'*( GPInfo(el,gp).StressNew([1,2,4]) +wP*m )*GPInfo(el,gp).Weight;
+        f(index) = f(index) + GPInfo(el,gp).B'*( GPInfo(el,gp).StressNew([1,2,4]) - wP*m )*GPInfo(el,gp).Weight;
         
 
     end

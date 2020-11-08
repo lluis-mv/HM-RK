@@ -79,7 +79,7 @@ for el = 1:nElements
     
     B = [];
     for i = 1:3
-        b = [-dN_dX(1,i), 0; 0, -dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+        b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
         B = [B, b];
     end
     
@@ -220,7 +220,7 @@ for el = 1:nElements
         
         B = [];
         for i = 1:6
-            b = [-dN_dX(1,i), 0; 0, -dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
             B = [B, b];
         end
         
@@ -371,7 +371,7 @@ for el = 1:nElements
         
         B = [];
         for i = 1:6
-            b = [-dN_dX(1,i), 0; 0, -dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
             B = [B, b];
         end
         

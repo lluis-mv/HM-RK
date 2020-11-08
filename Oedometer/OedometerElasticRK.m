@@ -15,7 +15,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.03;
+eSize = 0.04;
 
 model = createpde(1);
 
@@ -39,6 +39,7 @@ Elements2 = mesh.Elements';
 
 NSteps = 10.^linspace(0, 5, 8);
 NSteps = 10.^linspace(0, 3.8, 8);
+NSteps = 10.^[0:4];
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 
 
@@ -49,7 +50,8 @@ figure(99)
 for i = 1:4; subplot(2,2,i); hold off; end
 
 
-for RKMethod = [1:8]
+% for RKMethod = [1:8]
+for RKMethod = [1]
     
     
     i = 1;

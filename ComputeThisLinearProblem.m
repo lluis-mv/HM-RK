@@ -19,7 +19,7 @@ nElements = size(Elements, 1);
 
 
 
-[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, 1, 2, 0);
+[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, 1, -2, 0);
 
 [C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K2);
 
@@ -36,7 +36,7 @@ if ( RKMethod)
     [a,b] = GetRungeKutta(RKMethod);
 end
 
-
+% C2 = C;
 invCf = (C2\f);
 invCfini = (C2\fini);
 
@@ -47,7 +47,7 @@ for i = 1:length(b)
     for j = 1:i-1
         XStep = XStep + dt*a(i,j)*k(:,j);
     end
-    k(:,i) = A*XStep + invCfini;
+    k(:,i) = A*XStep + invCfini/dt;
 end
 XNew = X;
 for i = 1:length(b)
@@ -66,7 +66,7 @@ for t = 2:nSteps
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-        k(:,i) = A*XStep + (1/nSteps)*invCf;
+        k(:,i) = A*XStep + invCf/dt;
     end
     XNew = X;
     for i = 1:length(b)

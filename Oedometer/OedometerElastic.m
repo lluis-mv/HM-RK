@@ -48,7 +48,7 @@ firstTime = true;
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
     
     figure(904)
     plot(U(3:3:end), Nodes(:,2), 'b*')
@@ -64,7 +64,7 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6', 1);
     if ( firstTime)
         [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T6',  t, CP, GPInfo,U);
     end
@@ -81,7 +81,7 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3', 1);
     if ( firstTime)
         [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
         firstTime = false;

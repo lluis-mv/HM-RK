@@ -4,12 +4,13 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 4E-2;
+T = 4E-3;
 
 
 CP.E = 100;
 CP.nu = 0.3;
 CP.k = 1E-3;
+
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
@@ -19,6 +20,7 @@ t = T/CP.M/CP.k;
 eSize = 0.015;
 eSize = 0.015;
 eSize = 0.03;
+eSize = 0.04;
 % eSize = 0.0075;
 model = createpde(1);
 
@@ -41,6 +43,7 @@ Elements2 = mesh.Elements';
 
 
 NSteps = 10.^linspace(0, 5, 10);
+NSteps = 10.^[0:4];
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 
 i = 1;
@@ -48,37 +51,48 @@ i = 1;
 firstTime = true;
 % NSteps = 1000;
 
+L2 = NSteps*nan; L2U = NSteps*nan; LInf = NSteps*nan; LInfU = NSteps*nan;
+L2i = NSteps*nan; L2Ui = NSteps*nan; LInfi = NSteps*nan; LInfUi = NSteps*nan;
+L2g = NSteps*nan; L2Ug = NSteps*nan; LInfg = NSteps*nan; LInfUg = NSteps*nan;
+
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 3);
     figure(904)
     plot(U(3:3:end), Nodes(:,2), 'b*')
+    hold on
     
     figure(905)
     plot(U(2:3:end), Nodes(:,2), 'b*')
+    hold on
     
     
     if ( firstTime)
         [Xa] = ComputeAnalyticalSolution(Nodes, Elements, 'T3T3', t, CP, GPInfo,U);
-        
-        
     end
     figure(905)
     hold on
-    plot( Xa(2:3:end), Nodes(:,2), 'ms')
+    plot( Xa(2:3:end), Nodes(:,2), 'bs')
     figure(904)
     hold on
-    plot( Xa(3:3:end), Nodes(:,2), 'ms')
+    plot( Xa(3:3:end), Nodes(:,2), 'bs')
     drawnow
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6', 1);
     if ( firstTime)
         [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T6',  t, CP, GPInfo,U);
     end
+    
+    figure(905)
+    hold on
+    plot( Xa2(2:3:end), Nodes2(:,2), 'rs')
+    figure(904)
+    hold on
+    plot( Xa2(3:3:end), Nodes2(:,2), 'rs')
     [L2i(i), L2Ui(i), LInfi(i), LInfUi(i)] = ComputeErrorNorms(U, Xa2, Nodes2, Elements2, GPInfo, CP);
     
     figure(904)
@@ -92,47 +106,54 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3');
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3', 3);
     if ( firstTime)
         [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
         firstTime = false;
     end
     [L2g(i), L2Ug(i), LInfg(i), LInfUg(i)] = ComputeErrorNorms(U, Xa3, Nodes2, Elements2, GPInfo, CP);
     
-    figure(904)
-    hold on
-    plot(U(3:3:end), Nodes2(:,2), 'g*')
-    hold off
-    
     figure(905)
     hold on
-    plot(U(2:3:end), Nodes2(:,2), 'g*')
-    hold off
+    plot( Xa3(2:3:end), Nodes2(:,2), 'gs')
+    figure(904)
+    hold on
+    plot( Xa3(3:3:end), Nodes2(:,2), 'gs')
     
+    figure(904)
+%     hold on
+%     plot(U(3:3:end), Nodes2(:,2), 'g*')
+    hold off
+%     
+    figure(905)
+%     hold on
+%     plot(U(2:3:end), Nodes2(:,2), 'g*')
+    hold off
+%     
     
     
     
     figure(99)
     subplot(2,2,1)
-    loglog( NSteps(1:i), L2, 'b*-.', NSteps(1:i), L2i, 'r*-.',  NSteps(1:i), L2g, 'g*-.')
+    loglog( NSteps, L2, 'b*-.', NSteps, L2i, 'r*-.',  NSteps, L2g, 'g*-.')
     xlabel('nSteps')
     ylabel('L2');
     
     
     subplot(2,2,2)
-    loglog( NSteps(1:i), LInf, 'b*-.', NSteps(1:i), LInfi, 'r*-.', NSteps(1:i), LInfg, 'g*-.')
+    loglog( NSteps, LInf, 'b*-.', NSteps, LInfi, 'r*-.', NSteps, LInfg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf');
     
     
     subplot(2,2,3)
-    loglog( NSteps(1:i), L2U, 'b*-.', NSteps(1:i), L2Ui, 'r*-.', NSteps(1:i), L2Ug, 'g*-.')
+    loglog( NSteps, L2U, 'b*-.', NSteps, L2Ui, 'r*-.', NSteps, L2Ug, 'g*-.')
     xlabel('nSteps')
     ylabel('L2 u');
     
     
     subplot(2,2,4)
-    loglog( NSteps(1:i), LInfU, 'b*-.',  NSteps(1:i), LInfUi, 'r*-.',  NSteps(1:i), LInfUg, 'g*-.')
+    loglog( NSteps, LInfU, 'b*-.',  NSteps, LInfUi, 'r*-.',  NSteps, LInfUg, 'g*-.')
     xlabel('nSteps')
     ylabel('LInf u');
     
