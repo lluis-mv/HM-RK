@@ -1,9 +1,9 @@
 % Ensamble elemtal matrices to create C and K
 % Compute the stabilization factor
 
-function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, dt, implicit, AlphaStabM, a, b)
+function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, a, b)
 
-if (nargin == 7)
+if (nargin == 8)
     AlphaStabM = 1;
 end
 
@@ -33,6 +33,8 @@ for el = 1:nElements
         if (all(ElementType == 'T3T3'))
         
             AlphaStab = 8*perme*dt/he^2;
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E4*dt*perme/he^2)^(2*RKMethod) ));
+            AlphaStab = 0;
             if ( implicit)
                 AlphaStab = -0.65*perme*dt/he^2;
 
@@ -45,11 +47,12 @@ for el = 1:nElements
             AlphaStab = 80*perme*dt/he^2;
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*perme*dt/he^2; 
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (5*dt*perme/he^2)^(2*RKMethod) ));
         else
             disp(ElementType)
             error('this element does not exist. yet')
         end
-        if (nargin == 10)
+        if (nargin == 11)
             AlphaStab = a/ConstModulus;%+b*perme*dt/he^2;
         end
 
