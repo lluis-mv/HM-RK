@@ -29,7 +29,6 @@ PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', Element
 
 A = C\(K);
 ii = eye(3*nNodes, 3*nNodes);
-B = ii+dt*A;
 
 
 if ( RKMethod)
@@ -66,7 +65,7 @@ for t = 2:nSteps
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-        k(:,i) = A*XStep + invCf/dt;
+         k(:,i) = A*XStep + (1/dt)*invCf;
     end
     XNew = X;
     for i = 1:length(b)

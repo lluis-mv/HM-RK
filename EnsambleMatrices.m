@@ -11,7 +11,7 @@ nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 nSystem = 3*nNodes;
 
-C = zeros(nSystem, nSystem);
+C = sparse(nSystem, nSystem);
 K = C;
 
 
@@ -33,7 +33,8 @@ for el = 1:nElements
         if (all(ElementType == 'T3T3'))
         
             AlphaStab = 8*perme*dt/he^2;
-%             AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E4*dt*perme/he^2)^(2*RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E4*dt*perme/he^2)^(2*RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E5*dt*perme/he^2)^(RKMethod) ));
             if ( implicit)
                 AlphaStab = -0.65*perme*dt/he^2;
 
@@ -46,7 +47,7 @@ for el = 1:nElements
             AlphaStab = 80*perme*dt/he^2;
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*perme*dt/he^2; 
-%             AlphaStab = 8*dt*perme/he^2*(1-exp(- (5*dt*perme/he^2)^(2*RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (500*dt*perme/he^2)^(RKMethod) ));
         else
             disp(ElementType)
             error('this element does not exist. yet')

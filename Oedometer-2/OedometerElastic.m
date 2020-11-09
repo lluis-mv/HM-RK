@@ -20,7 +20,7 @@ t = T/CP.M/CP.k;
 eSize = 0.015;
 eSize = 0.015;
 eSize = 0.03;
-eSize = 0.04;
+eSize = 0.03;
 % eSize = 0.0075;
 model = createpde(1);
 
@@ -58,7 +58,7 @@ L2g = NSteps*nan; L2Ug = NSteps*nan; LInfg = NSteps*nan; LInfUg = NSteps*nan;
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 3);
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
     figure(904)
     plot(U(3:3:end), Nodes(:,2), 'b*')
     hold on
@@ -106,7 +106,7 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3', 3);
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3', 1);
     if ( firstTime)
         [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
         firstTime = false;
