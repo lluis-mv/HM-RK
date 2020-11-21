@@ -7,8 +7,6 @@ nElem = size(C,1);
 for el = 1:nElem
     for gp = 1:size(GPInfo,2)
     
-        Ce = C(el,:);
-    
         nSystem = GPInfo(el,gp).dofsU;
         Uel = U(nSystem);
     
@@ -21,18 +19,16 @@ end
 
 
 
-function GP = EvaluateLaw( GP, implicit)
+function GP = EvaluateLaw( GP, consistent)
 
 if (GP.MCC)
     
     DeltaStrain = GP.StrainNew-GP.StrainPrev;
     
-    
     X = [GP.StressPrev; GP.HistoryPrev];
     
-    %[Xnew, D] = ImplicitCamClay(X, DeltaStrain);
-    [Xnew, Dconsist, D] = ExplicitCamClay(X, DeltaStrain, -1);
-    if (implicit)
+    [Xnew, Dconsist, D] = ExplicitCamClay2(X, DeltaStrain, 3);
+    if (consistent)
         D = Dconsist;
     end
     
@@ -42,6 +38,5 @@ if (GP.MCC)
     GP.D = D([1,2,4], [1,2,4]);
     
 else
-
     GP.StressNew = GP.StressPrev + GP.D6*(GP.StrainNew - GP.StrainPrev);
 end

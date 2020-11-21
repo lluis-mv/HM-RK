@@ -3,7 +3,7 @@ function [] = OedometerElasticRK()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-4;
+T = 1E-3;
 
 
 CP.E = 1000;
@@ -15,11 +15,11 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.02;
+eSize = 0.1;
 
 model = createpde(1);
 
-dx = 0.05; dy = 1;
+dx = 0.2; dy = 1;
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
 geometryFromEdges(model, g);
@@ -37,9 +37,9 @@ Elements2 = mesh.Elements';
 
 
 
-NSteps = 10.^linspace(0, 5, 8);
-NSteps = 10.^linspace(0, 3.8, 8);
-NSteps = 10.^[0:0.5:5];
+NSteps = 10.^linspace(0, 5, 20);
+
+
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 
 
@@ -59,9 +59,10 @@ for RKMethod = 1:8
     for nSteps = NSteps
         
         dt = t/nSteps;
-%         Nodes = Nodes2;
-%         Elements = Elements2;
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', RKMethod);
+        Nodes = Nodes2;
+        Elements = Elements2;
+        ElementType = 'T6T3';
+        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod);
         
         % %         figure(904)
         % %         plot(U(3:3:end), Nodes(:,2), 'b*')
@@ -71,7 +72,7 @@ for RKMethod = 1:8
         
         
         if ( firstTime)
-            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, 'T3T3', t, CP, GPInfo,U);
+            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             firstTime = false;
         end
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);

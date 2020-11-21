@@ -37,13 +37,9 @@ nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 K(dofs,:) = 0;
 C(dofs,dofs) =eye(length(dofs));
-
 X0 = zeros(3*nNodes, 1);
 
-% Fix wp on top
-dofs = 3*(nodesTop-1)+3;
-nDirichlet = [nDirichlet; dofs];
-X0(dofs) = 0;
+
 
 f = zeros(3*nNodes, 1);
 
@@ -110,6 +106,5 @@ elseif (size(Elements,2) == 6)
     end
     
 end
-%fini = f;
-f = f;
 fini = 0*f;
+f = f;

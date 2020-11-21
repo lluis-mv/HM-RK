@@ -41,7 +41,7 @@ for i = 1:nSteps
         
         
         residual = fini + f*(i/nSteps) + f0 - finter;
-        residual = residual;
+        
         % hydraulical part
         res2 = C*(Xn-X)-dt*K*Xn;
         

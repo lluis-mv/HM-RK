@@ -28,13 +28,16 @@ for el = 1:nElements
         H = GPInfo(el,ngp).dN_dX'*perme*GPInfo(el,ngp).dN_dX;
     
         
-        he = sqrt(GPInfo(el,ngp).Weight);
+        he = sqrt( sum([GPInfo(el,:).Weight]));
    
         if (all(ElementType == 'T3T3'))
         
             AlphaStab = 8*perme*dt/he^2;
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E4*dt*perme/he^2)^(2*RKMethod) ));
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E5*dt*perme/he^2)^(RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2)^(RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod ));
+            
             if ( implicit)
                 AlphaStab = -0.65*perme*dt/he^2;
 
@@ -44,10 +47,12 @@ for el = 1:nElements
             end
         elseif ( all(ElementType == 'T6T6'))
             he = sqrt( sum( [GPInfo(el,:).Weight]) );
-            AlphaStab = 80*perme*dt/he^2;
+%             AlphaStab = 80*perme*dt/he^2;
+            AlphaStab = 80*dt*perme/he^2*(1-exp(- (8E7*dt*perme/he^2)^(RKMethod) ));
+            AlphaStab = 80*dt*perme/he^2*(1-exp(- (8E8*dt*perme/he^2)^(RKMethod) ));
+            AlphaStab = 80*dt*perme/he^2*(1-exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         elseif ( all(ElementType == 'T6T3'))
-            AlphaStab = 8*perme*dt/he^2; 
-            AlphaStab = 8*dt*perme/he^2*(1-exp(- (500*dt*perme/he^2)^(RKMethod) ));
+            AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         else
             disp(ElementType)
             error('this element does not exist. yet')

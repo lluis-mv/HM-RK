@@ -58,7 +58,7 @@ L2g = NSteps*nan; L2Ug = NSteps*nan; LInfg = NSteps*nan; LInfUg = NSteps*nan;
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
+    [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
     figure(904)
     plot(U(3:3:end), Nodes(:,2), 'b*')
     hold on
@@ -81,10 +81,14 @@ for nSteps = NSteps
     [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
     
     
+    Nodes2 = Nodes;
+    Elements2 = Elements;
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T6', 1);
+    
+    
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T3T3', 1);
     if ( firstTime)
-        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T6',  t, CP, GPInfo,U);
+        [Xa2] = ComputeAnalyticalSolution(Nodes2, Elements2,'T3T3',  t, CP, GPInfo,U);
     end
     
     figure(905)
@@ -106,9 +110,9 @@ for nSteps = NSteps
     
     
     
-    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3', 1);
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T3T3', 1);
     if ( firstTime)
-        [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T6T3',  t, CP, GPInfo,U);
+        [Xa3] = ComputeAnalyticalSolution(Nodes2, Elements2,'T3T3',  t, CP, GPInfo,U);
         firstTime = false;
     end
     [L2g(i), L2Ug(i), LInfg(i), LInfUg(i)] = ComputeErrorNorms(U, Xa3, Nodes2, Elements2, GPInfo, CP);

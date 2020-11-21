@@ -12,10 +12,6 @@ nElements = size(Elements, 1);
 
 [C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
 
-[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP,  ElementType, trash, dt, false, 1, 2, 0);
-
-[C2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C2, K2);
-
 PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisIProblem-', ElementType]);
 
 A = C\(K);
@@ -23,10 +19,10 @@ ii = eye(3*nNodes, 3*nNodes);
 B = ii-dt*A;
 B = inv(B);
 
-C2 = C;
 
-invCf = (C2\f);
-invCfini = (C2\fini);
+
+invCf = (C\f);
+invCfini = (C\fini);
 
 X = B*(X + invCfini);
 for i = 2:nSteps
