@@ -1,7 +1,11 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod)
+function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, drift)
+
+if ( nargin ~= 8)
+    drift = false;
+end
 
 
 
@@ -26,9 +30,8 @@ GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 
 PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
 
-if (nargout == 3)
-    [f0] = ComputeInternalForces(Elements, GPInfo, X);
-end
+
+[f0] = ComputeInternalForces(Elements, GPInfo, X);
 
 
 for t = 1:nSteps
@@ -61,13 +64,25 @@ for t = 1:nSteps
     
     % Compute stress and D
     GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-    GPInfo = FinalizeConstitutiveLaw(GPInfo);
+    
     %PostProcessResults(Nodes, Elements, X, GPInfo, dt*i, false, ['ThisProblem-', ElementType]);
     
-%     if ( drift)
-%         UnbalancedForces = fini + f*(i/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X);
-%         UnbalancedForces(nDirichlet) = 0;
-%     end
+    if ( drift)
+        UnbalancedForces = fini + f*(t/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X);
+        UnbalancedForces(nDirichlet) = 0;
+        
+        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false);
+        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+        
+        dX =  (C+dt*K)\(UnbalancedForces);
+        
+        X = X + dX;
+        GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+        GPInfo = FinalizeConstitutiveLaw(GPInfo);
+        
+    else
+        GPInfo = FinalizeConstitutiveLaw(GPInfo);
+    end
     
 end
 
