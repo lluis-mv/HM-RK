@@ -46,7 +46,7 @@ for t = 1:nSteps
         % Create again C with the appropriate ElastoPlastic stiffness matrix
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false);
 
-        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
     
         A = C\K;
         invCf = (C\f);

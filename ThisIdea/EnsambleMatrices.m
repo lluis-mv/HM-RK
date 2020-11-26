@@ -23,7 +23,6 @@ ConstModulus=CP.M;
 for el = 1:nElements
     
     for ngp = 1:size(GPInfo,2)
-        
         kke = GPInfo(el,ngp).B'*GPInfo(el,ngp).D*GPInfo(el,ngp).B;
         Q = -GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;
         H = GPInfo(el,ngp).dN_dX'*perme*GPInfo(el,ngp).dN_dX;
@@ -41,7 +40,7 @@ for el = 1:nElements
             
             if ( implicit)
                 AlphaStab = -0.65*perme*dt/he^2;
-                AlphaStab = 4*(2*ConstModulus - 12*dt*perme/he^2);
+
                 if (AlphaStab < 0)
                     AlphaStab = 0;
                 end
@@ -89,9 +88,10 @@ for el = 1:nElements
         Ke = Ke(aux,aux);
         Ce = Ce(aux,aux);
 
-        index = GPInfo(el,ngp).dofs;
-        K(index,index) =  K(index,index) + Ke*GPInfo(el,ngp).Weight;
-        C(index,index) =  C(index,index) + Ce*GPInfo(el,ngp).Weight;
+        index = GPInfo(el).dofs;
+        K(index,index) =  K(index,index) + Ke*GPInfo(el).Weight;
+        C(index,index) =  C(index,index) + Ce*GPInfo(el).Weight;
     end
+    
 end
 

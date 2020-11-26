@@ -1,16 +1,15 @@
 % Function to initialize GPInfo and compute all matrices (B, N, H, ....)
 
-function [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType)
-
-if ( all(ElementType == 'T3T3') )
+function [GPInfo] = ComputeElementalMatrices(Nodes, Elements)
+CP.E = 0;
+CP.nu = 0;
+if ( size(Elements,2 ) == 3 )
     [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP);
-elseif ( all(ElementType == 'T6T6') )
+else
     [GPInfo] = ComputeElementalMatricesT6T6(Nodes, Elements, CP);
-elseif ( all(ElementType == 'T6T3') )
-    [GPInfo] = ComputeElementalMatricesT6T3(Nodes, Elements, CP);
 end
 
-hola = 1;
+
 
 function [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP)
 
@@ -42,97 +41,94 @@ De = E/(1+nu)/(1-2*nu) * De;
 
 D = De([1,2,4], [1,2,4]);
 
-al = 1/3;
-be = 1/3;
-w = 1;
 
 
 for el = 1:nElements
-    for gp = [1:length(w)]
-        Cel = Elements(el,:);
-        X = Nodes(Cel,:);
-        
-        
-        dofs = [];
-        dofsU = [];
-        dofsWP = [];
-        for ii = 1:length(Cel)
-            dofs = [ dofs, (Cel(ii)-1)*3 + [1,2,3] ];
-            dofsU = [ dofsU, (Cel(ii)-1)*3 + [1,2] ];
-            dofsWP = [ dofsWP, ((Cel(ii)-1)*3 +3)];
-        end
-        
-        
-        
-        
-        % Linear triangles
-        alfa = al(gp);
-        beta = be(gp);
-        
-        Nsmall =  [ 1 - alfa - beta; alfa;  beta];
-        Nsmall_chi = [-1 -1; 1 0; 0 1];
-        Nu = (zeros(ndim, 3*ndim));
-        for i = 1:3
-            for dd = 1:2
-                Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
-            end
-        end
-        J = Nsmall_chi'*X;
-        dN_dX = inv(J)*Nsmall_chi';
-        
-        B = [];
-        for i = 1:3
-            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
-            B = [B, b];
-        end
-        
-        Area = [1 1 1;
-            X(1,1) X(2,1) X(3,1);
-            X(1,2) X(2,2) X(3,2)];
-        Area = det(Area)/2;
-        
-        he = 0;
-        for i = 1:3
-            aux = 0;
-            for j = 1:2
-                aux = aux + dN_dX(j,i);
-            end
-            he = he + abs(aux);
-        end
-        he = sqrt(2)*he;
-        he = 4/he;
-        
-        Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
-        
-        GPInfo(el,gp).Weight = Area*w(gp);
-        GPInfo(el,gp).B =B;
-        GPInfo(el,gp).dN_dX = dN_dX;
-        GPInfo(el,gp).N = Nsmall';
-        GPInfo(el,gp).Nu = Nu;
-        GPInfo(el,gp).he = he;
-        GPInfo(el,gp).Ms = Ms;
-        GPInfo(el,gp).D = D;
-        GPInfo(el,gp).D6 = De;
-        
-        
-        
-        GPInfo(el,gp).StressNew = zeros(6,1);
-        GPInfo(el,gp).StressPrev = zeros(6,1);
-        
-        GPInfo(el,gp).StrainNew = zeros(6,1);
-        GPInfo(el,gp).StrainPrev = zeros(6,1);
-        
-        GPInfo(el,gp).HistoryNew = 0;
-        GPInfo(el,gp).HistoryPrev = 0;
-        
-        GPInfo(el,gp).MCC = false;
-        
-        GPInfo(el,gp).dofs = dofs;
-        GPInfo(el,gp).dofsU = dofsU;
-        GPInfo(el,gp).dofsWP = dofsWP;
-        GPInfo(el,gp).dofsWPreal = dofsWP;
-        GPInfo(el,gp).IndexReorder = [1,2,7,3,4,8,5,6,9];
+    
+    Cel = Elements(el,:);
+    X = Nodes(Cel,:);
+    
+    
+    dofs = [];
+    dofsU = [];
+    dofsWP = [];
+    for ii = 1:length(Cel)
+        dofs = [ dofs, (Cel(ii)-1)*3 + [1,2,3] ];
+        dofsU = [ dofsU, (Cel(ii)-1)*3 + [1,2] ];
+        dofsWP = [ dofsWP, ((Cel(ii)-1)*3 +3)];
     end
+    
+    
+    
+    
+    % Linear triangles
+    alfa = 1/3;
+    beta = 1/3;
+    
+    Nsmall =  [ 1 - alfa - beta; alfa;  beta];
+    Nsmall_chi = [-1 -1; 1 0; 0 1];
+    Nu = (zeros(ndim, 3*ndim));
+    for i = 1:3
+        for dd = 1:2
+            Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
+        end
+    end
+    J = Nsmall_chi'*X;
+    dN_dX = inv(J)*Nsmall_chi';
+    
+    B = [];
+    for i = 1:3
+        b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+        B = [B, b];
+    end
+    
+    Area = [1 1 1;
+        X(1,1) X(2,1) X(3,1);
+        X(1,2) X(2,2) X(3,2)];
+    Area = det(Area)/2;
+    
+    he = 0;
+    for i = 1:3
+        aux = 0;
+        for j = 1:2
+            aux = aux + dN_dX(j,i);
+        end
+        he = he + abs(aux);
+    end
+    he = sqrt(2)*he;
+    he = 4/he;
+    
+    Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
+    
+    GPInfo(el,1).Weight = Area;
+    GPInfo(el).B =B;
+    GPInfo(el).dN_dX = dN_dX;
+    GPInfo(el).N = Nsmall';
+    GPInfo(el).Nu = Nu;
+    GPInfo(el).he = he;
+    GPInfo(el).Ms = Ms;
+    GPInfo(el).D = D;
+    GPInfo(el).D6 = De;
+    
+    
+    
+    GPInfo(el).StressNew = zeros(6,1);
+    GPInfo(el).StressPrev = zeros(6,1);
+    
+    GPInfo(el).StrainNew = zeros(6,1);
+    GPInfo(el).StrainPrev = zeros(6,1);
+    
+    GPInfo(el).HistoryNew = 0;
+    GPInfo(el).HistoryPrev = 0;
+    
+    GPInfo(el).MCC = false;
+    
+    GPInfo(el).dofs = dofs;
+    GPInfo(el).dofsU = dofsU;
+    GPInfo(el).dofsWP = dofsWP;
+    GPInfo(el).dofsWPreal = dofsWP;
+    GPInfo(el).IndexReorder = [1,2,7,3,4,8,5,6,9];
+    
 end
 
 
@@ -170,14 +166,8 @@ D = De([1,2,4], [1,2,4]);
 
 
 
-
-al = [1/6,1/6,2/3];
-be = [2/3,1/6,1/6];
-w = [1/3,1/3,1/3];
-
-
 for el = 1:nElements
-    for gp = 1:length(w)
+    for gp = 1:3
         
         Cel = Elements(el,:);
         X = Nodes(Cel,:);
@@ -195,9 +185,15 @@ for el = 1:nElements
         end
         
         
+        if ( gp == 1)
+            alfa = 2/3; beta = 1/6;
+        elseif ( gp == 2)
+            alfa = 1/6; beta = 1/6;
+        elseif ( gp == 3)
+            alfa = 1/6; beta = 2/3;
+        end
         
-        alfa = al(gp);
-        beta = be(gp);
+        
         
         Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
             alfa*(2*alfa-1);
@@ -256,7 +252,7 @@ for el = 1:nElements
             -4,  0,  0, -4, 12, -4;
             0, -4,  0, -4, -4, 12];
         
-        GPInfo(el,gp).Weight = Area*w(i);
+        GPInfo(el,gp).Weight = Area/3;
         GPInfo(el,gp).B =B;
         GPInfo(el,gp).dN_dX = dN_dX;
         GPInfo(el,gp).N = Nsmall';
@@ -320,33 +316,9 @@ De = E/(1+nu)/(1-2*nu) * De;
 D = De([1,2,4], [1,2,4]);
 
 
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-auxK = [Na2, Na2, wa;
-    Na1, Na2, wa;
-    Na2, Na1, wa;
-    Nb2, Nb2, wb ;
-    Nb1, Nb2, wb ;
-    Nb2, Nb1, wb ];
-
-al = auxK(:,1)';
-be = auxK(:,2)';
-w = auxK(:,3)'/sum(auxK(:,3)');
 
 for el = 1:nElements
-    for gp = 1:length(w)
+    for gp = 1:3
         
         Cel = Elements(el,:);
         X = Nodes(Cel,:);
@@ -364,8 +336,13 @@ for el = 1:nElements
         end
         
         
-        alfa = al(gp);
-        beta = be(gp);
+        if ( gp == 1)
+            alfa = 2/3; beta = 1/6;
+        elseif ( gp == 2)
+            alfa = 1/6; beta = 1/6;
+        elseif ( gp == 3)
+            alfa = 1/6; beta = 2/3;
+        end
         
         NsmallP =  [ 1 - alfa - beta; alfa;  beta];
         Nsmall_chiP = [-1 -1; 1 0; 0 1];
@@ -407,7 +384,7 @@ for el = 1:nElements
         Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
         
         
-        GPInfo(el,gp).Weight = Area*w(gp);
+        GPInfo(el,gp).Weight = Area/3;
         GPInfo(el,gp).B =B;
         GPInfo(el,gp).dN_dX = J\Nsmall_chiP';
         GPInfo(el,gp).N = NsmallP';

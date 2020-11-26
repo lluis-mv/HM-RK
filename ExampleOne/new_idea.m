@@ -15,7 +15,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 3;
+eSize = 0.03;
 
 model = createpde(1);
 
@@ -51,67 +51,51 @@ figure(99)
 for i = 1:4; subplot(2,2,i); hold off; end
 
 
-RKMethod = 1;
+RKMethod = 2;
 
-kk = 10.^[-5:2:-1];
-EE = 10.^[3:1:5];
+kk = 10.^[-5:1:-1];
+EE = 10.^[3:1:7];
 
-for k = kk
-    for E = EE
+[kk, EE] = meshgrid(kk, EE)
+Values = nan*kk;
+figure(212); hold off;
+
+for auxi = 1:size(kk,1)
+    for auxj = 1:size(kk,2)
         
-        i = 1;
         
+        E = EE(auxi, auxj);
+        k = kk(auxi, auxj);
         
         CP.E = E;
         nu = CP.nu;
         CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu)
         CP.k = k;
         
+        M(auxi,auxj) = CP.M
+        
         t = T/CP.M/CP.k;
+        dt = t;
         
-        for nSteps = NSteps
-            
-            dt = t/nSteps;
-            
-            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod);
-            
-            
-            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
-            
-            
-            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP);
-            
-            
-            i = i+1;
-            
-        end
-        figure(99)
-        subplot(2,2,1)
-        loglog( NSteps, L2, '*-.')
-        xlabel('nSteps')
-        ylabel('L2');
-        hold on
+        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+
+        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, 0);
+
+
+        [C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
         
+        nNodes = size(Nodes, 1);
+        A = C\(K);
+        ii = eye(3*nNodes, 3*nNodes);
+        B = ii+dt*A;
         
-        subplot(2,2,2)
-        loglog( NSteps, LInf, '*-.')
-        xlabel('nSteps')
-        ylabel('LInf');
-        hold on
-        
-        
-        subplot(2,2,3)
-        loglog( NSteps, L2U, '*-.')
-        xlabel('nSteps')
-        ylabel('L2 u');
-        hold on
-        
-        
-        subplot(2,2,4)
-        loglog( NSteps, LInfU, '*-.')
-        xlabel('nSteps')
-        ylabel('LInf u');
-        hold on
+        [values] = eig(full(B), 'nobalance');
+        values = real(values);
+        figure(212); plot(sort(values)); hold on
+        Values(auxi,auxj) = max(abs(values))
+        Values2(auxi,auxj) = min(abs(values))
+        Values3(auxi,auxj) = min((values))
+        tonti = 1;
     end
 end
 
@@ -174,6 +158,6 @@ N3 = [ 1 - alfa - beta, alfa,  beta];
 
 
 
-% LInfU = LInfU*CP.M;
-% L2U = L2U*CP.M;
+LInfU = LInfU*CP.M;
+L2U = L2U*CP.M;
 

@@ -15,40 +15,29 @@ nElements = size(Elements, 1);
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
-[C, K, X, f, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 
-[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM, 2, 0);
-[C2, K2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C2, K2);
+[C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+
 
 PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
 
-f(nDir) = 0;
-fini(nDir) = 0;
+
 A = C\(K);
 ii = eye(3*nNodes, 3*nNodes);
 
-A(nDir,nDir)=0;
 
 if ( RKMethod)
     [a,b] = GetRungeKutta(RKMethod);
 end
 
 C2 = C;
-invCf = (C2\f);
-invCfini = (C2\fini);
-invCfini(nDir)=0;
+invCf = (C\f);
+invCfini = (C\fini);
 
 k = zeros(  3*nNodes, length(b));
 
 for t = 1:nSteps
-    if (t == 1)
-        [a,b] = GetRungeKutta(8);
-        k = zeros(  3*nNodes, length(b));
-    elseif ( t== 2)
-        [a,b] = GetRungeKutta(RKMethod);
-        k = zeros(  3*nNodes, length(b));
-    end
     for i = 1:length(b)
         XStep = X;
         for j = 1:i-1
@@ -76,4 +65,7 @@ end
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);
 PostProcessResults(Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+
+
+
 

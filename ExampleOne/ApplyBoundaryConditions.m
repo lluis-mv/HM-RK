@@ -1,5 +1,9 @@
 
-function [C, K, X0, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, C, K)
+function [C, K, X0, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
+
+if (nargin ~= 5)
+    error('it should be five!!!!')
+end
 
 penalty = 1;
 
@@ -33,6 +37,8 @@ C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
 dofs = 3*([nodesLeft; nodesRight]-1)+1;
+dofs = 3*([1:nNodes]'-1)+1;
+display('fixxing all')
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 K(dofs,:) = 0;
@@ -44,9 +50,27 @@ for i = 1:nNodes
 end
 
 
+
+
 % Fix wp on top
 dofs = 3*(nodesTop-1)+3;
 X0(dofs) = 0;
+
+
+% now try that
+if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
+    for el = 1:nElements
+        dofsWP = GPInfo(el,1).dofsWP;
+        dofsReal = GPInfo(el,1).dofsWPreal;
+        
+        KK = 1/2*[1,1,0;
+            0, 1, 1;
+            1, 0,1];
+        X0( dofsReal(4:6)) = KK*X0(dofsWP) ;
+          
+    end
+end
+
 
 f = zeros(3*nNodes, 1);
 
@@ -79,5 +103,5 @@ for el = 1:nElements
     end
 end
 
+fini = 0*f;
 f = 0*f;
-fini = f;

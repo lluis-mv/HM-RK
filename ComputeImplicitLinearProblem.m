@@ -1,6 +1,6 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, trash)
+function [X, GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
 
 
 nNodes = size(Nodes, 1);
@@ -8,9 +8,9 @@ nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, trash, dt, true);
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 1, dt, true, AlphaStabM);
 
-[C, K, X, f, fini] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+[C, K, X, f, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisIProblem-', ElementType]);
 
@@ -20,10 +20,11 @@ B = ii-dt*A;
 B = inv(B);
 
 
-
+B(nDir,nDir) = eye(length(nDir));
 invCf = (C\f);
 invCfini = (C\fini);
-
+invCf(nDir) = 0;
+invCfini(nDir) = 0;
 X = B*(X + invCfini);
 for i = 2:nSteps
 

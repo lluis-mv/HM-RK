@@ -4,7 +4,7 @@ function [] = OedometerElastic()
 addpath('../')
 % 1. Define the problem
 
-T = 4E-3;
+T = 4E-1;
 
 
 CP.E = 100;
@@ -58,7 +58,7 @@ L2g = NSteps*nan; L2Ug = NSteps*nan; LInfg = NSteps*nan; LInfUg = NSteps*nan;
 for nSteps = NSteps
     dt = t/nSteps;
     
-    [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
+    [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3', 1);
     figure(904)
     plot(U(3:3:end), Nodes(:,2), 'b*')
     hold on
