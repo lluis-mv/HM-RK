@@ -1,10 +1,10 @@
-function [] = BeforeExampleOneBis()
+function [] = ExampleOneBis()
 
 close all
 addpath('../')
 % 1. Define the problem
 
-T = 1E-5;
+T = 1E-2;
 
 CP.E = 1;
 CP.nu = 0.0;
@@ -32,14 +32,11 @@ ticks = 10.^unique( log10(ticks));
 ticks = unique(ticks);
 
 
-ESIZE = [0.2, 0.1, 0.075, 0.05];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03, 0.025];
-% ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04]
-
+ESIZE = [0.2, 0.1, 0.075, 0.05, 0.025, 0.02];
+ESIZE = [0.2, 0.15, 0.1, 0.075, 0.05, 0.04, 0.03, 0.025, 0.02];
 figure(50); clf;
 
-Elem = 2;
-for MyNumber = [ 10, 100, 1000, 10000, 100000]
+for Elem = 1:3
     
     esizeAxis = ESIZE;
     i = 1;
@@ -56,7 +53,7 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
             ThisNumber = 2000;
         end
         
-        dx = 0.4; dy = 1;
+        dx = 3*eSize; dy = 1;
         model = createpde(1);
         
         R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
@@ -95,14 +92,13 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
         nSteps = NSteps(1);
         
         
-        dt = he^2/(MyNumber*CP.k*CP.M)
+        dt = he^2/(1*ThisNumber*CP.k*CP.M)
         
+%         dt = he^2/(6000*CP.k*CP.M)
         nSteps = ceil(t/dt)
         dt = t/nSteps;
         
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 1);
-        
-        
+        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
         
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, t, GPInfo, CP);
         
@@ -112,7 +108,7 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
         
         loglog( esizeAxis(1:i), L2(1:i), 'k*-.', esizeAxis(1:i), L2U(1:i), 'rv-.',  esizeAxis(1:i), LInf(1:i), 'g*-.',  esizeAxis(1:i), LInfU(1:i), 'bv-.')
         hold on
-        xlabel('$h_e$ (m)', 'interpreter', 'latex')
+        xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
         ylabel('Error norm', 'interpreter', 'latex');
         set(gca, 'FontSize', 14)
         drawnow
@@ -130,17 +126,17 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
         
         
         
-        SlopeInfp = []; SlopeL2p = []; SlopeInfU = []; SlopeL2U = [];
+        Slope1 = []; Slope2 = []; Slope3 = []; Slope4 = [];
         for ii = 2:i
-            SlopeInfp(ii) = log10(LInf(ii)/LInf(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2p(ii) = log10(L2(ii)/L2(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeInfU(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2U(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
+            Slope1(ii) = log10(LInf(ii)/LInf(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
+            Slope2(ii) = log10(L2(ii)/L2(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
+            Slope3(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
+            Slope4(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
         end
-        SlopeInfp
-        SlopeL2p
-        SlopeInfU
-        SlopeL2U
+        Slope1
+        Slope2
+        Slope3
+        Slope4
         
         i = i+1;
     end
@@ -149,7 +145,7 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
     
     loglog( esizeAxis, LInf, 'g*-.',  esizeAxis, LInfU, 'bv-.', esizeAxis, L2, 'k*-.', esizeAxis, L2U, 'rv-.' )
     hold on
-    xlabel('$h_e$ (m)', 'interpreter', 'latex')
+    xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
     ylabel('Error norm', 'interpreter', 'latex');
     set(gca, 'FontSize', 14)
     drawnow
@@ -167,7 +163,6 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
     %         xticks(ticks);
     print(['ExampleOneBis-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
     hold on
-    return;
 end
 
 
@@ -191,8 +186,7 @@ LInf = max( abs( X(indexWP)-Xa(indexWP)));
 LInfU = 0;
 for i = 1:nNodes
     ind = 3*(i-1)+[1,2];
-    thisNorm = (Xa(ind)-X(ind));
-    thisNorm = abs(thisNorm(2));
+    thisNorm = norm(Xa(ind)-X(ind));
     if (isnan(thisNorm))
         LInfU = nan;
         break;
@@ -202,12 +196,12 @@ end
 
 
 
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
+alfa = 2/3; beta = 1/6;
+N1 = [ 1 - alfa - beta, alfa,  beta];
+alfa = 1/6; beta = 1/6;
+N2 = [ 1 - alfa - beta, alfa,  beta];
+alfa = 1/6; beta = 2/3;
+N3 = [ 1 - alfa - beta, alfa,  beta];
 
 wa = 0.054975871827661;
 wb = 0.1116907948390055;
@@ -215,6 +209,8 @@ Na1 = 0.816847572980459;
 Nb1 = 0.108103018168070;
 Na2 = 0.091576213509771;
 Nb2 = 0.445948490915965;
+
+
 
 auxK = [Na2, Na2, wa;
     Na1, Na2, wa;
@@ -230,8 +226,7 @@ w = auxK(:,3)'/sum(auxK(:,3)');
 
 L2 = 0;
 L2U = 0;
-L2a=0;
-L2Ua = 0;
+
 for el = 1:nElements
     Cel = Elements(el,:);
     dofsU = GPInfo(el,1).dofsU;
@@ -242,23 +237,15 @@ for el = 1:nElements
     for gp = 1:length(w)
         [Nu, Np] = GetShapeFunctions( al(gp), be(gp), length(dofsU), length(dofsWP));
         
-        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)))^2;
-        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)))^2;
-        
-        L2Ua = L2Ua + wA*w(gp)*abs( Nu(1,1:2:end)*( X(dofsU(2:2:end))-Xa(dofsU(2:2:end))))^2;
-        %         Xpg = Nu(1,1:2:end)*Nodes(Cel,:);
-        %         [XX] = ComputeAnalyticalSolution(Xpg, Elements, ElementType, t, CP, GPInfo, X(1:3));
-        %         L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU))-XX(1:2))^2;
-        %         L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP))-XX(3))^2;
-        
+        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)));
+        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)));
     end
     
 end
 
-L2 = sqrt(L2/sum([GPInfo.Weight]));
-L2U = sqrt(L2U/sum([GPInfo.Weight]));
-L2a = sqrt(L2a/sum([GPInfo.Weight]));
-L2Ua = sqrt(L2Ua/sum([GPInfo.Weight]));
+L2 = L2/sum([GPInfo.Weight]);
+L2U = L2U/sum([GPInfo.Weight]);
+
 
 if (L2 < 1E-15)
     L2 = rand*1E-15;
@@ -314,15 +301,6 @@ end
 if (any(isnan(Xa)))
     Xa = nan*Xa;
 end
-
-figure(900)
-subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'b*', Nodes(:,2), Xnum(2:3:end), 'r*')
-
-subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'b*', Nodes(:,2), Xnum(3:3:end), 'r*')
-hola = 1;
-
 
 
 function [Nu, Np] = GetShapeFunctions( alfa, beta, nU, nP)

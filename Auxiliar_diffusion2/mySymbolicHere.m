@@ -18,10 +18,10 @@ f = diff( diff(solutionU, y),y) - diff(solutionpw, y)
 syms t real
 
 
-u =  0.01*y^2*(y-1)*t;
-pw = 0.1*y^2*(y-1);
+u =  0.01*y*(y-1)*t
+pw = 0.1*y^2*(y-1)
 pw = 0;
 
-f = diff(diff(diff(u,y),y)-diff(pw, y), t)
+ff = diff(diff(diff(u,y),y)-diff(pw, y), t)
 
-f2 = diff( diff(u,y),t) - diff(pw, y)
+ff2 = diff( diff(u,y),t) - diff(pw, y)

@@ -42,19 +42,12 @@ invCfini(nDir)=0;
 k = zeros(  3*nNodes, length(b));
 
 for t = 1:nSteps
-    if (t == 1)
-        [a,b] = GetRungeKutta(8);
-        k = zeros(  3*nNodes, length(b));
-    elseif ( t== 2)
-        [a,b] = GetRungeKutta(RKMethod);
-        k = zeros(  3*nNodes, length(b));
-    end
     for i = 1:length(b)
         XStep = X;
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-         k(:,i) = A*XStep + (1/dt)*invCf;
+         k(:,i) = A*XStep + (dt/dt)*invCf;
          if ( t == 1)
              k(:,i) = k(:,i) + (1/dt)*invCfini;
          end

@@ -33,14 +33,14 @@ ticks = unique(ticks);
 
 
 ESIZE = [0.2, 0.1, 0.075, 0.05];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03,  0.025];
+ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03,  0.025, 0.02];
 
 
 figure(50); clf;
 RKMethod = 1;
 Elem = 1;
 
-for Elem = [ 1, 3]
+for Elem = [1, 3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -102,7 +102,8 @@ for Elem = [ 1, 3]
         [C, K, X, f, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         f = ComputeThisForceVectorPlease(Nodes, Elements, GPInfo);
         f(nDir) = 0;
-        U = K\f;
+        C(3:3:end,:) = 0;
+        U = (C+K)\f;
         
         
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, t, GPInfo, CP);
@@ -140,6 +141,8 @@ for Elem = [ 1, 3]
         end
         SlopeInfp
         SlopeL2p
+        SlopeInfU
+        SlopeL2U
         
         i = i+1;
     end
@@ -257,8 +260,7 @@ L2 = sqrt(L2/sum([GPInfo.Weight]));
 L2U = sqrt(L2U/sum([GPInfo.Weight]));
 L2a = sqrt(L2a/sum([GPInfo.Weight]));
 L2Ua = sqrt(L2Ua/sum([GPInfo.Weight]));
-L2U = nan;
-LInfU = nan;
+
 if (L2 < 1E-15)
     L2 = rand*1E-15;
 end
@@ -283,36 +285,15 @@ nNodes = size(Nodes,1);
 M = CP.M;
 k = CP.k;
 for nod = 1:nNodes
-    xx = Nodes(nod,2);
-    TT = M * t*k;
-    pw = 0;
-    for m = 0:400
-        aux = pi/2*(2*m+1);
-        pw = pw + 2/aux * sin( aux * xx) * exp( - aux^2 * TT);
-    end
-    Xa(3*(nod-1)+3) =xx^2*(1-xx^2);
-end
-
-
-
-
-for nod = 1:nNodes
-    z= 1-Nodes(nod,2);
+    y = Nodes(nod,2);
     
-    uu = z-1;
-    
-    for m = 0:100
-        
-        term = +(exp(-(TT*pi^2*(2*m + 1)^2)/4)*(8*sin(pi*m) + 8*cos((z*pi*(2*m + 1))/2)))/(pi^2*(2*m + 1)^2);
-        uu = uu+term;
-    end
-    Xa(3*(nod-1)+2) = 0/M;
+    Xa(3*(nod-1)+3) =y.^2.*(y.^1-1);
+    Xa(3*(nod-1)+2) = 0.01*y.^2.*(y-1);
 end
 
 
-if (any(isnan(Xa)))
-    Xa = nan*Xa;
-end
+
+
 
 figure(900)
 subplot(2,1,1)
@@ -433,8 +414,11 @@ for el = 1:nElements
         
         Xpg = Nu(1,1:2:end)*Nodes(Cel,:);
          y = Xpg(2);
-         ff = 12*y^2 - 2;
-        f( GPInfo(el, 1).dofsWP) = f( GPInfo(el, 1).dofsWP) + wA*w(gp)*Np'*( ff);
+         ff = 6*y - 2;
+         ff2 = (3*y)/50 - 2*y*(y - 1) - y^2 - 1/50;
+        f( GPInfo(el, 1).dofsWP) = f( GPInfo(el, 1).dofsWP) - wA*w(gp)*Np'*( ff);
+        
+        f( GPInfo(el, 1).dofsWP-1) = f( GPInfo(el, 1).dofsWP-1) - wA*w(gp)*Np'*( ff2);
     end
     
 end

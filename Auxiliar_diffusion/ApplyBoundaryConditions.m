@@ -31,7 +31,8 @@ K(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 % Fix uY bottom
-dofs = 3*([1:nNodes]'-1)+1;
+dofs = 3*([nodesTop; nodesBottom]-1)+2;
+% dofs = 3*([1:nNodes]'-1)+2;
 nDirichlet = [nDirichlet; dofs];
 
 C(dofs,:) = 0;
@@ -39,7 +40,7 @@ K(dofs,:) = 0;
 C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
-dofs = 3*([1:nNodes]'-1)+2;
+dofs = 3*([1:nNodes]'-1)+1;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 K(dofs,:) = 0;
