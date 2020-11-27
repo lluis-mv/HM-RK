@@ -40,7 +40,7 @@ figure(50); clf;
 RKMethod = 1;
 Elem = 1;
 
-for Elem = [1, 3]
+for Elem = [1, 2, 3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -96,7 +96,7 @@ for Elem = [1, 3]
         
         
         
-        nSteps = 1E3;
+        nSteps = 1;
         dt = 1/nSteps;
         
         [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, 1);
@@ -285,8 +285,8 @@ for nod = 1:nNodes
     y = Nodes(nod,2);
     
     
-    Xa(3*(nod-1)+2) = (y.*(y - 1))/100;
-    Xa(3*(nod-1)+3) =0;
+    Xa(3*(nod-1)+2) = 0.01*y.^2.*(y-1).^2;
+    Xa(3*(nod-1)+3) =  y.*(y-1);
 end
 
 
@@ -295,10 +295,10 @@ end
 
 figure(900)
 subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'b*', Nodes(:,2), Xnum(2:3:end), 'r*')
+plot(Nodes(:,2), Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
 
 subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'b*', Nodes(:,2), Xnum(3:3:end), 'r*')
+plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
 
 
@@ -366,59 +366,3 @@ for ind = 1:2:length(y1)-1
     p = [p; N'*pp];
 end
 
-
-
-function f = ComputeThisForceVectorPlease(Nodes, Elements, GPInfo)
-
-nNodes = size(Nodes, 1);
-nElements = size(Elements, 1);
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-auxK = [Na2, Na2, wa;
-    Na1, Na2, wa;
-    Na2, Na1, wa;
-    Nb2, Nb2, wb ;
-    Nb1, Nb2, wb ;
-    Nb2, Nb1, wb ];
-
-al = auxK(:,1)';
-be = auxK(:,2)';
-w = auxK(:,3)'/sum(auxK(:,3)');
-
-f = zeros(3*nNodes,1);
-for el = 1:nElements
-    Cel = Elements(el,:);
-    dofsU = GPInfo(el,1).dofsU;
-    dofsWP = GPInfo(el,1).dofsWPreal;
-    
-    wA = sum([GPInfo(el,:).Weight]);
-    
-    for gp = 1:length(w)
-        [Nu, Np] = GetShapeFunctions( al(gp), be(gp), length(dofsU), length(dofsWP));
-        
-        
-        Xpg = Nu(1,1:2:end)*Nodes(Cel,:);
-         y = Xpg(2);
-          
-        ff = (3*y)/50 - 1/50;
- 
-         ff2 = (y*(y - 1))/50 + y^2/100;
-        f( GPInfo(el, 1).dofsWP) = f( GPInfo(el, 1).dofsWP) - wA*w(gp)*Np'*( ff);
-        
-        f( GPInfo(el, 1).dofsWP-1) = f( GPInfo(el, 1).dofsWP-1) - wA*w(gp)*Np'*( ff2);
-    end
-    
-end

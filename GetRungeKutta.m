@@ -1,4 +1,4 @@
-function [a, b] = GetRungeKutta(method)
+function [a, b, c] = GetRungeKutta(method)
 
 substepping = false;
 if ( method > 10)
@@ -12,17 +12,20 @@ if ( method == 1)
     % Forward euler
     a = 0;
     b = 1;
+    c = 0;
 elseif ( method == 2)
     % Heun's method second-order method
     a = [0,0;
         1, 0];
     b = [1/2, 1/2];
+    c = [0, 1];
 elseif (method == 3)
     % Heun's third-order method
     a = [0, 0, 0;
         1/3, 0, 0;
         0, 2/3, 0];
     b = [1/4, 0, 3/4];
+    c = [0, 1/3, 2/3];
 elseif (method == 4)
     % Classic fourth-order method
     a = [0,0,0,0;
@@ -30,6 +33,7 @@ elseif (method == 4)
         0, 1/2, 0, 0;
         0, 0, 1, 0];
     b = 1/6*[1,2,2,1];
+    c = [0, 1/2, 1/2, 1];
 elseif (method == 5)
     % Fehlberg 5th order method
     a = [0,0,0,0,0,0;
@@ -39,6 +43,7 @@ elseif (method == 5)
         439/216, -8, 3680/513, -845/4104, 0,0;
         -8/27, 2, -3544/2565, 1859/4104, -11/40,0];
     b = [16/135, 0, 6656/12825, 28561/56430, -9/50, 2/55];
+    c = [0, 1/4, 3/8, 12/13, 1, 1/2];
 elseif (method == 6)
     % Dormand and Prince 6th order.
     % https://github.com/USNavalResearchLaboratory/TrackerComponentLibrary/blob/master/Mathematical%20Functions/Differential%20Equations/RungeKStep.m
