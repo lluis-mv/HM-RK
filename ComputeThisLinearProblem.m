@@ -51,7 +51,7 @@ for loadStep = 1:nSteps
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-         k(:,i) = A*XStep + invC*f;
+         k(:,i) = A*XStep + invC*(f+uDirichlet);
          if ( loadStep == 1)
              k(:,i) = k(:,i) + (1/dt)*invCfini;
         end

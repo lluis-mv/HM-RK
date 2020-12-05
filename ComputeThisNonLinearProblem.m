@@ -66,7 +66,7 @@ for loadStep = 1:nSteps
     % Compute stress and D
     GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
     
-    %PostProcessResults(Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
     
     if ( drift)
         UnbalancedForces = fini + f*(loadStep/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X);
@@ -89,7 +89,7 @@ end
 
 
 
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1, false, ['ThisProblem-', ElementType]);
 
 
 

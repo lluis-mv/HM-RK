@@ -9,6 +9,7 @@ addpath('../')
 
 T = 1E-1;
 
+CP.HydroMechanical = false;
 CP.E = 1;
 CP.nu = 0.49;
 
@@ -16,7 +17,7 @@ CP.nu = 0.49;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.15];
+ESIZE = [0.3];
 
 
 figure(50); clf;
@@ -85,7 +86,7 @@ for Elem = [1, 2, 3]
         nSteps = 40;
         dt = 4/nSteps;
         nSteps = nSteps;
-        [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 4, 0);
+        [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 0);
         
         
         

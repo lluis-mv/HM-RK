@@ -60,12 +60,12 @@ for el = 1:nElements
             disp(ElementType)
             error('this element does not exist. yet')
         end
-        %if (nargin == 11)
-        %    AlphaStab = a/ConstModulus+b*perme*dt/he^2;
-        %end
 
-        AlphaStab = -AlphaStab*AlphaStabM;
-
+        if ( length(AlphaStabM) == 1)
+            AlphaStab = -AlphaStab*AlphaStabM;
+        elseif ( length(AlphaStabM) == 2)
+            AlphaStab = AlphaStabM(1)/ConstModulus+AlphaStabM(2)*perme*dt/he^2;
+        end
 
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
         

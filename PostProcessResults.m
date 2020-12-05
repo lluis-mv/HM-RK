@@ -103,9 +103,10 @@ end
 fprintf( fid, 'End Values \n');
 
 if (HydroMechanical)
-    fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
-else
     fprintf(fid, ['Result "total_Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+    
+else
+    fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
 end
 fprintf(fid, ' values \n ');
 Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];

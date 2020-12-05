@@ -16,7 +16,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.055;
+eSize = 0.05;
 
 model = createpde(1);
 
@@ -97,7 +97,6 @@ for Stab = [1, 0]
         if ( firstTime)
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             firstTime = false;
-            
             
             index = find(Nodes(:,1) == 0);
             WP = Xa(3*(index-1)+3);
@@ -268,7 +267,7 @@ if (true)
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
-                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes1, Elements1, GPInfo, CP);
+                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes1, Elements1, GPInfo);
                 
                 
                 
@@ -324,119 +323,119 @@ end
 
 
 if ( true)
-
-
-% Now lets check the RK methods
-
-for j = 1:3
     
-    if ( j == 1)
-        ElementType = 'T3T3';
-        Nodes = Nodes1;
-        Elements = Elements1;
-        ThisNumber = 200;
-    elseif (j == 2)
-        ElementType = 'T6T3';
-        Nodes = Nodes2;
-        Elements = Elements2;
-        ThisNumber = 6;
-    else
-        ElementType = 'T6T6';
-        Nodes = Nodes2;
-        Elements = Elements2;
-        ThisNumber = 2000;
-    end
     
-    Stab = 1;
+    % Now lets check the RK methods
     
-    for RK = [1,4,8]
-        firstTime = true;
-        i = 1;
+    for j = 1:3
         
-        for nSteps = NSteps
+        if ( j == 1)
+            ElementType = 'T3T3';
+            Nodes = Nodes1;
+            Elements = Elements1;
+            ThisNumber = 200;
+        elseif (j == 2)
+            ElementType = 'T6T3';
+            Nodes = Nodes2;
+            Elements = Elements2;
+            ThisNumber = 6;
+        else
+            ElementType = 'T6T6';
+            Nodes = Nodes2;
+            Elements = Elements2;
+            ThisNumber = 2000;
+        end
+        
+        Stab = 1;
+        
+        for RK = [1,4,8]
+            firstTime = true;
+            i = 1;
             
-            dt = t/nSteps;
-            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
-            if ( firstTime)
-                [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
+            for nSteps = NSteps
+                
+                dt = t/nSteps;
+                [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
+                if ( firstTime)
+                    [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
+                end
+                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes1, Elements1, GPInfo);
+                
+                
+                
+                i = i+1;
             end
-            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes1, Elements1, GPInfo, CP);
+            
+            
+            color = 'r';
+            if ( RK == 4)
+                color = 'b';
+            elseif (RK == 8)
+                color = 'k';
+            end
+            
+            
+            figure(20+3*j)
+            if (RK == 1)
+                clf;
+            end
+            loglog( ddtt, L2U, [color, '*-.'],  ddtt, LInfU, [color, 'v-.'])
+            hold on
+            xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+            ylabel('Error norm', 'interpreter', 'latex');
+            set(gca, 'FontSize', 14)
+            drawnow
             
             
             
-            i = i+1;
+            
+            
+            figure(20+3*j+1)
+            if (RK == 1)
+                clf;
+            end
+            loglog( ddtt, L2, [color, '*-.'],  ddtt, LInf, [color, 'v-.'])
+            hold on
+            xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+            ylabel('Error norm', 'interpreter', 'latex');
+            set(gca, 'FontSize', 14)
+            drawnow
+            
         end
-        
-        
-        color = 'r';
-        if ( RK == 4)
-            color = 'b';
-        elseif (RK == 8)
-            color = 'k';
-        end
-        
-        
         figure(20+3*j)
-        if (RK == 1)
-            clf;
-        end
-        loglog( ddtt, L2U, [color, '*-.'],  ddtt, LInfU, [color, 'v-.'])
-        hold on
-        xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-        ylabel('Error norm', 'interpreter', 'latex');
-        set(gca, 'FontSize', 14)
+        
         drawnow
-      
-        
-        
+        yy = ylim();
+        xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+        plot(xx, yy, 'k-.')
+        if ( yy(2) > 1E20)
+            yy(2) = 1E20;
+        end
+        ylim(yy);
+        drawnow
+        xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
+        xticks(ticks);
+        print(['ExampleOne-RK1-', ElementType], '-dpdf')
         
         
         figure(20+3*j+1)
-        if (RK == 1)
-            clf;
-        end
-        loglog( ddtt, L2, [color, '*-.'],  ddtt, LInf, [color, 'v-.'])
-        hold on
-        xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-        ylabel('Error norm', 'interpreter', 'latex');
-        set(gca, 'FontSize', 14)
         drawnow
+        yy = ylim();
+        xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+        plot(xx, yy, 'k-.')
+        if ( yy(2) > 1E20)
+            yy(2) = 1E20;
+        end
+        ylim(yy);
+        drawnow
+        xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
+        xticks(ticks);
+        print(['ExampleOne-RK2-', ElementType], '-dpdf')
         
     end
-    figure(20+3*j)
-    
-    drawnow
-    yy = ylim();
-    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-    plot(xx, yy, 'k-.')
-    if ( yy(2) > 1E20)
-        yy(2) = 1E20;
-    end
-    ylim(yy);
-    drawnow
-    xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-    xticks(ticks);
-    print(['ExampleOne-RK1-', ElementType], '-dpdf')
-    
-    
-    figure(20+3*j+1)
-    drawnow
-    yy = ylim();
-    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-    plot(xx, yy, 'k-.')
-    if ( yy(2) > 1E20)
-        yy(2) = 1E20;
-    end
-    ylim(yy);
-    drawnow
-    xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-    xticks(ticks);
-    print(['ExampleOne-RK2-', ElementType], '-dpdf')
-    
-end
 end
 
-% PlotTheSolutionInOneLine
+
 
 
 
@@ -465,152 +464,6 @@ end
 
 
 Xa = real(Xa);
-
-
-
-function [L2, L2U, LInf, LInfU] = ComputeErrorNorms(X, Xa, Nodes, Elements, GPInfo, CP)
-
-
-
-nNodes = size(Nodes, 1);
-nElements = size(Elements, 1);
-
-
-indexWP = 3*[1:nNodes];
-LInf = max( abs( X(indexWP)-Xa(indexWP)));
-LInfU = 0;
-for i = 1:nNodes
-    ind = 3*(i-1)+[1,2];
-    thisNorm = norm(Xa(ind)-X(ind));
-    LInfU = max(LInfU, thisNorm);
-end
-
-
-
-alfa = 2/3; beta = 1/6;
-N1 = [ 1 - alfa - beta, alfa,  beta];
-alfa = 1/6; beta = 1/6;
-N2 = [ 1 - alfa - beta, alfa,  beta];
-alfa = 1/6; beta = 2/3;
-N3 = [ 1 - alfa - beta, alfa,  beta];
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-
-
-auxK = [Na2, Na2, wa;
-    Na1, Na2, wa;
-    Na2, Na1, wa;
-    Nb2, Nb2, wb ;
-    Nb1, Nb2, wb ;
-    Nb2, Nb1, wb ];
-
-al = auxK(:,1)';
-be = auxK(:,2)';
-w = auxK(:,3)'/sum(auxK(:,3)');
-
-
-L2 = 0;
-L2U = 0;
-
-for el = 1:nElements
-    Cel = Elements(el,:);
-    dofsU = GPInfo(el,1).dofsU;
-    dofsWP = GPInfo(el,1).dofsWPreal;
-    
-    wA = sum([GPInfo(el,:).Weight]);
-    
-    for gp = 1:length(w)
-        [Nu, Np] = GetShapeFunctions( al(gp), be(gp), length(dofsU), length(dofsWP));
-        
-        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)))^2;
-        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)))^2;
-    
-    
-    end
-    
-end
-
-L2 = sqrt(L2/sum([GPInfo.Weight]));
-L2U = sqrt(L2U/sum([GPInfo.Weight]));
-
-
-if (L2 < 1E-15)
-    L2 = rand*1E-15;
-end
-if (L2U < 1E-15)
-    L2U = rand*1E-15;
-end
-if (LInf < 1E-15)
-    LInf = rand*1E-15;
-end
-if (LInfU < 1E-15)
-    LInfU = rand*1E-15;
-end
-% % for el = 1:nElements
-% %     Cel = Elements(el,:);
-% %     indWP = 3*(Cel-1)+3;
-% %     err = ( Xa(indWP)-X(indWP));
-% %     L2 = L2 + GPInfo(el).Weight/3* ( abs(N1*err) + abs(N2*err)+abs(N3*err));
-% %
-% %     indx = 3*(Cel-1)+1;
-% %     indy = 3*(Cel-1)+2;
-% %     ux = Xa(indx)-X(indx);
-% %     uy = Xa(indy)-X(indy);
-% %     L2U = L2U + GPInfo(el).Weight/3* ( norm(N1*[ux,uy]) + norm(N2*[ux,uy])+norm(N3*[ux,uy]));
-% %
-% % end
-
-
-
-% LInfU = LInfU*CP.M;
-% L2U = L2U*CP.M;
-
-function [Nu, Np] = GetShapeFunctions( alfa, beta, nU, nP)
-
-ndim = 2;
-if (nU == 6)
-    Nsmall =  [ 1 - alfa - beta; alfa;  beta];
-    
-    Nu = (zeros(ndim, 3*ndim));
-    for i = 1:3
-        for dd = 1:2
-            Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
-        end
-    end
-elseif (nU == 12)
-    Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
-        alfa*(2*alfa-1);
-        beta*(2*beta-1);
-        4*alfa*(1-alfa-beta);
-        4*alfa*beta;
-        4*beta*(1-alfa-beta)];
-    
-    
-    Nu = (zeros(ndim, 6*ndim));
-    for i = 1:6
-        for dd = 1:2
-            Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
-        end
-    end
-end
-
-
-if ( nP == 3)
-    Np =  [ 1 - alfa - beta; alfa;  beta]';
-elseif ( nP == 6)
-    Np =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
-        alfa*(2*alfa-1);
-        beta*(2*beta-1);
-        4*alfa*(1-alfa-beta);
-        4*alfa*beta;
-        4*beta*(1-alfa-beta)]';
-end
 
 
 

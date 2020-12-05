@@ -26,7 +26,6 @@ nDirichlet = [nDirichlet; dofs];
 
 % dofs = 3*( [1:nNodes ]-1)+3;
 C(dofs,:) = 0;
-K(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 % Fix uY bottom
@@ -49,27 +48,9 @@ C(dofs,dofs) =penalty*eye(length(dofs));
 X0 = zeros(3*nNodes, 1);
 
 
-
-
-
 % Fix wp on top
 dofs = 3*(nodesTop-1)+3;
 X0(dofs) = 0;
-
-
-% now try that
-if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
-    for el = 1:nElements
-        dofsWP = GPInfo(el,1).dofsWP;
-        dofsReal = GPInfo(el,1).dofsWPreal;
-        
-        KK = 1/2*[1,1,0;
-            0, 1, 1;
-            1, 0,1];
-        X0( dofsReal(4:6)) = KK*X0(dofsWP) ;
-          
-    end
-end
 
 
 
