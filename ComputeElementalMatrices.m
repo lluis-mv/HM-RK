@@ -42,10 +42,7 @@ De = E/(1+nu)/(1-2*nu) * De;
 
 D = De([1,2,4], [1,2,4]);
 
-al = 1/3;
-be = 1/3;
-w = 1;
-
+[al, be, w] = GetWeights(CP.HydroMechanical, 'T3T3');
 
 for el = 1:nElements
     for gp = [1:length(w)]
@@ -172,10 +169,9 @@ D = De([1,2,4], [1,2,4]);
 
 
 
-al = [1/6,1/6,2/3];
-be = [2/3,1/6,1/6];
-w = [1/3,1/3,1/3];
 
+
+[al, be, w] = GetWeights(CP.HydroMechanical, 'T6T6');
 
 for el = 1:nElements
     for gp = 1:length(w)
@@ -321,31 +317,7 @@ De = E/(1+nu)/(1-2*nu) * De;
 
 D = De([1,2,4], [1,2,4]);
 
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
-
-auxK = [Na2, Na2, wa;
-    Na1, Na2, wa;
-    Na2, Na1, wa;
-    Nb2, Nb2, wb ;
-    Nb1, Nb2, wb ;
-    Nb2, Nb1, wb ];
-
-al = auxK(:,1)';
-be = auxK(:,2)';
-w = auxK(:,3)'/sum(auxK(:,3)');
+[al, be, w] = GetWeights(CP.HydroMechanical, 'T6T3');
 
 for el = 1:nElements
     for gp = 1:length(w)

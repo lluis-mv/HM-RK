@@ -45,30 +45,17 @@ if (WriteMesh)
     elseif ( size(GPInfo,2) == 3)
         fprintf(fid, ' Number Of Gauss Points: 3 \n');
         fprintf(fid, 'Natural Coordinates: Given \n');
-        fprintf( fid, '%e %e \n', [2/3, 1/6] );
-        fprintf( fid, '%e %e \n', [1/6, 1/6] );
-        fprintf( fid, '%e %e \n', [1/6, 2/3] );
+        [al, be] = GetWeights(3);
+        for i = 1:3
+            fprintf( fid, '%e %e \n', [al(i), be(i)] );
+        end
         fprintf(fid, 'End GaussPoints \n');
     elseif ( size(GPInfo, 2) == 6)
-        
-        wa = 0.054975871827661;
-        wb = 0.1116907948390055;
-        Na1 = 0.816847572980459;
-        Nb1 = 0.108103018168070;
-        Na2 = 0.091576213509771;
-        Nb2 = 0.445948490915965;
-        
-        
-        auxK = [Na2, Na2, wa;
-            Na1, Na2, wa;
-            Na2, Na1, wa;
-            Nb2, Nb2, wb ;
-            Nb1, Nb2, wb ;
-            Nb2, Nb1, wb ];
+        [al, be] = GetWeights(6);
         fprintf(fid, ' Number Of Gauss Points: 6 \n');
         fprintf(fid, 'Natural Coordinates: Given \n');
         for i = 1:6
-            fprintf( fid, '%e %e \n', [auxK(i,1), auxK(i,2)] );
+            fprintf( fid, '%e %e \n', [al(i), be(i)] );
         end
         fprintf(fid, 'End GaussPoints \n');
     end
