@@ -5,6 +5,8 @@ addpath('../')
 
 T = 1E-2;
 
+
+CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.0;
 CP.k = 1;
@@ -526,24 +528,28 @@ for el = 1:nElements
     for gp = 1:length(w)
         [Nu, Np] = GetShapeFunctions( al(gp), be(gp), length(dofsU), length(dofsWP));
         
-        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)));
-        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)));
+        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)))^2;
+        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)))^2;
+    
+    
     end
     
-    
-    
-    
-    
 end
+
+L2 = sqrt(L2/sum([GPInfo.Weight]));
+L2U = sqrt(L2U/sum([GPInfo.Weight]));
+
 
 if (L2 < 1E-15)
     L2 = rand*1E-15;
 end
 if (L2U < 1E-15)
     L2U = rand*1E-15;
-endif (LInf < 1E-15)
+end
+if (LInf < 1E-15)
     LInf = rand*1E-15;
-endif (LInfU < 1E-15)
+end
+if (LInfU < 1E-15)
     LInfU = rand*1E-15;
 end
 % % for el = 1:nElements
@@ -624,11 +630,7 @@ nElements = size(Elements, 1);
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
 
 
-[C, K, X, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-
-
-PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
-
+[C, K, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 A = C\(K);
 

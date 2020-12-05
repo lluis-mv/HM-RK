@@ -10,33 +10,13 @@ addpath('../')
 T = 1E-1;
 
 CP.E = 1;
-CP.nu = 0.0;
-CP.k = 1;
-nu = CP.nu;
-CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-
-t = T/CP.M/CP.k;
+CP.nu = 0.49;
 
 
 
-NSteps = 10.^linspace(0, 6, 10);
-NSteps = 10.^2;
-NSteps = floor(NSteps); NSteps = sort(NSteps);
-NStepsRef = 1;
 
-
-ddtt = t./NSteps;
-
-ticks = [min(ddtt), max(ddtt)];
-ticks = floor(log10(ticks));
-ticks = 10.^(ticks(1):2:ticks(end));
-ticks = [ticks, min(ddtt), max(ddtt)];
-ticks = 10.^unique( log10(ticks));
-ticks = unique(ticks);
-
-
-ESIZE = [0.2, 0.1, 0.075, 0.05];
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
+ESIZE = [0.15];
 
 
 figure(50); clf;
@@ -63,7 +43,8 @@ for Elem = [1, 2, 3]
         dx = 0.3; dy = 1;
         model = createpde(1);
         
-        R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
+        
+        R1 = [3,5, 0, 1, 6, 6, 0, 0, 0, 0, -6, -6]';
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -80,7 +61,9 @@ for Elem = [1, 2, 3]
         % First part. compute the eigenvalues
         figure(1);
         clf;
-        %     triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        if ( Elem == 1)
+            triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        end
         drawnow
         axis equal
         axis off
@@ -99,10 +82,10 @@ for Elem = [1, 2, 3]
         
         
         
-        nSteps = 10;
-        dt = 1/nSteps;
+        nSteps = 40;
+        dt = 4/nSteps;
         nSteps = nSteps;
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 2, 1);
+        [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 4, 0);
         
         
         
@@ -119,13 +102,7 @@ for Elem = [1, 2, 3]
         ylabel('Error norm', 'interpreter', 'latex');
         set(gca, 'FontSize', 14)
         drawnow
-        yy = ylim();
-        xx = (he)^2/(6000*CP.k*CP.M*ThisNumber)*[1,1];
-        %         plot(xx, yy, 'k-.')
-        if ( yy(2) > 1E20)
-            yy(2) = 1E20;
-        end
-        ylim(yy);
+        
         ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
         set(ll, 'interpreter', 'latex')
         drawnow
@@ -146,6 +123,7 @@ for Elem = [1, 2, 3]
         SlopeL2U
         
         i = i+1;
+        return
     end
     
     figure(50)
@@ -156,12 +134,6 @@ for Elem = [1, 2, 3]
     ylabel('Error norm', 'interpreter', 'latex');
     set(gca, 'FontSize', 14)
     drawnow
-    yy = ylim();
-    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-    %         plot(xx, yy, 'k-.')
-    if ( yy(2) > 1E20)
-        yy(2) = 1E20;
-    end
     %     ylim(yy);
     ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
     set(ll, 'interpreter', 'latex')
@@ -277,14 +249,14 @@ Xa = 0*Xnum;
 
 % Other analytical solution...
 nNodes = size(Nodes,1);
-M = CP.M;
-k = CP.k;
+E = CP.E;
+nu = CP.nu;
 for nod = 1:nNodes
     y = Nodes(nod,2);
     
     
     Xa(3*(nod-1)+2) = 0.1*y^2*(y-1)^2*t^2;
-    Xa(3*(nod-1)+3) =  0.01*y*(y-1)*t^2;
+    Xa(3*(nod-1)+3) = -(E*t*y*(2*y^2 - 3*y + 1))/(15*(2*nu - 1));
 end
 
 
@@ -292,11 +264,11 @@ end
 
 figure(900)
 subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
 hold off
 
 subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
 hold off
 
@@ -342,8 +314,6 @@ elseif ( nP == 6)
         4*alfa*beta;
         4*beta*(1-alfa-beta)]';
 end
-
-
 
 
 

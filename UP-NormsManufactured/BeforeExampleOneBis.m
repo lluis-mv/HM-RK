@@ -1,45 +1,32 @@
 function [] = BeforeExampleOneBis()
 
-close all
+figure(30); clf;
+figure(50); clf;
+figure(900); clf;
+
 addpath('../')
 % 1. Define the problem
 
-T = 1E-5;
+T = 1E-1;
 
 CP.E = 1;
-CP.nu = 0.0;
-CP.k = 1;
-nu = CP.nu;
-CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
+CP.nu = 0.49;
 
-t = T/CP.M/CP.k;
+CP.HydroMechanical = false;
 
 
 
-NSteps = 10.^linspace(0, 6, 10);
-NSteps = 10.^2;
-NSteps = floor(NSteps); NSteps = sort(NSteps);
-NStepsRef = 1;
 
 
-ddtt = t./NSteps;
+ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
+ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04];
 
-ticks = [min(ddtt), max(ddtt)];
-ticks = floor(log10(ticks));
-ticks = 10.^(ticks(1):2:ticks(end));
-ticks = [ticks, min(ddtt), max(ddtt)];
-ticks = 10.^unique( log10(ticks));
-ticks = unique(ticks);
-
-
-ESIZE = [0.2, 0.1, 0.075, 0.05];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03, 0.025];
-% ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04]
 
 figure(50); clf;
+RKMethod = 1;
+Elem = 1;
 
-Elem = 2;
-for MyNumber = [ 10, 100, 1000, 10000, 100000]
+for Elem = [1, 2, 3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -56,7 +43,7 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
             ThisNumber = 2000;
         end
         
-        dx = 0.4; dy = 1;
+        dx = 0.3; dy = 1;
         model = createpde(1);
         
         R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
@@ -92,19 +79,18 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
         esizeAxis(i)=he;
         
         
-        nSteps = NSteps(1);
-        
-        
-        dt = he^2/(MyNumber*CP.k*CP.M)
-        
-        nSteps = ceil(t/dt)
-        dt = t/nSteps;
-        
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 1);
         
         
         
-        [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, t, GPInfo, CP);
+        nSteps = 1;
+        dt = 1/nSteps;
+        nSteps = nSteps;
+        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, 0);
+        
+        
+        
+        
+        [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);
         
         
         
@@ -116,13 +102,7 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
         ylabel('Error norm', 'interpreter', 'latex');
         set(gca, 'FontSize', 14)
         drawnow
-        yy = ylim();
-        xx = (he)^2/(6000*CP.k*CP.M*ThisNumber)*[1,1];
-        %         plot(xx, yy, 'k-.')
-        if ( yy(2) > 1E20)
-            yy(2) = 1E20;
-        end
-        ylim(yy);
+        
         ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
         set(ll, 'interpreter', 'latex')
         drawnow
@@ -153,12 +133,6 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
     ylabel('Error norm', 'interpreter', 'latex');
     set(gca, 'FontSize', 14)
     drawnow
-    yy = ylim();
-    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-    %         plot(xx, yy, 'k-.')
-    if ( yy(2) > 1E20)
-        yy(2) = 1E20;
-    end
     %     ylim(yy);
     ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
     set(ll, 'interpreter', 'latex')
@@ -167,7 +141,6 @@ for MyNumber = [ 10, 100, 1000, 10000, 100000]
     %         xticks(ticks);
     print(['ExampleOneBis-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
     hold on
-    return;
 end
 
 
@@ -202,12 +175,6 @@ end
 
 
 
-wa = 0.054975871827661;
-wb = 0.1116907948390055;
-Na1 = 0.816847572980459;
-Nb1 = 0.108103018168070;
-Na2 = 0.091576213509771;
-Nb2 = 0.445948490915965;
 
 wa = 0.054975871827661;
 wb = 0.1116907948390055;
@@ -281,47 +248,28 @@ Xa = 0*Xnum;
 
 % Other analytical solution...
 nNodes = size(Nodes,1);
-M = CP.M;
-k = CP.k;
+E = CP.E;
+nu = CP.nu;
 for nod = 1:nNodes
-    xx = 1-Nodes(nod,2);
-    TT = M * t*k;
-    pw = 0;
-    for m = 0:400
-        aux = pi/2*(2*m+1);
-        pw = pw + 2/aux * sin( aux * xx) * exp( - aux^2 * TT);
-    end
-    Xa(3*(nod-1)+3) = pw;
-end
-
-
-
-
-for nod = 1:nNodes
-    z= 1-Nodes(nod,2);
+    y = Nodes(nod,2);
     
-    uu = z-1;
     
-    for m = 0:100
-        
-        term = +(exp(-(TT*pi^2*(2*m + 1)^2)/4)*(8*sin(pi*m) + 8*cos((z*pi*(2*m + 1))/2)))/(pi^2*(2*m + 1)^2);
-        uu = uu+term;
-    end
-    Xa(3*(nod-1)+2) = uu/M;
+    Xa(3*(nod-1)+2) = 0.1*y^2*(y-1)^2*t^2;
+    Xa(3*(nod-1)+3) = -(E*t*y*(2*y^2 - 3*y + 1))/(15*(2*nu - 1));
 end
 
 
-if (any(isnan(Xa)))
-    Xa = nan*Xa;
-end
+
 
 figure(900)
 subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'b*', Nodes(:,2), Xnum(2:3:end), 'r*')
+plot(Nodes(:,2), Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
+hold off
 
 subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'b*', Nodes(:,2), Xnum(3:3:end), 'r*')
+plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
+hold off
 
 
 
@@ -369,8 +317,6 @@ end
 
 
 
-
-
 function [p, y] = CorrectInterpolation(p1, y1)
 
 alfa = linspace(0, 1);
@@ -387,3 +333,4 @@ for ind = 1:2:length(y1)-1
     y = [y; N'*yy];
     p = [p; N'*pp];
 end
+

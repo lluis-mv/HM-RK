@@ -21,14 +21,18 @@ B = inv(B);
 
 
 B(nDir,nDir) = eye(length(nDir));
-invCf = (C\f);
+invC = inv(C);
 invCfini = (C\fini);
-invCf(nDir) = 0;
+invC(nDir,nDir) = 0;
 invCfini(nDir) = 0;
-X = B*(X + invCfini);
-for i = 2:nSteps
 
-    X = B*(X + (1/nSteps)* invCf);
+[f] = ComputeForceVector(dt, Nodes, Elements, GPInfo);
+X = B*(X + invCfini + (1/nSteps)*invC*f);
+
+for i = 2:nSteps
+    [f] = ComputeForceVector(i*dt, Nodes, Elements, GPInfo);
+    
+    X = B*(X +  (1/nSteps)*invC*f);
 end
 
 

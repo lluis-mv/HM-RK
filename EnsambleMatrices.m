@@ -1,11 +1,21 @@
 % Ensamble elemtal matrices to create C and K
 % Compute the stabilization factor
 
-function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, a, b)
+function [C, K] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM)
 
 if (nargin == 8)
     AlphaStabM = 1;
 end
+
+if ( CP.HydroMechanical)
+    [C, K] = EnsambleHydroMechanicalProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+else
+    [C, K] = EnsambleUPProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+end
+
+
+function [C, K] = EnsambleHydroMechanicalProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM)
+
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
@@ -33,14 +43,9 @@ for el = 1:nElements
    
         if (all(ElementType == 'T3T3'))
         
-            AlphaStab = 8*perme*dt/he^2;
-            AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E4*dt*perme/he^2)^(2*RKMethod) ));
-            AlphaStab = 8*dt*perme/he^2*(1-exp(- (8E5*dt*perme/he^2)^(RKMethod) ));
-            AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2)^(RKMethod) ));
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod ));
             
             if ( implicit)
-                AlphaStab = -0.65*perme*dt/he^2;
                 AlphaStab = 4*(2*ConstModulus - 12*dt*perme/he^2);
                 if (AlphaStab < 0)
                     AlphaStab = 0;
@@ -48,9 +53,6 @@ for el = 1:nElements
             end
         elseif ( all(ElementType == 'T6T6'))
             he = sqrt( sum( [GPInfo(el,:).Weight]) );
-%             AlphaStab = 80*perme*dt/he^2;
-            AlphaStab = 80*dt*perme/he^2*(1-exp(- (8E7*dt*perme/he^2)^(RKMethod) ));
-            AlphaStab = 80*dt*perme/he^2*(1-exp(- (8E8*dt*perme/he^2)^(RKMethod) ));
             AlphaStab = 80*dt*perme/he^2*(1-exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
@@ -58,9 +60,9 @@ for el = 1:nElements
             disp(ElementType)
             error('this element does not exist. yet')
         end
-        if (nargin == 11)
-            AlphaStab = a/ConstModulus;%+b*perme*dt/he^2;
-        end
+        %if (nargin == 11)
+        %    AlphaStab = a/ConstModulus+b*perme*dt/he^2;
+        %end
 
         AlphaStab = -AlphaStab*AlphaStabM;
 
@@ -95,3 +97,77 @@ for el = 1:nElements
     end
 end
 
+
+function [C, K] = EnsambleUPProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+nSystem = 3*nNodes;
+
+C = sparse(nSystem, nSystem);
+
+
+one = [1,1,0]';
+
+
+Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];
+
+for el = 1:nElements
+    
+    for ngp = 1:size(GPInfo,2)
+        
+        
+        Ddev = Idev*GPInfo(el,ngp).D6;
+        kke = GPInfo(el,ngp).B'*Ddev([1,2,4],[1,2,4])*GPInfo(el,ngp).B;
+        
+        Q = GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;
+        
+        
+        Qt = GPInfo(el,ngp).N' * [1,1,1] * GPInfo(el,ngp).D6(1:3,[1:2,4])*GPInfo(el,ngp).B;
+        H = -GPInfo(el,ngp).N'*GPInfo(el,ngp).N*3;
+    
+        
+        he = sqrt( sum([GPInfo(el,:).Weight]));
+   
+        if (all(ElementType == 'T3T3'))
+            AlphaStab = 0;
+        elseif ( all(ElementType == 'T6T6'))
+            AlphaStab = 0;
+        elseif ( all(ElementType == 'T6T3'))
+            AlphaStab = 0;
+        else
+            disp(ElementType)
+            error('this element does not exist. yet')
+        end
+        
+
+        AlphaStab = -800*AlphaStabM;
+
+        Ms = GPInfo(el,ngp).Ms * AlphaStab;
+        
+        if ( all(ElementType=='T6T3') )
+            Q2 = [Qt; zeros(3,12)];
+            Ms = [Ms+H, zeros(3,3);
+                -1,-1,0,2,0,0;
+                 0, -1, -1, 0 ,2, 0;
+                 -1, 0, -1, 0, 0, 2];
+            Ce = [kke, Q, zeros(12,3); Q2, Ms];
+            
+        else
+        
+            Ce = [kke, Q; Qt, Ms+H];
+            
+        end
+        
+        aux = GPInfo(el,ngp).IndexReorder;
+
+        
+        Ce = Ce(aux,aux);
+
+        index = GPInfo(el,ngp).dofs;
+        C(index,index) =  C(index,index) + Ce*GPInfo(el,ngp).Weight;
+    end
+end
+
+K = 0*C;

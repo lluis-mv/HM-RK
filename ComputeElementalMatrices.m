@@ -126,6 +126,7 @@ for el = 1:nElements
         GPInfo(el,gp).HistoryPrev = 0;
         
         GPInfo(el,gp).MCC = false;
+        GPInfo(el,gp).VonMises = false;
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;
@@ -278,6 +279,7 @@ for el = 1:nElements
         GPInfo(el,gp).HistoryPrev = 0;
         
         GPInfo(el,gp).MCC = false;
+        GPInfo(el,gp).VonMises = false;
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;
@@ -429,6 +431,7 @@ for el = 1:nElements
         GPInfo(el,gp).HistoryPrev = 0;
         
         GPInfo(el,gp).MCC = false;
+        GPInfo(el,gp).VonMises = false;
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;

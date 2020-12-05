@@ -11,46 +11,50 @@ end
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
-
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
-[C, K, X, f, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+[C, K, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
-
-[C2, K2 ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM, 2, 0);
-[C2, K2, ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C2, K2);
-
-PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
-
-f(nDir) = 0;
-fini(nDir) = 0;
+fini(nDirichlet) = 0;
 A = C\(K);
-ii = eye(3*nNodes, 3*nNodes);
+A(nDirichlet,:)=0;
 
-A(nDir,nDir)=0;
-
-if ( RKMethod)
-    [a,b] = GetRungeKutta(RKMethod);
+[~, ~, AllZero] = ComputeForceVector(0, Nodes, Elements, GPInfo, CP);
+if ( AllZero)
+    invC = 0*C;
+else
+    invC = inv(C);
 end
 
-C2 = C;
-invCf = (C2\f);
-invCfini = (C2\fini);
-invCfini(nDir)=0;
+invCfini = (C\fini);
+invCfini(nDirichlet)=0;
 
+
+if ( RKMethod)
+    [a,b, c] = GetRungeKutta(RKMethod);
+end
 k = zeros(  3*nNodes, length(b));
 
-for t = 1:nSteps
+
+
+
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+
+for loadStep = 1:nSteps
+
     for i = 1:length(b)
         XStep = X;
+        t = (loadStep-1)*dt + c(i)*dt;
+        [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
+        f(nDirichlet) = 0;
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-         k(:,i) = A*XStep + (dt/dt)*invCf;
-         if ( t == 1)
+         k(:,i) = A*XStep + invC*f;
+         if ( loadStep == 1)
              k(:,i) = k(:,i) + (1/dt)*invCfini;
-         end
+        end
     end
     XNew = X;
     for i = 1:length(b)
@@ -68,5 +72,5 @@ end
 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);
-PostProcessResults(Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
 

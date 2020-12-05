@@ -1,9 +1,7 @@
 
-function [C, K, X0, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
+function [C, K, X0, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
 
-if (nargin ~= 5)
-    error('it should be five!!!!')
-end
+
 
 penalty = 1;
 
@@ -18,7 +16,8 @@ nodesLeft = find(Nodes(:,1) == min(Nodes(:,1)));
 nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 % Fix wp on top
-dofs = 3*([nodesTop; nodesBottom]-1)+3;
+% dofs = 3*([1:nNodes]'-1)+3;
+dofs = [];
 
 
 
@@ -36,21 +35,19 @@ dofs = 3*([nodesTop; nodesBottom]-1)+2;
 nDirichlet = [nDirichlet; dofs];
 
 C(dofs,:) = 0;
-K(dofs,:) = 0;
+
 C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
-dofs = 3*([1:nNodes]'-1)+1;
+
 dofs = 3*( [nodesLeft; nodesRight]-1)+1;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
-K(dofs,:) = 0;
+
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 X0 = zeros(3*nNodes, 1);
-for i = 1:nNodes
-    X0(3*(i-1)+3) = 1;
-end
+
 
 
 
@@ -75,12 +72,11 @@ if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
 end
 
 
-f = zeros(3*nNodes, 1);
 
-fini = 0*f;
+fini = 0*X0;
 
-X0 = 0*X0;
-hola = 1;
+
+
 
 
 

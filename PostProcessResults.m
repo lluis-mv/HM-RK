@@ -1,5 +1,5 @@
 
-function [] = PostProcessResults(X, T, NodalData, GPInfo, time, WriteMesh, XFILE)
+function [] = PostProcessResults(HydroMechanical, X, T, NodalData, GPInfo, time, WriteMesh, XFILE)
 
 
 nNodes = size(X,1);
@@ -38,16 +38,38 @@ if (WriteMesh)
     fid = fopen([XFILE, '.res'], 'w' );
     fprintf(fid, 'Gid Post Results File 1.0 \n');
     fprintf( fid, 'GaussPoints "GP"  ElemType Triangle  \n');
-    if ( size(T,2) == 3)
+    if ( size(GPInfo,2) == 1)
         fprintf(fid, ' Number Of Gauss Points: 1 \n');
         fprintf(fid, 'Natural Coordinates: Internal \n');
         fprintf(fid, 'End GaussPoints \n');
-    elseif ( size(T,2) == 6)
+    elseif ( size(GPInfo,2) == 3)
         fprintf(fid, ' Number Of Gauss Points: 3 \n');
         fprintf(fid, 'Natural Coordinates: Given \n');
         fprintf( fid, '%e %e \n', [2/3, 1/6] );
         fprintf( fid, '%e %e \n', [1/6, 1/6] );
         fprintf( fid, '%e %e \n', [1/6, 2/3] );
+        fprintf(fid, 'End GaussPoints \n');
+    elseif ( size(GPInfo, 2) == 6)
+        
+        wa = 0.054975871827661;
+        wb = 0.1116907948390055;
+        Na1 = 0.816847572980459;
+        Nb1 = 0.108103018168070;
+        Na2 = 0.091576213509771;
+        Nb2 = 0.445948490915965;
+        
+        
+        auxK = [Na2, Na2, wa;
+            Na1, Na2, wa;
+            Na2, Na1, wa;
+            Nb2, Nb2, wb ;
+            Nb1, Nb2, wb ;
+            Nb2, Nb1, wb ];
+        fprintf(fid, ' Number Of Gauss Points: 6 \n');
+        fprintf(fid, 'Natural Coordinates: Given \n');
+        for i = 1:6
+            fprintf( fid, '%e %e \n', [auxK(i,1), auxK(i,2)] );
+        end
         fprintf(fid, 'End GaussPoints \n');
     end
     fclose(fid);
@@ -81,24 +103,47 @@ end
 fprintf( fid, 'End Values \n');
 
 
-
-fprintf( fid, ['Result "WATER_PRESSURE" "HM-RK" ', time,' Scalar OnNodes \n']);
+if (HydroMechanical)
+    fprintf( fid, ['Result "WATER_PRESSURE" "HM-RK" ', time,' Scalar OnNodes \n']);
+else
+    fprintf( fid, ['Result "PRESSURE" "HM-RK" ', time,' Scalar OnNodes \n']);
+end
 fprintf( fid, 'Values \n');
+
 for i = 1:nNodes
     fprintf( fid, '%i %e \n', [i, WP(i)] );
 end
 fprintf( fid, 'End Values \n');
 
-
-fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+if (HydroMechanical)
+    fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+else
+    fprintf(fid, ['Result "total_Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+end
 fprintf(fid, ' values \n ');
+Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];
+m = [1,1,1,0,0,0]';
 for i = 1:nElem
-    fprintf( fid, '%i %e %e %e %e %e %e \n', [i; GPInfo(i,1).StressNew] );
-    for j = 2:size(GPInfo,2)
-        fprintf( fid, '   %e %e %e %e %e %e \n', GPInfo(i,j).StressNew );
+    fprintf( fid, '%i ', [i]);
+    for j = 1:size(GPInfo,2)
+        stress = Idev*GPInfo(i,j).StressNew + m*GPInfo(i,j).N*NodalData(GPInfo(i,j).dofsWP);
+        fprintf( fid, '   %e %e %e %e %e %e \n', stress );
     end
 end
 fprintf(fid, ' END values \n ');
+
+if (HydroMechanical)
+    fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+    fprintf(fid, ' values \n ');
+    for i = 1:nElem
+        fprintf( fid, '%i ', [i]);
+        for j = 1:size(GPInfo,2)
+            stress = GPInfo(i,j).StressNew;
+            fprintf( fid, '   %e %e %e %e %e %e \n', stress );
+        end
+    end
+    fprintf(fid, ' END values \n ');
+end
 
 
 
@@ -123,6 +168,21 @@ if ( length(GPInfo(1,1).HistoryNew) > 0)
     end
     fprintf(fid, ' END values \n ');
 end
+
+
+fprintf(fid, ['Result "VonMises" "HM-RK" ', time,'  Scalar OnGaussPoints "GP" \n ']);
+fprintf(fid, ' values \n ');
+for i = 1:nElem
+    fprintf( fid, '%i ' , i );
+    for j = 1:size(GPInfo,2)
+        stress = Idev*GPInfo(i,j).StressNew;
+        J2 = sqrt(3/2)*sqrt( stress(1)^2+ stress(2)^2 + stress(3)^2 + 2*stress(4)^2);
+        fprintf( fid, '   %e  \n', J2);
+    end
+end
+fprintf(fid, ' END values \n ');
+
+
 
 fclose(fid);
 
