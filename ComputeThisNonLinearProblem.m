@@ -1,8 +1,11 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
-drift = false;
+function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM, drift)
+
+if (nargin == 8)
+    drift = false;
+end
 
 
 
@@ -23,6 +26,7 @@ elseif ( any([GPInfo.MCC] == true) )
 end
 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+f0 = ComputeInternalForces( Elements, GPInfo, X);
 
 if ( RKMethod)
     [a,b,c] = GetRungeKutta(RKMethod);
@@ -73,7 +77,7 @@ for loadStep = 1:nSteps
         UnbalancedForces(nDirichlet) = 0;
         
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false);
-        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         
         dX =  (C+dt*K)\(UnbalancedForces);
         

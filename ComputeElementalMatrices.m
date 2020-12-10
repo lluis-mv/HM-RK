@@ -10,7 +10,17 @@ elseif ( all(ElementType == 'T6T3') )
     [GPInfo] = ComputeElementalMatricesT6T3(Nodes, Elements, CP);
 end
 
-hola = 1;
+
+
+for i = 1:size(GPInfo,1)
+    for j = 1:size(GPInfo,2)
+        GPInfo(i,j).ConstrainedModulus = CP.M;
+    end
+end
+
+
+
+
 
 function [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP)
 
@@ -412,7 +422,5 @@ for el = 1:nElements
         GPInfo(el,gp).IndexReorder = [1,2,13, 3,4,14, 5,6,15, 7,8,16, 9,10,17, 11,12,18];
     end
 end
-
-
 
 

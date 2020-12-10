@@ -5,6 +5,10 @@ if (any(isnan(X)) ||any(isnan(Xa)) )
     L2 = nan; L2U= nan; LInf = nan; LInfU=nan;
     return
 end
+if (any(isinf(X)) ||any(isinf(Xa)) )
+    L2 = nan; L2U= nan; LInf = nan; LInfU=nan;
+    return
+end
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);

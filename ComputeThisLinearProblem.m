@@ -66,6 +66,10 @@ for loadStep = 1:nSteps
         X = nan*X;
         return;
     end
+    if (any(isinf(X)))
+        X = nan*X;
+        return;
+    end
 end
 
 

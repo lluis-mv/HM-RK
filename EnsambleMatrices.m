@@ -28,11 +28,14 @@ K = C;
 one = [1,1,0]';
 
 perme = CP.k;
-ConstModulus=CP.M;
+
 
 for el = 1:nElements
     
     for ngp = 1:size(GPInfo,2)
+        
+        
+        ConstModulus=  GPInfo(el,ngp).ConstrainedModulus;
         
         kke = GPInfo(el,ngp).B'*GPInfo(el,ngp).D*GPInfo(el,ngp).B;
         Q = -GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;

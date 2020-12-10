@@ -16,11 +16,11 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.05;
+eSize = 0.075;
 
 model = createpde(1);
 
-dx = 0.15; dy = 1;
+dx = 0.4; dy = 1;
 
 R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
 g = decsg(R1);
@@ -379,27 +379,13 @@ if ( true)
             if (RK == 1)
                 clf;
             end
-            loglog( ddtt, L2U, [color, '*-.'],  ddtt, LInfU, [color, 'v-.'])
+            loglog( ddtt, L2, [color, '*-.'],  ddtt, L2U, [color, 'v-.'])
             hold on
             xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');
             set(gca, 'FontSize', 14)
             drawnow
             
-            
-            
-            
-            
-            figure(20+3*j+1)
-            if (RK == 1)
-                clf;
-            end
-            loglog( ddtt, L2, [color, '*-.'],  ddtt, LInf, [color, 'v-.'])
-            hold on
-            xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-            ylabel('Error norm', 'interpreter', 'latex');
-            set(gca, 'FontSize', 14)
-            drawnow
             
         end
         figure(20+3*j)
@@ -415,22 +401,10 @@ if ( true)
         drawnow
         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
         xticks(ticks);
-        print(['ExampleOne-RK1-', ElementType], '-dpdf')
+        print(['ExampleOne-RK-', ElementType], '-dpdf')
         
         
-        figure(20+3*j+1)
-        drawnow
-        yy = ylim();
-        xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-        plot(xx, yy, 'k-.')
-        if ( yy(2) > 1E20)
-            yy(2) = 1E20;
-        end
-        ylim(yy);
-        drawnow
-        xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-        xticks(ticks);
-        print(['ExampleOne-RK2-', ElementType], '-dpdf')
+       
         
     end
 end
