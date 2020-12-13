@@ -1,12 +1,17 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM, drift)
+function [X, GPInfo, normResidual, ThisInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM, drift)
 
 if (nargin == 8)
     drift = false;
 end
-
+if (nargout == 4)
+    DoSomePostProcess = true;
+else
+    DoSomePostProcess = false;
+end
+    
 
 
 
@@ -39,6 +44,9 @@ k = zeros(  3*nNodes, length(b));
 
 
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+if ( DoSomePostProcess ) 
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X);
+end
 
 for loadStep = 1:nSteps
     
@@ -72,7 +80,7 @@ for loadStep = 1:nSteps
     % Compute stress and D
     GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
     
-    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
+    
     
     if ( drift)
         UnbalancedForces = fini + f*(loadStep/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X);
@@ -91,16 +99,20 @@ for loadStep = 1:nSteps
         GPInfo = FinalizeConstitutiveLaw(GPInfo);
     end
     
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
+    if ( DoSomePostProcess ) 
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, ThisInfo);
+    end
 end
 
 
 
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1, false, ['ThisProblem-', ElementType]);
+%PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1, false, ['ThisProblem-', ElementType]);
 
 
 
 % Compute the mechanical residual, just to have some fun,....
-if (nargout == 3)
+if (nargout > 2)
     % mechanical part
 	finter = ComputeInternalForces( Elements, GPInfo, X);
    

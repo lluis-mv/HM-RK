@@ -20,6 +20,7 @@ nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 % Fix wp on top
 index = find( (Nodes(:,1) > 1) &  abs(Nodes(:,2)) < 1E-8);
 dofs = 3*(index-1)+3;
+% dofs = 3*([1:nNodes]'-1)+3;
 nDirichlet = [nDirichlet; dofs];
 
 K(dofs,:) = 0;
@@ -31,7 +32,6 @@ C(dofs,dofs) = penalty*eye(length(dofs));
 % Fix uY bottom
 index = find( (Nodes(:,1) <= 1) &  abs(Nodes(:,2)) < 1E-8);
 dofs = 3*([nodesBottom; index]-1)+2;
-% dofs = 3*([1:nNodes]'-1)+2;
 nDirichlet = [nDirichlet; dofs];
 
 K(dofs,:) = 0;
@@ -39,7 +39,7 @@ C(dofs,:) = 0;
 C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
-dofs = 3*([nodesLeft; nodesRight]-1)+1;
+dofs = 3*([index; nodesLeft; nodesRight]-1)+1;
 nDirichlet = [nDirichlet; dofs];
 K(dofs,:) = 0;
 C(dofs,:) = 0;

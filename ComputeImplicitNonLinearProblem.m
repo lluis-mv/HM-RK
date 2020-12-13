@@ -1,19 +1,26 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
-                            
+function [X, GPInfo, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
+
+if (nargout == 3)
+    DoSomePostProcess = true;
+else
+    DoSomePostProcess = false;
+end
 
 nNodes = size(Nodes, 1);
 %nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 
 
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+
 [f0] = ComputeInternalForces(Elements, GPInfo, X);
 f0(nDirichlet) = 0;
 
@@ -24,6 +31,14 @@ t = 0;
 
 [~, uDirichlet] = ComputeForceVector(0, Nodes, Elements, GPInfo, CP);
 uDirichlet = 0*uDirichlet;
+
+
+
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ImplicitProblem-', ElementType]);
+if ( DoSomePostProcess ) 
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X);
+end
+
 
 for loadStep = 1:nSteps
     
@@ -103,7 +118,10 @@ for loadStep = 1:nSteps
     
     fin_n = fin_n1;
     
-    
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
+    if ( DoSomePostProcess ) 
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, ThisInfo);
+    end
 end
 
 

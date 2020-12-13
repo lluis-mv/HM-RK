@@ -1,4 +1,4 @@
-function [] = BeforeExampleOneBis()
+function [] = ExampleThree()
 
 figure(30); clf;
 figure(50); clf;
@@ -85,12 +85,39 @@ for Elem = 2
         
         
         
-        nSteps = 40;
-        dt = 4/nSteps;
-        nSteps = nSteps;
-        [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 0);
+        nSteps = 10;
+        dt = 0.25/nSteps;
+        
+        nSteps = 5;
         
         
+        [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/10, 10*nSteps, ElementType);
+        ThisInfo(1).t = [information.t];
+        ThisInfo(1).F = [information.F];
+        
+        for RK = 1:4
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+            ThisInfo(RK+1).t = [information.t];
+            ThisInfo(RK+1).F = [information.F];
+        end
+        
+        for RK = 1:4
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
+            ThisInfo(RK+5).t = [information.t];
+            ThisInfo(RK+5).F = [information.F];
+        end
+        
+        figure(233); clf;
+ 
+        plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
+        hold on
+        for i = 2:9
+            figure(233)
+            plot([ThisInfo(i).t], [ThisInfo(i).F], '*-.')
+            hold on
+            drawnow;
+        end
+        legend('Imp', '1','2','3','4','11','12','13','14', 'location', 'best')
         
         
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);
