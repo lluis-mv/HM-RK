@@ -1,16 +1,15 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, trash)
-
+function [X, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
+                            
 
 nNodes = size(Nodes, 1);
 %nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, trash, dt, true);
-
-[~, ~, X, ~, ~, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, C, K);
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
+[~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 
 
@@ -18,11 +17,26 @@ nNodes = size(Nodes, 1);
 [f0] = ComputeInternalForces(Elements, GPInfo, X);
 f0(nDirichlet) = 0;
 
-for i = 1:nSteps
+fin_n = f0;
+fext_n = fini;
+
+t = 0;
+
+[~, uDirichlet] = ComputeForceVector(0, Nodes, Elements, GPInfo, CP);
+uDirichlet = 0*uDirichlet;
+
+for loadStep = 1:nSteps
     
     Xn = X;
-    
     iter = 0;
+    
+    t = t + dt;
+    [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
+    fext_n1 = fext_n + dt*df;
+    uDirichlet = uDirichlet + dt*vDirichlet;
+    
+    
+    
     while( true )
         
         % Compute D, Sigma...
@@ -30,17 +44,18 @@ for i = 1:nSteps
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, trash, dt, true, 1, 2,0);
+        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, 1);
+        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         
-        [C, K,  ~, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, C, K);
         
         
         
         % mechanical part
-        finter = ComputeInternalForces( Elements, GPInfo, Xn);
+        fin_n1 = ComputeInternalForces( Elements, GPInfo, Xn);
         
         
-        residual = fini + f*(i/nSteps) + f0 - finter;
+        residual = (fext_n1 - fext_n) + (fin_n - fin_n1);
+        %residual = fini + f*(loadStep/nSteps) + f0 - fin_n1;
         
         % hydraulical part
         res2 = C*(Xn-X)-dt*K*Xn;
@@ -50,12 +65,12 @@ for i = 1:nSteps
         end
         
         
-        residual(nDirichlet) = -Xn(nDirichlet);
+        residual(nDirichlet) = uDirichlet(nDirichlet)-Xn(nDirichlet);
         
         
         normRes = norm(residual/nNodes);
         
-        if ( iter > 1)
+        if ( iter > -10)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
         if ( normRes < 1E-12 && iter > 0)
@@ -83,8 +98,10 @@ for i = 1:nSteps
     end
     
     X = Xn;
-    %GPInfo = EvaluateConstitutiveLaw(GPInfo, Xn, Elements);
+    
     GPInfo = FinalizeConstitutiveLaw(GPInfo);
+    
+    fin_n = fin_n1;
     
     
 end

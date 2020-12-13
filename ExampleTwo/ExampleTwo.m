@@ -57,7 +57,7 @@ Elements1 = Elements;
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, 'T3T3');
 he = mean(sqrt( mean([GPInfo(:,:).Weight])));
 
-NSteps = 10.^linspace(0, 2, 8);
+NSteps = 10.^linspace(0, 3, 4);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 NStepsRef = 1;
 
@@ -77,9 +77,9 @@ ticks = unique(ticks);
 for j = 1:3
     % Now the same to compute norms...
     for drift = [false, true]
-        for RKMethod = [1:8]
-        
-        
+        for RKMethod = [1,3,5]
+            
+            
             
             if ( j == 1)
                 ElementType = 'T3T3';
@@ -92,27 +92,29 @@ for j = 1:3
                 Nodes = Nodes2;
                 Elements = Elements2;
                 ThisNumber = 6;
-                CP.k = 1E3
+                CP.k = 1E-7
             else
                 ElementType = 'T6T6';
                 Nodes = Nodes2;
                 Elements = Elements2;
                 ThisNumber = 2000;
-                CP.k = 1E5
+                CP.k = 1E+3
             end
             
             
-                ElementType = 'T3T3';
-                Nodes = Nodes1;
-                Elements = Elements1;
-                ThisNumber = 200;
+            ElementType = 'T6T3';
+            Nodes = Nodes2;
+            Elements = Elements2;
+            ThisNumber = 6;
+            CP.k = 1E-12;
             
             
             i = 1;
             for nSteps = NSteps
                 
                 dt = 1/nSteps;
-                [U, GPInfo, RES] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 0, drift);
+                [U, GPInfo, RES] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1, drift);
+                [U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
                 
                 
                 
@@ -152,29 +154,9 @@ for j = 1:3
             
             %         hold off
         end
-        return;
     end
 end
 
 
 
 
-
-
-
-function [p, y] = CorrectInterpolation(p1, y1)
-
-alfa = linspace(0, 1);
-y = [];
-p = [];
-
-for ind = 1:2:length(y1)-1
-    pp = p1(ind:ind+2);
-    yy = y1(ind:ind+2);
-    
-    N = [(1 - alfa).*(1-2*alfa);
-        4*(1-alfa).*alfa;
-        alfa.*(2*alfa-1)];
-    y = [y; N'*yy];
-    p = [p; N'*pp];
-end

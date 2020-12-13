@@ -14,11 +14,12 @@ nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+[GPInfo] = InitializeConstitutiveLaw(GPInfo);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
-[C, K, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+[~,~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+
 if ( any([GPInfo.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
 elseif ( any([GPInfo.MCC] == true) )
@@ -27,6 +28,7 @@ end
 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 f0 = ComputeInternalForces( Elements, GPInfo, X);
+f0(nDirichlet) = 0;
 
 if ( RKMethod)
     [a,b,c] = GetRungeKutta(RKMethod);

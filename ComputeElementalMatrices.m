@@ -11,13 +11,13 @@ elseif ( all(ElementType == 'T6T3') )
 end
 
 
-
-for i = 1:size(GPInfo,1)
-    for j = 1:size(GPInfo,2)
-        GPInfo(i,j).ConstrainedModulus = CP.M;
+if ( isfield(CP, 'M') )
+    for i = 1:size(GPInfo,1)
+        for j = 1:size(GPInfo,2)
+            GPInfo(i,j).ConstrainedModulus = CP.M;
+        end
     end
 end
-
 
 
 

@@ -104,17 +104,20 @@ fprintf( fid, 'End Values \n');
 
 if (HydroMechanical)
     fprintf(fid, ['Result "total_Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
-    
+    sign = -1;
+    Idev = eye(6);
 else
     fprintf(fid, ['Result "Cauchy_stress_tensor" "HM-RK" ', time,'  Matrix OnGaussPoints "GP" \n ']);
+    sign = 1;
+    Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];
 end
 fprintf(fid, ' values \n ');
-Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];
+
 m = [1,1,1,0,0,0]';
 for i = 1:nElem
     fprintf( fid, '%i ', [i]);
     for j = 1:size(GPInfo,2)
-        stress = Idev*GPInfo(i,j).StressNew + m*GPInfo(i,j).N*NodalData(GPInfo(i,j).dofsWP);
+        stress = Idev*GPInfo(i,j).StressNew + sign*m*GPInfo(i,j).N*NodalData(GPInfo(i,j).dofsWP);
         fprintf( fid, '   %e %e %e %e %e %e \n', stress );
     end
 end
@@ -160,6 +163,7 @@ end
 
 fprintf(fid, ['Result "VonMises" "HM-RK" ', time,'  Scalar OnGaussPoints "GP" \n ']);
 fprintf(fid, ' values \n ');
+Idev = eye(6)-1/3*[1,1,1,0,0,0]'*[1,1,1,0,0,0];
 for i = 1:nElem
     fprintf( fid, '%i ' , i );
     for j = 1:size(GPInfo,2)

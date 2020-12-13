@@ -64,6 +64,10 @@ for el = 1:nElements
             error('this element does not exist. yet')
         end
 
+        if ( implicit)
+            AlphaStab = 0;
+        end
+        
         if ( length(AlphaStabM) == 1)
             AlphaStab = -AlphaStab*AlphaStabM;
         elseif ( length(AlphaStabM) == 2)
