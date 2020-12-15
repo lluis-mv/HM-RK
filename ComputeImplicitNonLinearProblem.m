@@ -21,7 +21,7 @@ nNodes = size(Nodes, 1);
 
 
 
-[f0] = ComputeInternalForces(Elements, GPInfo, X);
+[f0] = ComputeInternalForces(Elements, GPInfo, X, CP.HydroMechanical);
 f0(nDirichlet) = 0;
 
 fin_n = f0;
@@ -36,7 +36,7 @@ uDirichlet = 0*uDirichlet;
 
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ImplicitProblem-', ElementType]);
 if ( DoSomePostProcess ) 
-    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X);
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
 
@@ -63,20 +63,18 @@ for loadStep = 1:nSteps
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         
         
-        
-        
         % mechanical part
-        fin_n1 = ComputeInternalForces( Elements, GPInfo, Xn);
-        
+        fin_n1 = ComputeInternalForces( Elements, GPInfo, Xn, CP.HydroMechanical);
         
         residual = (fext_n1 - fext_n) + (fin_n - fin_n1);
-        %residual = fini + f*(loadStep/nSteps) + f0 - fin_n1;
         
-        % hydraulical part
-        res2 = C*(Xn-X)-dt*K*Xn;
+        if ( CP.HydroMechanical)
+            
+            res2 = C*(Xn-X)-dt*K*Xn;
         
-        for jj = 1:nNodes
-            residual(3*jj) = -res2(3*jj);
+            for jj = 1:nNodes
+                residual(3*jj) = -res2(3*jj);
+            end
         end
         
         
@@ -85,10 +83,13 @@ for loadStep = 1:nSteps
         
         normRes = norm(residual/nNodes);
         
-        if ( iter > -10)
+        
+        disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+        if ( iter > 10)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
         if ( normRes < 1E-12 && iter > 0)
+            disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             break;
         end
         if ( iter == 30)
@@ -98,7 +99,13 @@ for loadStep = 1:nSteps
             hola = 1;
         end
         
-        A = C-dt*K;
+        if ( CP.HydroMechanical)
+            A = C-dt*K;
+        else
+            A = C;
+        end
+        
+        
         dX = A\residual;
         if ( any(isnan(dX)))
             hola = 1;
@@ -109,7 +116,7 @@ for loadStep = 1:nSteps
         
         iter = iter+1;
         
-        %CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, trash, dt, A, X, Xn);
+%         CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, dt, A, X, Xn);
     end
     
     X = Xn;
@@ -120,28 +127,76 @@ for loadStep = 1:nSteps
     
     PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
     if ( DoSomePostProcess ) 
-        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, ThisInfo);
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end
 
 
-function CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, trash, dt, A, X, Xn)
+function CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, dt, A, X, Xn)
 delta = 1E-6;
 for i = 1:length(Xn)
     X2 = Xn;
     X2(i) = X2(i)+delta*1i;
-    ThisResidual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType, trash, dt, X, X2);
+    ThisResidual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType, dt, X, X2);
     deri = imag(ThisResidual)/delta;
     J(:,i)= deri;
 end
 
 hola = 1;
 
-function residual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType, trash, dt, X, Xn)
+function residual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType,  dt, X, Xn)
+
+
 
 
 
 nNodes = size(Nodes, 1);
+
+[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+
+
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
+[~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+
+
+
+
+[f0] = ComputeInternalForces(Elements, GPInfo, X, CP.HydroMechanical);
+
+
+
+
+
+GPInfo = EvaluateConstitutiveLaw(GPInfo, Xn, Elements, true);
+
+
+% Create again C with the appropriate ElastoPlastic stiffness matrix
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, 1);
+[C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+
+
+% mechanical part
+fin_n1 = ComputeInternalForces( Elements, GPInfo, Xn, CP.HydroMechanical);
+
+residual = fin_n1;
+
+
+residual(nDirichlet) = -Xn(nDirichlet);
+
+return;
+
+
+
+
+
+
+
+
+
+
+
+
 %nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);

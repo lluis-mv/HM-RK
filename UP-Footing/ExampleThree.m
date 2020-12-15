@@ -17,14 +17,15 @@ CP.nu = 0.49;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.3];
+ESIZE = [0.5];
 
 
 figure(50); clf;
 RKMethod = 1;
 Elem = 1;
 
-for Elem = [1, 2, 3]
+% for Elem = [1, 2, 3]
+for Elem = 1
     
     esizeAxis = ESIZE;
     i = 1;
@@ -45,7 +46,7 @@ for Elem = [1, 2, 3]
         model = createpde(1);
         
         
-        R1 = [3,5, 0, 1, 6, 6, 0, 0, 0, 0, -6, -6]';
+        R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -83,12 +84,50 @@ for Elem = [1, 2, 3]
         
         
         
-        nSteps = 40;
-        dt = 4/nSteps;
-        nSteps = nSteps;
-        [U,GPInfo] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 0);
+        nSteps = 10;
+        dt = 0.1/nSteps;
         
         
+        
+        RK = 3;
+        
+        [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/3, 3*nSteps, ElementType);
+        ThisInfo(1).t = [information.t];
+        ThisInfo(1).F = [information.F];
+        
+        
+         for nSteps = [5, 10, 25, 50, 100]
+             dt = 0.1/nSteps;
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 1, false);
+            ThisInfo(RK+1).t = [information.t];
+            ThisInfo(RK+1).F = [information.F];
+        end
+        
+        return;
+        
+        for RK = 1:8
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+            ThisInfo(RK+1).t = [information.t];
+            ThisInfo(RK+1).F = [information.F];
+        end
+        
+        for RK = 1:4
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
+            ThisInfo(RK+9).t = [information.t];
+            ThisInfo(RK+9).F = [information.F];
+        end
+        
+        figure(233); clf;
+ 
+        plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
+        hold on
+        for i = 2:9
+            figure(233)
+            plot([ThisInfo(i).t], [ThisInfo(i).F], '*-.')
+            hold on
+            drawnow;
+        end
+        legend('Imp', '1','2','3','4','11','12','13','14', 'location', 'best')
         
         
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);

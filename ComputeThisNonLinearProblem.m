@@ -32,7 +32,7 @@ elseif ( any([GPInfo.MCC] == true) )
 end
 
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-f0 = ComputeInternalForces( Elements, GPInfo, X);
+f0 = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
 f0(nDirichlet) = 0;
 
 if ( RKMethod)
@@ -45,7 +45,7 @@ k = zeros(  3*nNodes, length(b));
 
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
 if ( DoSomePostProcess ) 
-    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X);
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
 for loadStep = 1:nSteps
@@ -58,7 +58,9 @@ for loadStep = 1:nSteps
         for j = 1:i-1
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
-        GPInfo = EvaluateConstitutiveLaw(GPInfo, XStep, Elements, false);
+        if ( i > 1)
+            GPInfo = EvaluateConstitutiveLaw(GPInfo, XStep, Elements, false);
+        end
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
@@ -83,26 +85,32 @@ for loadStep = 1:nSteps
     
     
     if ( drift)
-        UnbalancedForces = fini + f*(loadStep/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X);
+        
+        
+        
+        UnbalancedForces = fini + f*(loadStep/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
         UnbalancedForces(nDirichlet) = 0;
         
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         
-        dX =  (C+dt*K)\(UnbalancedForces);
-        
+        if ( CP.HydroMechanical)
+            dX =  (C+dt*K)\(UnbalancedForces);
+        else
+            dX = C\UnbalancedForces;
+        end
         X = X + dX;
         GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-        GPInfo = FinalizeConstitutiveLaw(GPInfo);
         
-    else
-        GPInfo = FinalizeConstitutiveLaw(GPInfo);
     end
+    
+    GPInfo = FinalizeConstitutiveLaw(GPInfo);
     
     PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
     if ( DoSomePostProcess ) 
-        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, ThisInfo);
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
+    
 end
 
 
@@ -114,7 +122,7 @@ end
 % Compute the mechanical residual, just to have some fun,....
 if (nargout > 2)
     % mechanical part
-	finter = ComputeInternalForces( Elements, GPInfo, X);
+	finter = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
    
     residual = fini + f + f0 - finter;
     residual(nDirichlet) = 0;

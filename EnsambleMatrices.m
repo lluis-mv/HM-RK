@@ -105,7 +105,7 @@ for el = 1:nElements
 end
 
 
-function [C, K] = EnsambleUPProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+function [C, K] = EnsambleUPProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM)
 
 
 nNodes = size(Nodes, 1);
@@ -150,6 +150,7 @@ for el = 1:nElements
         
 
         AlphaStab = -800*AlphaStabM;
+        AlphaStab = 0;
 
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
         
