@@ -174,7 +174,15 @@ for i = 1:nElem
 end
 fprintf(fid, ' END values \n ');
 
-
+[f] = ComputeInternalForces(T, GPInfo, NodalData, HydroMechanical);
+F = reshape(f, [3,nNodes])';
+fprintf( fid, ['Result "REACTION" "HM-RK" ', time,' Vector OnNodes \n']);
+fprintf( fid, 'ComponentNames "X-REACTION", "Y-REACTION", "Z-REACTION" \n');
+fprintf( fid, 'Values \n');
+for i = 1:nNodes
+    fprintf( fid, '%i %e %e %e \n', [i, F(i,:)] );
+end
+fprintf( fid, 'End Values \n');
 
 fclose(fid);
 

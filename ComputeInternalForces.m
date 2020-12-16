@@ -57,3 +57,22 @@ end
 
 
 % i després em falta lo dels 6-3
+theseDofs = [];
+if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
+    
+    for el = 1:nElements
+        dofsWP = GPInfo(el,1).dofsWP;
+        dofsReal = GPInfo(el,1).dofsWPreal(4:end);
+        
+        KK = 1/2*[1,1,0;
+            0, 1, 1;
+            1, 0,1];
+        
+        f(dofsReal) = -2*(KK*X(dofsWP)-X(dofsReal))*sum([GPInfo(el,:).Weight]);
+        theseDofs = [theseDofs, dofsReal];
+  
+    end
+    theseDofs = unique(sort(theseDofs));
+    thisNorm = norm( f(theseDofs))
+end
+

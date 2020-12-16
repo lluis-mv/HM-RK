@@ -18,7 +18,11 @@ nNodes = size(Nodes, 1);
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
-
+if ( any([GPInfo.VonMises] == true) )
+    addpath('../ModifiedCamClay/vonMises/')
+elseif ( any([GPInfo.MCC] == true) )
+    addpath('../ModifiedCamClay/')
+end
 
 
 [f0] = ComputeInternalForces(Elements, GPInfo, X, CP.HydroMechanical);
