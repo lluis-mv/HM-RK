@@ -20,7 +20,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = 1;
 
 
-eSize = 0.2;
+eSize = 2.8;
 
 model = createpde(1);
 
@@ -114,7 +114,7 @@ for j = 1:3
                 
                 dt = 1/nSteps;
                 [U, GPInfo, RES] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1, drift);
-                [U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
+                %[U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
                 
                 
                 
@@ -139,7 +139,11 @@ for j = 1:3
             
             figure(30+j)
             merda = loglog( ddtt, errResidu, '*-.');
-            set(merda, 'DisplayName', ['RK-', num2str(RKMethod), '-', num2str(drift)]);
+            if ( drift)
+                set(merda, 'DisplayName', ['RK-', num2str(RKMethod), ' drift']);
+            else
+                set(merda, 'DisplayName', ['RK-', num2str(RKMethod)]);
+            end
             hold on
             xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');

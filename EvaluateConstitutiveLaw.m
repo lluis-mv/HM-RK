@@ -30,7 +30,7 @@ if (GP.MCC)
     if (consistent)
         [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
     else
-        [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, 4);
+        [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, 4, false);
     end
     
     
