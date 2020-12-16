@@ -263,7 +263,7 @@ for el = 1:nElements
             -4,  0,  0, -4, 12, -4;
             0, -4,  0, -4, -4, 12];
         
-        GPInfo(el,gp).Weight = Area*w(i);
+        GPInfo(el,gp).Weight = Area*w(gp);
         GPInfo(el,gp).B =B;
         GPInfo(el,gp).dN_dX = dN_dX;
         GPInfo(el,gp).N = Nsmall';
