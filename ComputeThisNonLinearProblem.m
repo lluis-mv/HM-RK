@@ -11,7 +11,11 @@ if (nargout == 4)
 else
     DoSomePostProcess = false;
 end
-    
+
+RKMethodLaw = RKMethod;
+if ( isfield( CP, 'RKMethodLaw'))
+    RKMethodLaw = CP.RKMethodLaw;
+end
 
 
 
@@ -31,7 +35,7 @@ elseif ( any([GPInfo.MCC] == true) )
     addpath('../ModifiedCamClay/')
 end
 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false, RKMethodLaw);
 f0 = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
 f0(nDirichlet) = 0;
 
@@ -59,7 +63,7 @@ for loadStep = 1:nSteps
             XStep = XStep + dt*a(i,j)*k(:,j);
         end
         if ( i > 1)
-            GPInfo = EvaluateConstitutiveLaw(GPInfo, XStep, Elements, false);
+            GPInfo = EvaluateConstitutiveLaw(GPInfo, XStep, Elements, false, RKMethodLaw);
         end
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
@@ -67,8 +71,8 @@ for loadStep = 1:nSteps
 
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
     
-        invCf = C\(f + uDirichlet);
-        k(:,i) = C\(K*XStep) + invCf;
+%         invCf = C\(f + uDirichlet);
+        k(:,i) = C\(K*XStep + f + uDirichlet);
         if ( loadStep == 1)
             k(:,i) = k(:,i) + (1/dt)* (C\fini);
         end
@@ -80,7 +84,7 @@ for loadStep = 1:nSteps
     X = XNew;
     
     % Compute stress and D
-    GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+    GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false, RKMethodLaw);
     
     
     
@@ -100,7 +104,7 @@ for loadStep = 1:nSteps
             dX = C\UnbalancedForces;
         end
         X = X + dX;
-        GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+        GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false, RKMethodLaw);
         
     end
     

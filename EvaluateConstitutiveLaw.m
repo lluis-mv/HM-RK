@@ -1,7 +1,10 @@
 % Compute stress, stiffness....
 
-function GPInfo = EvaluateConstitutiveLaw(GPInfo, U, C, consistent)
+function GPInfo = EvaluateConstitutiveLaw(GPInfo, U, C, consistent, RKMethod)
 
+if ( nargin == 4)
+    RKMethod = 0;
+end
 nElem = size(C,1);
 
 for el = 1:nElem
@@ -12,14 +15,14 @@ for el = 1:nElem
     
         GPInfo(el,gp).StrainNew([1,2,4]) = GPInfo(el,gp).B*Uel;
     
-        GPInfo(el,gp) = EvaluateLaw( GPInfo(el,gp), consistent);
+        GPInfo(el,gp) = EvaluateLaw( GPInfo(el,gp), consistent, RKMethod);
     end
     
 end
 
 
 
-function GP = EvaluateLaw( GP, consistent)
+function GP = EvaluateLaw( GP, consistent, RKMethod)
 
 if (GP.MCC)
     
@@ -30,7 +33,10 @@ if (GP.MCC)
     if (consistent)
         [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
     else
-        [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, 4, false);
+        if ( RKMethod == 1)
+            RKMethod = RKMethod+1;
+        end
+        [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, RKMethod, false);
     end
     
     
