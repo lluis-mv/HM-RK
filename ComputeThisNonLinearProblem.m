@@ -85,14 +85,11 @@ for loadStep = 1:nSteps
     
     % Compute stress and D
     GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false, RKMethodLaw);
-    
-    
-    
+
     if ( drift)
         
-        
-        
-        UnbalancedForces = fini + f*(loadStep/nSteps) + f0 - ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
+        [~,~,~,F] = ComputeForceVector(dt*loadStep, Nodes, Elements, GPInfo, CP);
+        UnbalancedForces = fini + F + f0 - ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
         UnbalancedForces(nDirichlet) = 0;
         
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false);
@@ -125,10 +122,11 @@ PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1
 
 % Compute the mechanical residual, just to have some fun,....
 if (nargout > 2)
+    [~,~,~,F] = ComputeForceVector(dt*nSteps, Nodes, Elements, GPInfo, CP);
     % mechanical part
 	finter = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
    
-    residual = fini + f + f0 - finter;
+    residual = fini + F + f0 - finter;
     residual(nDirichlet) = 0;
     normResidual = norm(residual);
 end
