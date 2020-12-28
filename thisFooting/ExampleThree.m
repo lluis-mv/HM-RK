@@ -9,24 +9,27 @@ addpath('../')
 
 T = 1E-1;
 
+CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.49;
 
-CP.HydroMechanical = false;
-
-
-
+CP.k = 1;
+CP.M = 1;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04];
+ESIZE = [0.15];
 
 
 figure(50); clf;
 RKMethod = 1;
 Elem = 1;
 
-for Elem = [1, 2, 3]
+% for Elem = [1, 2, 3]
+
+RKMethods = [8, 1:7]
+
+for Elem = 1
     
     esizeAxis = ESIZE;
     i = 1;
@@ -46,7 +49,8 @@ for Elem = [1, 2, 3]
         dx = 0.3; dy = 1;
         model = createpde(1);
         
-        R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
+        
+         R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -63,7 +67,9 @@ for Elem = [1, 2, 3]
         % First part. compute the eigenvalues
         figure(1);
         clf;
-        %     triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        if ( Elem == 1)
+            triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        end
         drawnow
         axis equal
         axis off
@@ -82,12 +88,109 @@ for Elem = [1, 2, 3]
         
         
         
-        nSteps = 1;
-        dt = 1/nSteps;
-        
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, 0);
+        nSteps = 5;
+        dt = 0.01/nSteps;
         
         
+%         [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/5, 5*nSteps, ElementType);
+%         ThisInfo(1).t = [information.t];
+%         ThisInfo(1).F = [information.F];
+        
+         Nadim = 20;
+        
+        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        for j = 1:length(NSteps)
+            for RK = RKMethods
+                nSteps = NSteps(j);
+                dt = 0.01/nSteps;
+                if ( RK > 0)
+                    [U,GPInfo, rrr, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
+                else
+                    dt2 = dt; nSteps2 = nSteps;
+                    if ( nSteps < 5)
+                        dt2 = dt/5; nSteps2 = 5*nSteps;
+                    end
+                        
+                    [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt2, nSteps2, ElementType);
+                    RK = length(RKMethods);
+                    rrr = 0;
+                end
+                
+                ThisInfo(RK,j).t = [information.t];
+                ThisInfo(RK,j).F = [information.F];
+                
+                if ( RK == max(RKMethods))
+                    Nadim = ThisInfo(RK,j).F(end);
+                end
+                
+                RES(RK,j) = rrr;
+                ddtt(RK,j) = dt;
+                N(RK,j) = ThisInfo(RK,j).F(end);
+                
+                if ( j < 2 )
+                    continue;
+                end
+                
+                figure(2105); clf
+                for jj = 1:size(RES,1)
+                    loglog(ddtt(jj,:), RES(jj,:), '*-.')
+                    hold on
+                    ylabel('Residual')
+                    legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+                end 
+                grid
+                drawnow
+                hold off
+                
+                figure(2106); clf
+                for jj = 1:size(RES,1)
+                    loglog(ddtt(jj,:), N(jj,:), '*-.')
+                    hold on
+                end 
+                grid
+                drawnow
+                hold off
+                legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+                figure(2107); clf
+                for jj = 1:size(RES,1)
+                    loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), '*-.')
+                    hold on
+                end 
+                grid
+                drawnow
+                hold off
+                legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+            end
+        end
+        
+        
+         
+     
+        return;
+        
+        for RK = [1:4]
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+            ThisInfo(RK+1).t = [information.t];
+            ThisInfo(RK+1).F = [information.F];
+        end
+        
+        for RK = 1:4
+            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
+            ThisInfo(RK+5).t = [information.t];
+            ThisInfo(RK+5).F = [information.F];
+        end
+        
+        figure(233); clf;
+ 
+        plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
+        hold on
+        for i = 2:9
+            figure(233)
+            plot([ThisInfo(i).t], [ThisInfo(i).F], '*-.')
+            hold on
+            drawnow;
+        end
+        legend('Imp', '1','2','3','4','11','12','13','14', 'location', 'best')
         
         
         [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);
@@ -123,6 +226,7 @@ for Elem = [1, 2, 3]
         SlopeL2U
         
         i = i+1;
+        return
     end
     
     figure(50)
@@ -254,8 +358,8 @@ for nod = 1:nNodes
     y = Nodes(nod,2);
     
     
-    Xa(3*(nod-1)+2) = 0.1*y*(y-1)*t;
-    Xa(3*(nod-1)+3) = -(E*t*(2*y - 1))/(30*(2*nu - 1));
+    Xa(3*(nod-1)+2) = 0.1*y^2*(y-1)^2*t^2;
+    Xa(3*(nod-1)+3) = -(E*t*y*(2*y^2 - 3*y + 1))/(15*(2*nu - 1));
 end
 
 
@@ -263,11 +367,11 @@ end
 
 figure(900)
 subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
 hold off
 
 subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
 hold off
 

@@ -10,7 +10,7 @@ addpath('../')
 T = 1E-1;
 
 CP.E = 1;
-CP.nu = 0.49;
+CP.nu = 0.1;
 
 CP.HydroMechanical = false;
 
@@ -85,7 +85,8 @@ for Elem = [1, 2, 3]
         nSteps = 1;
         dt = 1/nSteps;
         
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, 0);
+        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 2, 0);
+        [U,GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
         
         
         
@@ -254,8 +255,8 @@ for nod = 1:nNodes
     y = Nodes(nod,2);
     
     
-    Xa(3*(nod-1)+2) = 0.1*y*(y-1)*t;
-    Xa(3*(nod-1)+3) = -(E*t*(2*y - 1))/(30*(2*nu - 1));
+    Xa(3*(nod-1)+2) = (t*y^2)/10;
+    Xa(3*(nod-1)+3) = -(E*t*y)/(15*(2*nu - 1));
 end
 
 
@@ -271,6 +272,16 @@ plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
 hold off
 
+figure(901)
+
+subplot(2,1,1)
+plot(Nodes(:,2), Xa(2:3:end)-Xnum(2:3:end), 'r*')
+hold off
+
+subplot(2,1,2)
+plot(Nodes(:,2), Xa(3:3:end)- Xnum(3:3:end), 'r*')
+hola = 1;
+hold off
 
 
 function [Nu, Np] = GetShapeFunctions( alfa, beta, nU, nP)

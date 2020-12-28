@@ -11,8 +11,8 @@ T = 1;
 
 
 CP.HydroMechanical = true;
-CP.E = 1;
-CP.nu = 0.0;
+CP.E = 1000;
+CP.nu = 0.3;
 
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
@@ -20,7 +20,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = 1;
 
 
-eSize = 2.8;
+eSize = 0.1;
 
 model = createpde(1);
 
@@ -57,7 +57,7 @@ Elements1 = Elements;
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, 'T3T3');
 he = mean(sqrt( mean([GPInfo(:,:).Weight])));
 
-NSteps = 10.^linspace(0, 3, 4);
+NSteps = 10.^linspace(0, 2, 5);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 NStepsRef = 1;
 
@@ -77,7 +77,7 @@ ticks = unique(ticks);
 for j = 1:3
     % Now the same to compute norms...
     for drift = [false, true]
-        for RKMethod = [1,3,5]
+        for RKMethod = [1:7]
             
             
             
@@ -86,38 +86,36 @@ for j = 1:3
                 Nodes = Nodes1;
                 Elements = Elements1;
                 ThisNumber = 200;
-                CP.k = 1E-8
+                CP.k = 1E-8;
             elseif (j == 2)
                 ElementType = 'T6T3';
                 Nodes = Nodes2;
                 Elements = Elements2;
                 ThisNumber = 6;
-                CP.k = 1E-7
+                CP.k = 1E-7;
             else
                 ElementType = 'T6T6';
                 Nodes = Nodes2;
                 Elements = Elements2;
                 ThisNumber = 2000;
-                CP.k = 1E+3
+                CP.k = 1E+3;
             end
             
             
-            ElementType = 'T6T3';
+            ElementType = 'T6T6';
             Nodes = Nodes2;
             Elements = Elements2;
             ThisNumber = 6;
-            CP.k = 1E-12;
+            CP.k = 1E-4;
             
             
             i = 1;
             for nSteps = NSteps
                 
                 dt = 1/nSteps;
+                
                 [U, GPInfo, RES] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1, drift);
-                %[U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
-                
-                
-                
+                %[U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);  
                 
                 errResidu(i) = RES;
                 
@@ -155,6 +153,7 @@ for j = 1:3
             xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
             xticks(ticks);
             print(['ExampleTwo-', num2str(j)], '-dpdf')
+            
             
             %         hold off
         end

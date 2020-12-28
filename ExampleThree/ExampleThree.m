@@ -18,7 +18,7 @@ CP.k = 1E-5;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.5];
+ESIZE = [0.45];
 
 
 figure(50); clf;
@@ -26,7 +26,7 @@ RKMethod = 1;
 Elem = 1;
 
 % for Elem = [1, 2, 3]
-for Elem = 2
+for Elem = 1
     
     esizeAxis = ESIZE;
     i = 1;
@@ -90,10 +90,10 @@ for Elem = 2
         
         nSteps = 5;
         
-        
-        [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/10, 10*nSteps, ElementType);
-        ThisInfo(1).t = [information.t];
-        ThisInfo(1).F = [information.F];
+%         
+%         [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/10, 10*nSteps, ElementType);
+%         ThisInfo(1).t = [information.t];
+%         ThisInfo(1).F = [information.F];
         
         for RK = 1:4
             [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);

@@ -17,12 +17,11 @@ for i = 1:3
     end
     De(i+3, i+3) = (1-2*nu)/2;
 end
-
-
-
 De = E/(1+nu)/(1-2*nu) * De;
 
-u =  0.1*y*(y-1)*t
+
+
+u =  0.1*y^2*t
 
 epsilon = [diff(0,x); diff(u,y); 0; 0; 0; 0];
 
@@ -31,3 +30,4 @@ f = simplify(diff(   diff(sigma(2), y), t))
 
 p = simplify(sum(sigma(1:3)))/3
 
+alter = -simplify(diff(sigma(2), t))

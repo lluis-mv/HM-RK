@@ -18,7 +18,7 @@ for el = 1:nElements
         Xpg = GPInfo(el, gp).Nu(1,1:2:end)*Nodes(Cel,:);
         y = Xpg(2);
         
-        ff = (E*(nu - 1)*(6*y^2 - 6*y + 1))/(10*nu^2 + 5*nu - 5);
+        ff = (E*(nu - 1))/(5*(2*nu - 1)*(nu + 1));
         ff2 = 0;
 
         ff = [0;ff];

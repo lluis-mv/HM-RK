@@ -1,4 +1,4 @@
-function [] = BeforeExampleOneBis()
+function [] = ExampleThreeBis()
 
 figure(30); clf;
 figure(50); clf;
@@ -9,24 +9,24 @@ addpath('../')
 
 T = 1E-1;
 
+CP.HydroMechanical = false;
 CP.E = 1;
 CP.nu = 0.49;
-
-CP.HydroMechanical = false;
 
 
 
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04];
+ESIZE = [0.2];
 
 
 figure(50); clf;
 RKMethod = 1;
-Elem = 1;
+Elem = 2;
 
-for Elem = [1, 2, 3]
+% for Elem = [1, 2, 3]
+for Elem = [1,2,3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -46,7 +46,8 @@ for Elem = [1, 2, 3]
         dx = 0.3; dy = 1;
         model = createpde(1);
         
-        R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
+        
+        R1 = [3,6, 0, 1, 1.35, 4, 4, 0, 0, 0, 0, 0, -4, -4]';
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -62,8 +63,11 @@ for Elem = [1, 2, 3]
         Stab = 1;
         % First part. compute the eigenvalues
         figure(1);
+        pause(1)
         clf;
-        %     triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        if ( Elem == 1)
+            triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        end
         drawnow
         axis equal
         axis off
@@ -82,65 +86,40 @@ for Elem = [1, 2, 3]
         
         
         
-        nSteps = 1;
-        dt = 1/nSteps;
-        
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, 0);
+        nSteps = 10;
+        dt = 0.1/nSteps;
         
         
         
+        RK = 3;
         
-        [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);
+        %[U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/5, 5*nSteps, ElementType);
+        [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 2, 1, true);
+        ThisInfo(Elem).t = [information.t];
+        ThisInfo(Elem).F = [information.F];
         
         
         
-        figure(30)
-        
-        loglog( esizeAxis(1:i), L2(1:i), 'k*-.', esizeAxis(1:i), L2U(1:i), 'rv-.',  esizeAxis(1:i), LInf(1:i), 'g*-.',  esizeAxis(1:i), LInfU(1:i), 'bv-.')
+        figure(233); clf;
+ 
+        plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
         hold on
-        xlabel('$h_e$ (m)', 'interpreter', 'latex')
-        ylabel('Error norm', 'interpreter', 'latex');
-        set(gca, 'FontSize', 14)
-        drawnow
-        
-        ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
-        set(ll, 'interpreter', 'latex')
-        drawnow
-        hold off
-        
-        
-        
-        SlopeInfp = []; SlopeL2p = []; SlopeInfU = []; SlopeL2U = [];
-        for ii = 2:i
-            SlopeInfp(ii) = log10(LInf(ii)/LInf(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2p(ii) = log10(L2(ii)/L2(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeInfU(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2U(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
+        for i = 2:length(ThisInfo)
+            figure(233)
+            plot([ThisInfo(i).t], [ThisInfo(i).F], '*-.')
+            hold on
+            drawnow;
         end
-        SlopeInfp
-        SlopeL2p
-        SlopeInfU
-        SlopeL2U
+        legend('T3T3', 'T6T3', 'T6T6', 'location', 'best')
+        
+        
+        
         
         i = i+1;
+        
     end
     
-    figure(50)
     
-    loglog( esizeAxis, LInf, 'g*-.',  esizeAxis, LInfU, 'bv-.', esizeAxis, L2, 'k*-.', esizeAxis, L2U, 'rv-.' )
-    hold on
-    xlabel('$h_e$ (m)', 'interpreter', 'latex')
-    ylabel('Error norm', 'interpreter', 'latex');
-    set(gca, 'FontSize', 14)
-    drawnow
-    %     ylim(yy);
-    ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
-    set(ll, 'interpreter', 'latex')
-    drawnow
-    %         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-    %         xticks(ticks);
-    print(['ExampleOneBis-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
-    hold on
 end
 
 
@@ -254,8 +233,8 @@ for nod = 1:nNodes
     y = Nodes(nod,2);
     
     
-    Xa(3*(nod-1)+2) = 0.1*y*(y-1)*t;
-    Xa(3*(nod-1)+3) = -(E*t*(2*y - 1))/(30*(2*nu - 1));
+    Xa(3*(nod-1)+2) = 0.1*y^2*(y-1)^2*t^2;
+    Xa(3*(nod-1)+3) = -(E*t*y*(2*y^2 - 3*y + 1))/(15*(2*nu - 1));
 end
 
 
@@ -263,11 +242,11 @@ end
 
 figure(900)
 subplot(2,1,1)
-plot(Nodes(:,2), Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(2:3:end), 'g*', Nodes(:,2), Xnum(2:3:end), 'r*')
 hold off
 
 subplot(2,1,2)
-plot(Nodes(:,2), Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
+plot(Nodes(:,2), 0*Xa(3:3:end), 'g*', Nodes(:,2), Xnum(3:3:end), 'r*')
 hola = 1;
 hold off
 
