@@ -115,6 +115,7 @@ for j = 1:3
                 dt = 1/nSteps;
                 
                 [U, GPInfo, RES] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1, drift);
+                [U, GPInfo, RES] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1, drift);
                 %[U2, GPInfo2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);  
                 
                 errResidu(i) = RES;

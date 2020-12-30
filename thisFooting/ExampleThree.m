@@ -18,7 +18,7 @@ CP.M = 1;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.15];
+ESIZE = [0.75];
 
 
 figure(50); clf;
@@ -26,8 +26,8 @@ RKMethod = 1;
 Elem = 1;
 
 % for Elem = [1, 2, 3]
-
-RKMethods = [8, 1:7]
+RKReference = 18;
+RKMethods = [RKReference, 8];
 
 for Elem = 1
     
@@ -98,13 +98,16 @@ for Elem = 1
         
          Nadim = 20;
         
-        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [1,2, 4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
                 dt = 0.01/nSteps;
-                if ( RK > 0)
+                
+                if ( RK > 0 && RK < 10)
                     [U,GPInfo, rrr, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
+                elseif ( RK > 0 && RK > 10)
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK-10, 0, false);
                 else
                     dt2 = dt; nSteps2 = nSteps;
                     if ( nSteps < 5)
@@ -119,7 +122,7 @@ for Elem = 1
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
                 
-                if ( RK == max(RKMethods))
+                if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
                 end
                 
