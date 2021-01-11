@@ -39,6 +39,8 @@ C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 X0 = zeros(3*nNodes, 1);
+% X0(3:3:end) = -10;
+
 
 
 fini = 0*X0;

@@ -1,4 +1,4 @@
-function [] = BeforeExampleOneBis()
+function [] = ExampleThree()
 
 figure(30); clf;
 figure(50); clf;
@@ -18,16 +18,20 @@ CP.M = 1;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.75];
+ESIZE = [1.75];
 
 
 figure(50); clf;
 RKMethod = 1;
-Elem = 1;
+Elem = 2;
 
 % for Elem = [1, 2, 3]
-RKReference = 18;
-RKMethods = [RKReference, 8];
+RKReference = 8;
+RKMethods = [RKReference, 1,2,4, 6, -1];
+RKReference = 8;
+RKMethods = [8,1,2,4,6];
+% RKReference = max(RKMethods);
+% RKMethods = [1, 8];
 
 for Elem = 1
     
@@ -50,7 +54,8 @@ for Elem = 1
         model = createpde(1);
         
         
-         R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
+        R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
+%         R1 = [3,4, 0, 1, 1, 0,  0, 0, -3, -3]';
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -92,30 +97,27 @@ for Elem = 1
         dt = 0.01/nSteps;
         
         
-%         [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/5, 5*nSteps, ElementType);
-%         ThisInfo(1).t = [information.t];
-%         ThisInfo(1).F = [information.F];
         
-         Nadim = 20;
+        
+        Nadim = 20;
         
         NSteps = [1,2, 4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+%         NSteps = 10;
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.01/nSteps;
+                dt = 0.1/nSteps;
                 
-                if ( RK > 0 && RK < 10)
-                    [U,GPInfo, rrr, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
-                elseif ( RK > 0 && RK > 10)
-                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK-10, 0, false);
+                if ( RK > 0)
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
                 else
                     dt2 = dt; nSteps2 = nSteps;
                     if ( nSteps < 5)
                         dt2 = dt/5; nSteps2 = 5*nSteps;
                     end
-                        
+                    
                     [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt2, nSteps2, ElementType);
-                    RK = length(RKMethods);
+                    RK = max(RKMethods)+3;
                     rrr = 0;
                 end
                 
@@ -140,7 +142,7 @@ for Elem = 1
                     hold on
                     ylabel('Residual')
                     legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
-                end 
+                end
                 grid
                 drawnow
                 hold off
@@ -149,26 +151,29 @@ for Elem = 1
                 for jj = 1:size(RES,1)
                     loglog(ddtt(jj,:), N(jj,:), '*-.')
                     hold on
-                end 
+                end
                 grid
                 drawnow
                 hold off
                 legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
                 figure(2107); clf
+                ind = find(N == 0);
+                N(ind) = nan;
                 for jj = 1:size(RES,1)
                     loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), '*-.')
                     hold on
-                end 
+                end
                 grid
                 drawnow
                 hold off
                 legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
             end
+%             error
         end
         
         
-         
-     
+        
+        
         return;
         
         for RK = [1:4]
@@ -184,7 +189,7 @@ for Elem = 1
         end
         
         figure(233); clf;
- 
+        
         plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
         hold on
         for i = 2:9

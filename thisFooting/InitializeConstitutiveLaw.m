@@ -16,8 +16,8 @@ for el = 1:nElements
         GPInfo(el, gp).StrainNew = zeros(6,1);
         GPInfo(el, gp).StrainPrev = zeros(6,1);
 
-        GPInfo(el, gp).HistoryNew = -[500];
-        GPInfo(el, gp).HistoryPrev = -[500];
+        GPInfo(el, gp).HistoryNew = -[7.5];
+        GPInfo(el, gp).HistoryPrev = -[7.5];
         
         p = -mean(GPInfo(el, gp).StressNew(1:3));
         K = p/kappa;

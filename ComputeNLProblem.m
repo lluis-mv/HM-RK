@@ -48,50 +48,96 @@ k = zeros(  3*nNodes, length(b));
 
 
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
-if ( DoSomePostProcess ) 
+if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
+% I should get the correct initial D...
+
+
+
+
+% % for i = 1:10
+% %     XStep = X;
+% %     
+% %     [f, uDirichlet] = ComputeForceVector(dt, Nodes, Elements, GPInfo, CP);
+% %     f(nDirichlet) = 0;
+% %     % Create again C with the appropriate ElastoPlastic stiffness matrix
+% %     [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
+% %     [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+% %     
+% %     k(:,1) = C\(K*XStep + f + uDirichlet);
+% %     if ( i == 1)
+% %         k(:,1) = k(:,1) + (1/dt)* (C\fini);
+% %     end
+% %     kk(:,i) = k(:,1);
+% %     
+% %     GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, 1, true);
+% % end
+
+
+
+
 for loadStep = 1:nSteps
-    
     for i = 1:length(b)
-        XStep = X;
-        t = (loadStep-1)*dt + c(i)*dt;
-        [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
-        f(nDirichlet) = 0;
-        for j = 1:i-1
-            XStep = XStep + dt*a(i,j)*k(:,j);
-        end
-
         
-        % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
-
-        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-    
-%         invCf = C\(f + uDirichlet);
-        k(:,i) = C\(K*XStep + f + uDirichlet);
-        if ( loadStep == 1)
-            k(:,i) = k(:,i) + (1/dt)* (C\fini);
+        for sub = [1:5]
+            initialize = true;
+            if ( sub == 5)
+                initialize = false;
+            end
+            
+            XStep = X;
+            t = (loadStep-1)*dt + c(i)*dt;
+            [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
+            f(nDirichlet) = 0;
+            for j = 1:i-1
+                XStep = XStep + dt*a(i,j)*k(:,j);
+            end
+            
+            
+            % Create again C with the appropriate ElastoPlastic stiffness matrix
+            [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
+            
+            [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+            
+            %         invCf = C\(f + uDirichlet);
+            k(:,i) = C\(K*XStep + f + uDirichlet);
+            if ( loadStep == 1)
+                k(:,i) = k(:,i) + (1/dt)* (C\fini);
+            end
+            kk(:,sub) = k(:,i);
+            if ( sub > 1)
+                disp(sub)
+                disp(max( abs(kk(:,sub)-kk(:,sub-1))))
+                if ( max( abs(kk(:,sub)-kk(:,sub-1))) == 0)
+                    initialize = false;
+                end
+            end
+            
+            GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, i, initialize);
+            if ( i < length(b) && initialize == false)
+                GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, i+1);
+            end
+            if ( initialize == false)
+                break
+            end
         end
         
-        if ( i < length(b) ) 
-            GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, i+1);
-        end
     end
     
     GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c);
     
-    XNew  = X; 
-   for i = 1:length(b)
+    XNew  = X;
+    for i = 1:length(b)
         XNew = XNew + dt*b(i)*k(:,i);
-    end     
+    end
     X = XNew;
     
-
     
-%     PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
-    if ( DoSomePostProcess ) 
+    
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
+    if ( DoSomePostProcess )
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
     
@@ -107,9 +153,17 @@ PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1
 if (nargout > 2)
     [~,~,~,F] = ComputeForceVector(dt*nSteps, Nodes, Elements, GPInfo, CP);
     % mechanical part
-	finter = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
-   
+    finter = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
+    
     residual = fini + F + f0 - finter;
     residual(nDirichlet) = 0;
     normResidual = norm(residual);
+    %     figure(50)
+    %     triplot(Elements, Nodes(:,1), Nodes(:,2))
+    %     axis off; axis equal
+    %     hold on
+    %     norm(residual)
+    %     quiver( Nodes(:,1), Nodes(:,2), residual(1:3:end), residual(2:3:end));
+    %     hold off
+    %     hola = 1;
 end
