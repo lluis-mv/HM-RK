@@ -13,12 +13,12 @@ CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.49;
 
-CP.k = 1;
+CP.k = 1E-6;
 CP.M = 1;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [1.75];
+ESIZE = [0.55];
 
 
 figure(50); clf;
@@ -32,6 +32,7 @@ RKReference = 8;
 RKMethods = [8,1,2,4,6];
 % RKReference = max(RKMethods);
 % RKMethods = [1, 8];
+
 
 for Elem = 1
     
@@ -101,7 +102,7 @@ for Elem = 1
         
         Nadim = 20;
         
-        NSteps = [1,2, 4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
 %         NSteps = 10;
         for j = 1:length(NSteps)
             for RK = RKMethods
@@ -109,7 +110,7 @@ for Elem = 1
                 dt = 0.1/nSteps;
                 
                 if ( RK > 0)
-                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
                 else
                     dt2 = dt; nSteps2 = nSteps;
                     if ( nSteps < 5)

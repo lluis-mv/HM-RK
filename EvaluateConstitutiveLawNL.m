@@ -61,6 +61,8 @@ for el = 1:nElem
             D = ComputeD(sigma, strain);
             GPInfo(el,gp).DFin = D;
             GPInfo(el,gp).DPrev(:,:,1) = D;
+            m = [1,1,1,0,0,0]';
+            GPInfo(i, gp).ConstrainedModulus =  m'*D(1:6,1:6)*m/100;
         end
         if ( initialize)
             GPInfo(el,gp).DFin = D;
@@ -117,11 +119,9 @@ gradYield = GradYieldSurface(X);
 
 
 loadingCondition = gradYield'*De*DeltaStrain;
-loadingCondition = 1;
 
-if ( loadingCondition < 0)
-    %disp(loadingCondition)
-end
+
+
 
 if ( loadingCondition < 0)
     De = [De; zeros(1,6)];

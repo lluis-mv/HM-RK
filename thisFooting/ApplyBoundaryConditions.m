@@ -16,8 +16,8 @@ nodesLeft = find(Nodes(:,1) == min(Nodes(:,1)));
 nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 
-
-dofs = 3*([1:nNodes]'-1)+3;
+index = find( (Nodes(:,1) > 1) &  abs(Nodes(:,2)) < 1E-8);
+dofs = 3*([index]-1)+3;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));

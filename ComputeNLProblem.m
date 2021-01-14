@@ -1,7 +1,7 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM, drift)
+function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
 
 if (nargin == 8)
     drift = false;
@@ -57,26 +57,6 @@ end
 
 
 
-% % for i = 1:10
-% %     XStep = X;
-% %     
-% %     [f, uDirichlet] = ComputeForceVector(dt, Nodes, Elements, GPInfo, CP);
-% %     f(nDirichlet) = 0;
-% %     % Create again C with the appropriate ElastoPlastic stiffness matrix
-% %     [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
-% %     [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-% %     
-% %     k(:,1) = C\(K*XStep + f + uDirichlet);
-% %     if ( i == 1)
-% %         k(:,1) = k(:,1) + (1/dt)* (C\fini);
-% %     end
-% %     kk(:,i) = k(:,1);
-% %     
-% %     GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, 1, true);
-% % end
-
-
-
 
 for loadStep = 1:nSteps
     for i = 1:length(b)
@@ -108,8 +88,8 @@ for loadStep = 1:nSteps
             end
             kk(:,sub) = k(:,i);
             if ( sub > 1)
-                disp(sub)
-                disp(max( abs(kk(:,sub)-kk(:,sub-1))))
+%                 disp(sub)
+%                 disp(max( abs(kk(:,sub)-kk(:,sub-1))))
                 if ( max( abs(kk(:,sub)-kk(:,sub-1))) == 0)
                     initialize = false;
                 end
@@ -136,7 +116,7 @@ for loadStep = 1:nSteps
     
     
     
-    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
+    %PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ThisProblem-', ElementType]);
     if ( DoSomePostProcess )
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
