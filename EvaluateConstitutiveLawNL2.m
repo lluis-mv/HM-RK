@@ -1,33 +1,27 @@
-function GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, nn, initialize)
+function GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b, nn, initialize)
 
 nElem = size(GPInfo,1);
 
 strain= zeros(6,1);
 
-finalize = true;
-if (nargin >= 8)
-    finalize = false;
-else
-    nn = length(b);
-    initialize = false;
-end
-if (nargin < 9)
-    initialize = false;
-end
+finalize = false;
 
+if (nargin == 5)
+    initialize = false;
+    finalize = true;
+    nn = length(b);
+end
 
 kSigma = zeros( 7,nn);
 
 
-% if (nargin == 8)
 for el = 1:nElem
+    
     for gp = 1:size(GPInfo,2)
         
-        if ( el == 1 && gp == 1 && initialize == false)
-            hola = 1;
-        end
         sigma0 = [GPInfo(el,gp).StressPrev; GPInfo(el,gp).HistoryPrev];
         nSystem = GPInfo(el,gp).dofsU;
+        
         for i = 1:nn
             sigmaStep = sigma0;
             
@@ -36,16 +30,16 @@ for el = 1:nElem
             end
             
             strain([1,2,4]) = (GPInfo(el,gp).B)*k(nSystem, i);
-            D = ComputeD(sigmaStep, strain);
-            if ( initialize == true)
+            if ( initialize && i == nn)
                 D = ComputeD(sigmaStep, strain);
-            elseif ( finalize == false && i < nn)
-                D = GPInfo(el,gp).DPrev(:,:,i);
-            elseif ( finalize)
+            else
                 D = GPInfo(el,gp).DPrev(:,:,i);
             end
+
             kSigma(:,i) = D*strain;
         end
+        
+        
         D = ComputeD(sigmaStep, strain);
         GPInfo(el,gp).DPrev(:,:,nn) = D;
         
@@ -58,16 +52,11 @@ for el = 1:nElem
             GPInfo(el,gp).StressPrev = sigma(1:6);
             GPInfo(el,gp).HistoryNew = sigma(7:end);
             GPInfo(el,gp).HistoryPrev = sigma(7:end);
-            D = ComputeD(sigma, strain);
-            GPInfo(el,gp).DFin = D;
             GPInfo(el,gp).DPrev(:,:,1) = D;
             m = [1,1,1,0,0,0]';
             GPInfo(i, gp).ConstrainedModulus =  m'*D(1:6,1:6)*m/100;
         end
-        if ( initialize)
-            GPInfo(el,gp).DFin = D;
-            GPInfo(el,gp).DPrev(:,:,nn) = D;
-        end
+
         
         GPInfo(el,gp).D6 = D(1:6,1:6);
         GPInfo(el,gp).D = D([1,2,4], [1,2,4]);
@@ -75,32 +64,6 @@ for el = 1:nElem
     
 end
 
-% else
-%     for el = 1:nElem
-%         for gp = 1:size(GPInfo,2)
-%
-%
-%             sigma0 = GPInfo(el,gp).StressPrev;
-%             nSystem = GPInfo(el,gp).dofsU;
-%
-%             for i = 1:length(b)
-%                 sigmaStep = sigma0;
-%
-%                 for j = 1:i-1
-%                     sigmaStep = sigmaStep + dt*a(i,j)*kSigma(:,j);
-%                 end
-%                 D = ComputeD(sigmaStep);
-%                 strain([1,2,4]) = (GPInfo(el,gp).B)*k(nSystem, i);
-%                 kSigma(:,i) = D*strain;
-%             end
-%
-%
-%             GPInfo(el,gp).D6 = D;
-%             GPInfo(el,gp).D = D([1,2,4], [1,2,4]);
-%         end
-%
-%     end
-% end
 
 
 function De = ComputeD(X, DeltaStrain)
@@ -119,8 +82,6 @@ gradYield = GradYieldSurface(X);
 
 
 loadingCondition = gradYield'*De*DeltaStrain;
-loadingCondition = -1;
-
 
 
 if ( loadingCondition < 0)
@@ -148,7 +109,6 @@ De = De - De*gradYield* transpose(gradYield)*De/( H + transpose(gradYield)*De*gr
 
 De = [De;
     -pc/(lambda-kappa)* sum(gradYield(1:3))* transpose(gradYield)*De/(H + transpose(gradYield)*De*gradYield)];
-hola = 1;
 
 
 

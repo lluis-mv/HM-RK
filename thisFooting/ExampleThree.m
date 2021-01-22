@@ -10,15 +10,16 @@ addpath('../')
 T = 1E-1;
 
 CP.HydroMechanical = true;
-CP.E = 1;
-CP.nu = 0.49;
+CP.E = 100;
+CP.nu = 0.3;
+nu = CP.nu;
+CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
+CP.k = 1E-3;
 
-CP.k = 1E-6;
-CP.M = 1;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.55];
+ESIZE = [0.85];
 
 
 figure(50); clf;
@@ -28,10 +29,10 @@ Elem = 2;
 % for Elem = [1, 2, 3]
 RKReference = 8;
 RKMethods = [RKReference, 1,2,4, 6, -1];
+
 RKReference = 8;
 RKMethods = [8,1,2,4,6];
-% RKReference = max(RKMethods);
-% RKMethods = [1, 8];
+
 
 
 for Elem = 1
@@ -103,14 +104,16 @@ for Elem = 1
         Nadim = 20;
         
         NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
-%         NSteps = 10;
+%         NSteps = 50;
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.1/nSteps;
+                dt = 0.02/nSteps;
+                
                 
                 if ( RK > 0)
-                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+                    [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+%                     [U,GPInfo,  information] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
                 else
                     dt2 = dt; nSteps2 = nSteps;
                     if ( nSteps < 5)
@@ -447,3 +450,32 @@ for ind = 1:2:length(y1)-1
     p = [p; N'*pp];
 end
 
+
+
+
+function [A, nDirichlet, nNoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, RKMethod, AlphaStabM)
+
+
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+
+
+[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+
+
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
+
+
+[C, K, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+
+A = C\(K);
+
+nNoDir = [];
+for i = 1:3*nNodes
+    if ( any(i == nDirichlet))
+        % do nothing
+    else
+        nNoDir = [nNoDir, i];
+    end
+end

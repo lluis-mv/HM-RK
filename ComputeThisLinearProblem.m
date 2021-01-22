@@ -1,6 +1,12 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+function [X, GPInfo, ThisInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+
+if (nargout == 3)
+    DoSomePostProcess = true;
+else
+    DoSomePostProcess = false;
+end
 
 if (nargin ==7)
     AlphaStabM = 1;
@@ -40,6 +46,9 @@ k = zeros(  3*nNodes, length(b));
 
 
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+if ( DoSomePostProcess )
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
+end
 
 for loadStep = 1:nSteps
 
@@ -69,6 +78,9 @@ for loadStep = 1:nSteps
     if (any(isinf(X)))
         X = nan*X;
         return;
+    end
+    if ( DoSomePostProcess )
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end
 
