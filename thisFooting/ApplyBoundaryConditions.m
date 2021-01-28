@@ -16,8 +16,10 @@ nodesLeft = find(Nodes(:,1) == min(Nodes(:,1)));
 nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 
-
-dofs = 3*([1:nNodes]'-1)+3;
+index = find( (Nodes(:,1) > 1) &  abs(Nodes(:,2)) < 1E-8);
+dofs = 3*([index]-1)+3;
+% dofs = 3*([nodesTop]-1)+3;
+dofs = [3:3:3*nNodes]';
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
@@ -33,12 +35,14 @@ C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
 
-dofs = 3*([nodesBottom; nodesRight; nodesLeft]-1)+1;
+dofs = 3*([nodesBottom; nodesRight; nodesLeft; index]-1)+1;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 X0 = zeros(3*nNodes, 1);
+% X0(3:3:end) = -10;
+
 
 
 fini = 0*X0;

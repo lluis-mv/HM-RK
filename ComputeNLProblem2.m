@@ -1,11 +1,9 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
 
-if (nargin == 8)
-    drift = false;
-end
+
 if (nargout == 4)
     DoSomePostProcess = true;
 else
@@ -28,14 +26,6 @@ nElements = size(Elements, 1);
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
 [~,~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
-
-if ( any([GPInfo.VonMises] == true) )
-    addpath('../ModifiedCamClay/vonMises/')
-elseif ( any([GPInfo.MCC] == true) )
-    addpath('../ModifiedCamClay/')
-end
-
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false, RKMethodLaw);
 f0 = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
 f0(nDirichlet) = 0;
 
@@ -44,69 +34,61 @@ if ( RKMethod)
 end
 k = zeros(  3*nNodes, length(b));
 
-
-
-
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
 if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
-% I should get the correct initial D...
-
-
-
+for el = 1:nElements
+    for gp = 1:size(GPInfo,2)
+        GPInfo(el,gp).DPrev = rand(7,6);
+    end
+end
 
 
 for loadStep = 1:nSteps
+    
     for i = 1:length(b)
+    
+        XStep = X;
+        t = (loadStep-1)*dt + c(i)*dt;
+        [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
+        f(nDirichlet) = 0;
+        for j = 1:i-1
+            XStep = XStep + dt*a(i,j)*k(:,j);
+        end
+    
+        if ( i > 1)
+            k(:,i) = k(:,i-1);
+        end
+        kPrev = k(:,i);
+        ss = 0;
+        while (true)
+            GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b,  i, true);
         
-        for sub = [1:5]
-            initialize = true;
-            if ( sub == 5)
-                initialize = false;
-            end
-            
-            XStep = X;
-            t = (loadStep-1)*dt + c(i)*dt;
-            [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
-            f(nDirichlet) = 0;
-            for j = 1:i-1
-                XStep = XStep + dt*a(i,j)*k(:,j);
-            end
-            
-            
             % Create again C with the appropriate ElastoPlastic stiffness matrix
             [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
             
             [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-            
-            %         invCf = C\(f + uDirichlet);
             k(:,i) = C\(K*XStep + f + uDirichlet);
             if ( loadStep == 1)
                 k(:,i) = k(:,i) + (1/dt)* (C\fini);
             end
-            kk(:,sub) = k(:,i);
-            if ( sub > 1)
-%                 disp(sub)
-%                 disp(max( abs(kk(:,sub)-kk(:,sub-1))))
-                if ( max( abs(kk(:,sub)-kk(:,sub-1))) == 0)
-                    initialize = false;
-                end
+%             norm(k(:,i)-kPrev)
+            if (norm(k(:,i)-kPrev) < 1E-12)
+                break;
             end
-            
-            GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, i, initialize);
-            if ( i < length(b) && initialize == false)
-                GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c, i+1);
+            kPrev = k(:,i);
+            if ( ss > 10)
+                disp('breaking the rules')
+                break;
             end
-            if ( initialize == false)
-                break
-            end
+            ss = ss+ 1;
         end
-        
+        GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b, i, false);
     end
     
-    GPInfo = EvaluateConstitutiveLawNL(GPInfo, X, dt, k, a, b, c);
+    GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b);
     
     XNew  = X;
     for i = 1:length(b)
