@@ -13,7 +13,7 @@ nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 t = T/CP.M/CP.k;
-
+CP.HydroMechanical = true;
 
 
 NSteps = 10.^linspace(0, 6, 10);

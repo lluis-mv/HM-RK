@@ -14,7 +14,7 @@ if (nargin == 7)
     ThisInfo = [PreviousInfo, ThisInfo];
 end
 
-
+return;
 figure(232)
 plot([ThisInfo.t], [ThisInfo.F], '*-.')
 hold on

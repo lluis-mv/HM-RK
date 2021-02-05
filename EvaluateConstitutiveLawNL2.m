@@ -1,4 +1,4 @@
-function GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b, nn, initialize)
+function GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP, dt, k, a, b, nn, initialize)
 
 nElem = size(GPInfo,1);
 
@@ -6,7 +6,7 @@ strain= zeros(6,1);
 
 finalize = false;
 
-if (nargin == 5)
+if (nargin == 6)
     initialize = false;
     finalize = true;
     nn = length(b);
@@ -31,7 +31,7 @@ for el = 1:nElem
             
             strain([1,2,4]) = (GPInfo(el,gp).B)*k(nSystem, i);
             if ( initialize && i == nn)
-                D = ComputeD(sigmaStep, strain);
+                D = ComputeD(CP, sigmaStep, strain);
             else
                 D = GPInfo(el,gp).DPrev(:,:,i);
             end
@@ -40,7 +40,7 @@ for el = 1:nElem
         end
         
         
-        D = ComputeD(sigmaStep, strain);
+        D = ComputeD(CP, sigmaStep, strain);
         GPInfo(el,gp).DPrev(:,:,nn) = D;
         
         if ( finalize)
@@ -54,7 +54,9 @@ for el = 1:nElem
             GPInfo(el,gp).HistoryPrev = sigma(7:end);
             GPInfo(el,gp).DPrev(:,:,1) = D;
             m = [1,1,1,0,0,0]';
-            GPInfo(i, gp).ConstrainedModulus =  m'*D(1:6,1:6)*m/100;
+            GPInfo(el, gp).ConstrainedModulus =  m'*D(1:6,1:6)*m/100;
+            
+            D = ComputeD(CP, sigma, strain);
         end
 
         
@@ -66,7 +68,7 @@ end
 
 
 
-function De = ComputeD(X, DeltaStrain)
+function De = ComputeD(CP, X, DeltaStrain)
 X = X;
 p = 1/3*(X(1)+X(2)+X(3));
 [kappa, lambda, M, nu] = GetConstitutiveParameters();
@@ -74,15 +76,18 @@ K = -p/kappa;
 
 G = 3*K*(1-2*nu)/2/(1+nu);
 
-De = K * [ones(3,3), zeros(3,3); zeros(3,6)] ...
-    + 2*G*[eye(3,3)-1/3*ones(3,3), zeros(3,3);
-    zeros(3,3), 0.5*eye(3,3)];
+%De = K * [ones(3,3), zeros(3,3); zeros(3,6)] ...
+%    + 2*G*[eye(3,3)-1/3*ones(3,3), zeros(3,3);
+%    zeros(3,3), 0.5*eye(3,3)];
+De = reshape([G.*(4.0./3.0)+K,G.*(-2.0./3.0)+K,G.*(-2.0./3.0)+K,0.0,0.0,0.0,G.*(-2.0./3.0)+K,G.*(4.0./3.0)+K,G.*(-2.0./3.0)+K,0.0,0.0,0.0,G.*(-2.0./3.0)+K,G.*(-2.0./3.0)+K,G.*(4.0./3.0)+K,0.0,0.0,0.0,0.0,0.0,0.0,G,0.0,0.0,0.0,0.0,0.0,0.0,G,0.0,0.0,0.0,0.0,0.0,0.0,G],[6,6]);
 
 gradYield = GradYieldSurface(X);
 
 
 loadingCondition = gradYield'*De*DeltaStrain;
-
+if ( CP.Elastic == true)
+    loadingCondition = -100;
+end
 
 if ( loadingCondition < 0)
     De = [De; zeros(1,6)];

@@ -26,6 +26,7 @@ ESIZE = [0.2, 0.1, 0.075, 0.05];
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03, 0.025];
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
 
+
 figure(50); clf;
 
 
@@ -72,7 +73,7 @@ for Elem = [1,2,3]
             Nodes = mesh.Nodes';
             Elements = mesh.Elements';
             
-            Stab = 1;
+            
             % First part. compute the eigenvalues
             
             
@@ -90,7 +91,7 @@ for Elem = [1,2,3]
             axis off
             sizeString = num2str(eSize);
             index = find(sizeString == '.');
-            sizeString(index) ='_' 
+            sizeString(index) ='_'; 
             print(['ExampleOneBis-FemMesh-',sizeString, '.pdf'], '-dpdf')
             
             [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
@@ -106,8 +107,8 @@ for Elem = [1,2,3]
             nSteps = ceil(t/dt)
             dt = t/nSteps;
             
-            
-            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 2, 1);
+            RKMethod = 1;
+            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
             
             
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);

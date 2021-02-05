@@ -15,6 +15,8 @@ CP.k = 1;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
+CP.HydroMechanical = true;
+
 t = T/CP.M/CP.k;
 
 
@@ -43,7 +45,7 @@ figure(50); clf;
 RKMethod = 1;
 Elem = 1;
 
-for Elem = [1, 2, 3]
+for Elem = [1,2,3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -99,10 +101,13 @@ for Elem = [1, 2, 3]
         
         
         
-        nSteps = 10;
-        dt = 1/nSteps;
-        nSteps = nSteps;
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 2, 1);
+        
+        
+        ThisNumber = 10;
+        dt = he^2/(1*ThisNumber*CP.k*CP.M)
+        nSteps = ceil(t/dt)
+        dt = t/nSteps;
+        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 3, 1);
         
         
         
@@ -281,8 +286,6 @@ M = CP.M;
 k = CP.k;
 for nod = 1:nNodes
     y = Nodes(nod,2);
-    
-    
     Xa(3*(nod-1)+2) = 0.1*y^2*(y-1)^2*t^2;
     Xa(3*(nod-1)+3) =  0.01*y*(y-1)*t^2;
 end

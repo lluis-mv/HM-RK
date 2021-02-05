@@ -1,4 +1,4 @@
-function f = ComputeForceVector(t, Nodes, Elements, GPInfo)
+function [f, uDir, AllZero, F] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP)
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
@@ -22,6 +22,11 @@ for el = 1:nElements
         ff = (2*t*(y - 1)^2)/5 - (t*y)/50 - (t*(y - 1))/50 + (2*t*y^2)/5 + (4*t*y*(2*y - 2))/5;
         ff2 = (2*t*y*(y - 1)^2)/5 - t^2/50 + (t*y^2*(2*y - 2))/5;
 
+     
+        ff = (2*t*(y - 1)^2)/5 - (t*y)/50 - (t*(y - 1))/50 + (2*t*y^2)/5 + (4*t*y*(2*y - 2))/5;
+ 
+ 
+        ff2 = (2*t*y*(y - 1)^2)/5 - t^2/50 + (t*y^2*(2*y - 2))/5;
         ff = [0;ff];
         f( GPInfo(el, 1).dofsU) = f( GPInfo(el, 1).dofsU) - GPInfo(el, gp).Weight*GPInfo(el, gp).Nu'*( ff);
         
@@ -29,3 +34,8 @@ for el = 1:nElements
     end
     
 end
+
+
+uDir = 0*f;
+AllZero = false;
+F = 0*f;

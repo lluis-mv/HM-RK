@@ -1,8 +1,11 @@
 
 % Solver for a linear problem
 
-function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+function [X, GPInfo, normResidual, ThisInfo] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM, Iterate)
 
+if ( nargin < 9)
+    Iterate = true;
+end
 
 if (nargout == 4)
     DoSomePostProcess = true;
@@ -64,7 +67,7 @@ for loadStep = 1:nSteps
         kPrev = k(:,i);
         ss = 0;
         while (true)
-            GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b,  i, true);
+            GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP,  dt, k, a, b,  i, true);
         
             % Create again C with the appropriate ElastoPlastic stiffness matrix
             [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
@@ -78,17 +81,27 @@ for loadStep = 1:nSteps
             if (norm(k(:,i)-kPrev) < 1E-12)
                 break;
             end
-            kPrev = k(:,i);
+            
             if ( ss > 10)
-                disp('breaking the rules')
+                error('breaking the rules')
                 break;
             end
+            
+            if ( Iterate == false && loadStep > 1)
+                break;
+            end
+            kPrev = k(:,i);
             ss = ss+ 1;
         end
-        GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b, i, false);
+            if ( Iterate == false && loadStep > 1)
+                kConst = k; kConst(:,i) = kPrev;
+                GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP, dt, kConst, a, b, i, false);
+            else
+                GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP, dt, k, a, b, i, false);
+            end
     end
     
-    GPInfo = EvaluateConstitutiveLawNL2(GPInfo, dt, k, a, b);
+    GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP, dt, k, a, b);
     
     XNew  = X;
     for i = 1:length(b)

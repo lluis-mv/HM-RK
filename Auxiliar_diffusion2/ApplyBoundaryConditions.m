@@ -1,5 +1,5 @@
 
-function [C, K, X0, f, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
+function [C, K, X0, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
 
 if (nargin ~= 5)
     error('it should be five!!!!')
