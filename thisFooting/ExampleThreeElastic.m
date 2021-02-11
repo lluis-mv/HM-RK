@@ -24,7 +24,11 @@ RKMethods = [8,1:7];
 
 
 
-for Elem = [1,2,3]
+for Elem = [2,1,3]
+RKMethods = [8,1:7];
+if ( Elem == 2)
+RKMethods = [8,1:7, 9];
+end
     
     esizeAxis = ESIZE;
     i = 1;
@@ -83,9 +87,15 @@ for Elem = [1,2,3]
                 dt = 0.15/nSteps;
                 
                 disp(RK)
+                if ( RK < 9)
                 tic;
                 [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
                 timing = toc;
+                elseif ( RK == 9)
+                    tic;
+                    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
+                    timing = toc;
+                end
                 
                 
                 ThisInfo(RK,j).t = [information.t];
@@ -109,6 +119,8 @@ for Elem = [1,2,3]
                     merda = '';
                     if ( jj == 8)
                         merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
                     end
                     loglog(ddtt(jj,:), RES(jj,:), [merda, '*-.'])
                     hold on
@@ -116,7 +128,11 @@ for Elem = [1,2,3]
                 end
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Residual', 'interpreter', 'latex')
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 grid
                 drawnow
@@ -127,6 +143,8 @@ for Elem = [1,2,3]
                     merda = '';
                     if ( jj == 8)
                         merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
                     end
                     loglog(ddtt(jj,:), N(jj,:), [merda, '*-.'])
                     hold on
@@ -134,7 +152,11 @@ for Elem = [1,2,3]
                 grid
                 drawnow
                 hold off
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Footing load', 'interpreter', 'latex')
@@ -146,16 +168,22 @@ for Elem = [1,2,3]
                     merda = '';
                     if ( jj == 8)
                         merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
                     end
                     loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), [merda, '*-.'])
                     hold on
                 end
                 
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
-                grid
+                grid minor
                 drawnow
                 hold off
                 
@@ -167,16 +195,22 @@ for Elem = [1,2,3]
                     merda = '';
                     if ( jj == 8)
                         merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
                     end
                     loglog(Time(jj,:), abs(N(jj,:)-Nadim), [merda, '*-.'])
                     hold on
                 end
                 
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
-                grid
+                grid minor
                 drawnow
                 hold off
                 

@@ -82,8 +82,8 @@ for loadStep = 1:nSteps
                 break;
             end
             
-            if ( ss > 10)
-                error('breaking the rules')
+            if ( ss > 20)
+                disp('breaking the rules')
                 break;
             end
             

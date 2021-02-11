@@ -23,7 +23,7 @@ ESIZE = [0.55];
 RKReference = 8;
 RKMethods = [8, 2, 12, 4,14, 6, 16];
 
-for Elem = 1
+for Elem = [1,2,3]
     
     esizeAxis = ESIZE;
     i = 1;

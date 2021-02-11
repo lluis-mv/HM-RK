@@ -1,8 +1,8 @@
 % Solver for a linear problem
 
-function [X, GPInfo, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
+function [X, GPInfo, normRes, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
 
-if (nargout == 3)
+if (nargout == 4)
     DoSomePostProcess = true;
 else
     DoSomePostProcess = false;
@@ -85,14 +85,14 @@ for loadStep = 1:nSteps
         residual(nDirichlet) = uDirichlet(nDirichlet)-Xn(nDirichlet);
         
         
-        normRes = norm(residual/nNodes);
+        normRes = norm(residual);
         
         
         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
-        if ( normRes < 1E-12 && iter > 0)
+        if ( normRes < 1E-10 && iter > 0)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             break;
         end

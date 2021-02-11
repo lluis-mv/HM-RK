@@ -45,17 +45,16 @@ for el = 1:nElements
         he = sqrt( sum([GPInfo(el,:).Weight]));
    
         if (all(ElementType == 'T3T3'))
-        
+            
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod ));
             
-            if ( implicit)
-                AlphaStab = 4*(2*ConstModulus - 12*dt*perme/he^2);
-                if (AlphaStab < 0)
-                    AlphaStab = 0;
-                end
-            end
+            %             if ( implicit)
+            %                 AlphaStab = 4*(2*ConstModulus - 12*dt*perme/he^2);
+            %                 if (AlphaStab < 0)
+            %                     AlphaStab = 0;
+            %                 end
+            %             end
         elseif ( all(ElementType == 'T6T6'))
-            he = sqrt( sum( [GPInfo(el,:).Weight]) );
             AlphaStab = 80*dt*perme/he^2*(1-exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
@@ -73,7 +72,21 @@ for el = 1:nElements
         elseif ( length(AlphaStabM) == 2)
             AlphaStab = AlphaStabM(1)/ConstModulus+AlphaStabM(2)*perme*dt/he^2;
         end
-
+        
+        
+        
+        if ( length(AlphaStabM) == 1 && AlphaStabM(1) < 0)
+            if (all(ElementType == 'T3T3'))
+                AlphaStab = 8*dt*perme/he^2;        
+            elseif ( all(ElementType == 'T6T6'))
+                AlphaStab = 80*dt*perme/he^2;
+            elseif ( all(ElementType == 'T6T3'))
+                AlphaStab = 8*dt*perme/he^2;
+            end
+            AlphaStab = AlphaStab*AlphaStabM;
+        end
+        
+        
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
         
         

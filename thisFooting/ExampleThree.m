@@ -15,27 +15,25 @@ CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-3;
-
+CP.Elastic = false;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.85];
+ESIZE = [0.55];
 
 
 figure(50); clf;
 RKMethod = 1;
 Elem = 2;
 
-% for Elem = [1, 2, 3]
-RKReference = 8;
-RKMethods = [RKReference, 1,2,4, 6, -1];
 
 RKReference = 8;
-RKMethods = [8,1,2,4,6];
+RKMethods = [9, 8,1:7, 9];
 
 
 
-for Elem = 1
+
+for Elem = [2, 1,2,3]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -57,7 +55,7 @@ for Elem = 1
         
         
         R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
-%         R1 = [3,4, 0, 1, 1, 0,  0, 0, -3, -3]';
+        
         g = decsg(R1);
         geometryFromEdges(model, g);
         
@@ -71,7 +69,6 @@ for Elem = 1
         Elements = mesh.Elements';
         
         Stab = 1;
-        % First part. compute the eigenvalues
         figure(1);
         clf;
         if ( Elem == 1)
@@ -80,7 +77,7 @@ for Elem = 1
         drawnow
         axis equal
         axis off
-        print('ExampleOneBis-FemMesh', '-dpdf')
+        print('ExampleThree-Plastic-FemMesh', '-dpdf')
         
         % Estimate the element size
         
@@ -89,41 +86,27 @@ for Elem = 1
         Elementsa = mesha.Elements';
         [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
         he = mean(sqrt( mean([GPInfo(:,:).Weight])));
-        esizeAxis(i)=he;
-        
-        
-        
-        
-        
-        nSteps = 5;
-        dt = 0.01/nSteps;
-        
-        
-        
         
         Nadim = 20;
         
         NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
-%         NSteps = 50;
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.02/nSteps;
+                dt = 0.15/nSteps;
                 
-                
-                if ( RK > 0)
+                disp(RK)
+                if ( RK < 9)
+                    tic;
                     [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-%                     [U,GPInfo,  information] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-                else
-                    dt2 = dt; nSteps2 = nSteps;
-                    if ( nSteps < 5)
-                        dt2 = dt/5; nSteps2 = 5*nSteps;
-                    end
-                    
-                    [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt2, nSteps2, ElementType);
-                    RK = max(RKMethods)+3;
+                    timing = toc;
+                elseif ( RK == 9)
+                    tic;
+                    [U, GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
                     rrr = 0;
+                    timing = toc;
                 end
+                
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
@@ -135,6 +118,7 @@ for Elem = 1
                 RES(RK,j) = rrr;
                 ddtt(RK,j) = dt;
                 N(RK,j) = ThisInfo(RK,j).F(end);
+                Time(RK,j) = timing;
                 
                 if ( j < 2 )
                     continue;
@@ -142,121 +126,113 @@ for Elem = 1
                 
                 figure(2105); clf
                 for jj = 1:size(RES,1)
-                    loglog(ddtt(jj,:), RES(jj,:), '*-.')
+                    merda = '';
+                    if ( jj == 8)
+                        merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
+                    end
+                    loglog(ddtt(jj,:), RES(jj,:), [merda, '*-.'])
                     hold on
-                    ylabel('Residual')
-                    legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+                    
                 end
+                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+                ylabel('Residual', 'interpreter', 'latex')
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                set(ll, 'interpreter', 'latex')
                 grid
                 drawnow
                 hold off
                 
                 figure(2106); clf
                 for jj = 1:size(RES,1)
-                    loglog(ddtt(jj,:), N(jj,:), '*-.')
+                    merda = '';
+                    if ( jj == 8)
+                        merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
+                    end
+                    loglog(ddtt(jj,:), N(jj,:), [merda, '*-.'])
                     hold on
                 end
                 grid
                 drawnow
                 hold off
-                legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                set(ll, 'interpreter', 'latex')
+                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+                ylabel('Footing load', 'interpreter', 'latex')
+                
                 figure(2107); clf
                 ind = find(N == 0);
                 N(ind) = nan;
                 for jj = 1:size(RES,1)
-                    loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), '*-.')
+                    merda = '';
+                    if ( jj == 8)
+                        merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
+                    end
+                    loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), [merda, '*-.'])
                     hold on
                 end
+                
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                set(ll, 'interpreter', 'latex')
+                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+                ylabel('Error norm', 'interpreter', 'latex')
                 grid
                 drawnow
                 hold off
-                legend('1','2','3','4','5','6','7','8', 'location','bestoutside')
+                
+                
+                figure(2108); clf
+                ind = find(Time == 0);
+                Time(ind) = nan;
+                for jj = 1:size(RES,1)
+                    merda = '';
+                    if ( jj == 8)
+                        merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
+                    end
+                    loglog(Time(jj,:), abs(N(jj,:)-Nadim), [merda, '*-.'])
+                    hold on
+                end
+                
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                set(ll, 'interpreter', 'latex')
+                xlabel('$t$ (s)', 'interpreter', 'latex')
+                ylabel('Error norm', 'interpreter', 'latex')
+                grid
+                drawnow
+                hold off
+                
+                
+                % Printing....
+                figure(2105)
+                pause(1)
+                print(['ExampleThree-Plastic-Residual-', num2str(Elem)], '-dpdf')
+                figure(2106)
+                pause(1)
+                print(['ExampleThree-Plastic-Bearing-', num2str(Elem)], '-dpdf')
+                figure(2107)
+                pause(1)
+                print(['ExampleThree-Plastic-Error-', num2str(Elem)], '-dpdf')
+                figure(2108)
+                pause(1)
+                print(['ExampleThree-Plastic-TimeError-', num2str(Elem)], '-dpdf')
             end
-%             error
+            
+            
+            
         end
-        
-        
-        
-        
-        return;
-        
-        for RK = [1:4]
-            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
-            ThisInfo(RK+1).t = [information.t];
-            ThisInfo(RK+1).F = [information.F];
-        end
-        
-        for RK = 1:4
-            [U,GPInfo, trash, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
-            ThisInfo(RK+5).t = [information.t];
-            ThisInfo(RK+5).F = [information.F];
-        end
-        
-        figure(233); clf;
-        
-        plot([ThisInfo(1).t], [ThisInfo(1).F], 'k*-.', 'linewidth', 1.5)
-        hold on
-        for i = 2:9
-            figure(233)
-            plot([ThisInfo(i).t], [ThisInfo(i).F], '*-.')
-            hold on
-            drawnow;
-        end
-        legend('Imp', '1','2','3','4','11','12','13','14', 'location', 'best')
-        
-        
-        [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Nodes, Elements, ElementType, dt*nSteps, GPInfo, CP);
-        
-        
-        
-        figure(30)
-        
-        loglog( esizeAxis(1:i), L2(1:i), 'k*-.', esizeAxis(1:i), L2U(1:i), 'rv-.',  esizeAxis(1:i), LInf(1:i), 'g*-.',  esizeAxis(1:i), LInfU(1:i), 'bv-.')
-        hold on
-        xlabel('$h_e$ (m)', 'interpreter', 'latex')
-        ylabel('Error norm', 'interpreter', 'latex');
-        set(gca, 'FontSize', 14)
-        drawnow
-        
-        ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
-        set(ll, 'interpreter', 'latex')
-        drawnow
-        hold off
-        
-        
-        
-        SlopeInfp = []; SlopeL2p = []; SlopeInfU = []; SlopeL2U = [];
-        for ii = 2:i
-            SlopeInfp(ii) = log10(LInf(ii)/LInf(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2p(ii) = log10(L2(ii)/L2(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeInfU(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            SlopeL2U(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-        end
-        SlopeInfp
-        SlopeL2p
-        SlopeInfU
-        SlopeL2U
-        
-        i = i+1;
-        return
+        clear Time;
+        clear RES;
+        clear ddtt;
+        clear N;
+        clear Time
     end
-    
-    figure(50)
-    
-    loglog( esizeAxis, LInf, 'g*-.',  esizeAxis, LInfU, 'bv-.', esizeAxis, L2, 'k*-.', esizeAxis, L2U, 'rv-.' )
-    hold on
-    xlabel('$h_e$ (m)', 'interpreter', 'latex')
-    ylabel('Error norm', 'interpreter', 'latex');
-    set(gca, 'FontSize', 14)
-    drawnow
-    %     ylim(yy);
-    ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
-    set(ll, 'interpreter', 'latex')
-    drawnow
-    %         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-    %         xticks(ticks);
-    print(['ExampleOneBis-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
-    hold on
 end
 
 
