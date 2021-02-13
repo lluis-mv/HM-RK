@@ -95,7 +95,7 @@ if ( true)
                 
                 nSteps = NStepsRef;
                 dt = t/nSteps;
-                [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
+                [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
@@ -104,24 +104,24 @@ if ( true)
                 
                 
                 
-                figure(10)
-                loglog( SStab(1:i), L2(1:i), 'k*-.', SStab(1:i), L2U(1:i), 'rv-.',  SStab(1:i), LInf(1:i), 'g*-.',  SStab(1:i), LInfU(1:i), 'bv-.')
-                hold on
-                xlabel('$\beta_s$', 'interpreter', 'latex')
-                ylabel('Error norm', 'interpreter', 'latex');
-                set(gca, 'FontSize', 14)
-                drawnow
-                %             yy = ylim();
-                %             xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-                %             plot(xx, yy, 'k-.')
-                %             if ( yy(2) > 1E20)
-                %                 yy(2) = 1E20;
-                %             end
-                %             ylim(yy);
-                ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
-                set(ll, 'interpreter', 'latex')
-                drawnow
-                hold off
+% %                 figure(10)
+% %                 loglog( SStab(1:i), L2(1:i), 'k*-.', SStab(1:i), L2U(1:i), 'rv-.',  SStab(1:i), LInf(1:i), 'g*-.',  SStab(1:i), LInfU(1:i), 'bv-.')
+% %                 hold on
+% %                 xlabel('$\beta_s$', 'interpreter', 'latex')
+% %                 ylabel('Error norm', 'interpreter', 'latex');
+% %                 set(gca, 'FontSize', 14)
+% %                 drawnow
+% %                 %             yy = ylim();
+% %                 %             xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+% %                 %             plot(xx, yy, 'k-.')
+% %                 %             if ( yy(2) > 1E20)
+% %                 %                 yy(2) = 1E20;
+% %                 %             end
+% %                 %             ylim(yy);
+% %                 ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
+% %                 set(ll, 'interpreter', 'latex')
+% %                 drawnow
+% %                 hold off
                 
                 i = i+1;
             end
@@ -193,7 +193,7 @@ for Elem = [1:3]
             
             nSteps = NStepsRef;
             dt = t/nSteps;
-            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
+            [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
             if ( firstTime)
                 [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             end

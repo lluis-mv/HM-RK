@@ -71,13 +71,14 @@ end
 
 
 
+
 GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(GPInfo);
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
 
 
 function M = ComputeAmplificationMatrix(a, b, dt, A)
-M = eye(size(A));
+M = (eye(size(A)));
 for i = 1:length(a)
     kk = M;
     for j = 1:i-1
@@ -89,3 +90,5 @@ end
 for i = 1:length(a)
     M = M + dt * b(i)*ki(:,:,i);
 end
+
+M = sparse(M);
