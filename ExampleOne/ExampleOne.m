@@ -284,6 +284,7 @@ if (true)
                 plot(xx, yy, 'k-.')
                 if ( yy(2) > 1E20)
                     yy(2) = 1E20;
+                    yy(1) = 1E-10;
                 end
                 ylim(yy);
                 ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
@@ -307,6 +308,7 @@ if (true)
             plot(xx, yy, 'k-.')
             if ( yy(2) > 1E20)
                 yy(2) = 1E20;
+                yy(1) = 1E-10;
             end
             ylim(yy);
             ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
@@ -348,7 +350,7 @@ if ( true)
         
         Stab = 1;
         
-        for RK = [1,4,8]
+        for RK = [1,3,8]
             firstTime = true;
             i = 1;
             
@@ -368,7 +370,7 @@ if ( true)
             
             
             color = 'r';
-            if ( RK == 4)
+            if ( RK == 3)
                 color = 'b';
             elseif (RK == 8)
                 color = 'k';
@@ -379,7 +381,9 @@ if ( true)
             if (RK == 1)
                 clf;
             end
-            loglog( ddtt, L2, [color, '*-.'],  ddtt, L2U, [color, 'v-.'])
+            loglog( ddtt, L2, [color, '*-.'], 'DisplayName',  ['$L_2 p_w$ RK-', num2str(RK)]);
+            hold on
+            loglog( ddtt, L2U, [color, 'v-.'], 'DisplayName',  ['$L_2 u$ RK-', num2str(RK)]);
             hold on
             xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');
@@ -393,14 +397,16 @@ if ( true)
         drawnow
         yy = ylim();
         xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-        plot(xx, yy, 'k-.')
+        plot(xx, yy, 'k-.', 'HandleVisibility','off')
         if ( yy(2) > 1E20)
             yy(2) = 1E20;
+            yy(1) = 1E-10;
         end
         ylim(yy);
         drawnow
         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
         xticks(ticks);
+        legend('location', 'best', 'interpreter', 'latex')
         print(['ExampleOne-RK-', ElementType], '-dpdf')
         
         

@@ -12,11 +12,9 @@ CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-3;
-
 CP.Elastic = false;
 
-
-ESIZE = [0.55];
+ESIZE = 0.35;
 
 
 
@@ -54,7 +52,6 @@ for Elem = [1,2,3]
         Nodes = mesh.Nodes';
         Elements = mesh.Elements';
         
-        %
         figure(1);
         clf;
         if ( Elem == 1)
@@ -131,7 +128,7 @@ for Elem = [1,2,3]
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Residual', 'interpreter', 'latex')
                 
-                grid
+                grid minor
                 drawnow
                 hold off
                 
@@ -144,7 +141,7 @@ for Elem = [1,2,3]
                     loglog(ddtt(jj,:), N(jj,:), [merda])
                     hold on
                 end
-                grid
+                grid minor
                 drawnow
                 hold off
                 
@@ -152,20 +149,25 @@ for Elem = [1,2,3]
                 ylabel('Footing load', 'interpreter', 'latex')
                 
                 figure(2107); clf
-
+                
                 for jj = 1:size(RES,1)
                     if ( all(isnan(RES(jj,:))) )
                         continue;
                     end
                     merda = SelectColor(jj);
-                    loglog(ddtt(jj,:), abs(N(jj,:)-Nadim), [merda])
+                    plotThis = abs(N(jj,:)-Nadim);
+                    if ( jj ~= RKReference)
+                        index = find( plotThis == 0);
+                        plotThis(index) = 1E-14*(1+rand(size(index)));
+                    end
+                    loglog(ddtt(jj,:), plotThis, [merda])
                     hold on
                 end
                 
                 
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
-                grid
+                grid minor
                 drawnow
                 hold off
                 
@@ -178,14 +180,20 @@ for Elem = [1,2,3]
                         continue;
                     end
                     merda = SelectColor(jj);
-                    loglog(Time(jj,:), abs(N(jj,:)-Nadim), [merda])
+                    plotThis = abs(N(jj,:)-Nadim);
+                    if ( jj ~= RKReference)
+                        index = find( plotThis == 0);
+                        plotThis(index) = 1E-14*(1+rand(size(index)));
+                    end
+                    plotThis(index) = 1E-14*(1+rand(size(index)));
+                    loglog(Time(jj,:), plotThis, [merda])
                     hold on
                 end
                 
                 
                 xlabel('$t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
-                grid
+                grid minor
                 drawnow
                 hold off
                 
@@ -224,16 +232,16 @@ end
 function [merda ] = SelectColor(j)
 
 switch j
-   case 2
+    case 2
         merda = 'r-^';
-   case 4
-      merda = 'g-o';
+    case 4
+        merda = 'g-o';
     case 6
-      merda = 'b-s';
-   case 12
+        merda = 'b-s';
+    case 12
         merda = 'r-.^';
-   case 14
-      merda = 'g-.o';
+    case 14
+        merda = 'g-.o';
     case 16
-      merda = 'b-.s';
+        merda = 'b-.s';
 end

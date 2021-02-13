@@ -92,7 +92,7 @@ for loadStep = 1:nSteps
         if ( iter > 10)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
-        if ( normRes < 1E-10 && iter > 0)
+        if ( normRes < 1E-12 && iter > 0)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             break;
         end
@@ -129,7 +129,7 @@ for loadStep = 1:nSteps
     
     fin_n = fin_n1;
     
-    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
+    %PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
     if ( DoSomePostProcess ) 
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
