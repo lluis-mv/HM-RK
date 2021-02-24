@@ -54,7 +54,12 @@ for el = 1:nElem
             GPInfo(el,gp).HistoryPrev = sigma(7:end);
             GPInfo(el,gp).DPrev(:,:,1) = D;
             m = [1,1,1,0,0,0]';
-            GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/lambda;
+            
+            if ( CP.Elastic)
+                GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/kappa;
+            else
+                GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/lambda;
+            end
             
             D = ComputeD(CP, sigma, strain);
         end

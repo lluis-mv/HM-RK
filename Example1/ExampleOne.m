@@ -93,7 +93,7 @@ for Stab = [1, 0]
         
         
         dt = t/NStepsRef;
-        [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt,NStepsRef, ElementType, 1, Stab);
+        [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt,NStepsRef, ElementType, 1, Stab);
         if ( firstTime)
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             firstTime = false;
@@ -143,7 +143,7 @@ end
 
 
 
-if (true)
+if (false)
     
     % First part. Spectral radii
     for j = 1:3
@@ -263,7 +263,7 @@ if (true)
             for nSteps = NSteps
                 
                 dt = t/nSteps;
-                [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
+                [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
@@ -329,7 +329,7 @@ if ( true)
     
     % Now lets check the RK methods
     
-    for j = 1:3
+    for j = 1:2
         
         if ( j == 1)
             ElementType = 'T3T3';

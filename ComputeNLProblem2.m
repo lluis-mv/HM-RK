@@ -24,7 +24,7 @@ nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+[GPInfo] = InitializeConstitutiveLaw(GPInfo, CP);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
 [~,~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
@@ -82,7 +82,7 @@ for loadStep = 1:nSteps
                 break;
             end
             
-            if ( ss > 20)
+            if ( ss > 10)
                 disp('breaking the rules')
                 break;
             end

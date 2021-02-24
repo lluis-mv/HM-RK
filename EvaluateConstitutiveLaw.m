@@ -31,12 +31,20 @@ if (GP.MCC)
     X = [GP.StressPrev; GP.HistoryPrev];
     
     if (consistent)
-        [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
+        if ( CP.Elastic)
+            [Xnew, D, ~] = ExplicitCamClayE(X, DeltaStrain, -1);
+        else
+            [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
+        end
     else
         if ( RKMethod == 1)
             RKMethod = RKMethod+1;
         end
-        [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, RKMethod, false);
+        if ( CP.Elastic)
+            [Xnew, ~, D] = ExplicitCamClayE(X, DeltaStrain, RKMethod, false);
+        else
+            [Xnew, ~, D] = ExplicitCamClay2(X, DeltaStrain, RKMethod, false);
+        end
     end
     
     
