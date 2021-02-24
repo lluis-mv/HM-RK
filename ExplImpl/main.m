@@ -4,8 +4,8 @@ function [] = main()
 
 RKMethods = [1:8];
 RKRef = 8;
-RKMethods = [-1,-2,-3,1,2,3,8];
-
+RKMethods = [-1,-2,-3,8];
+RKMethods = [-1,-2,-3,-4,-5,-6,8];
 NSTEPS = 2.^[0:8];
 
 nS = 1;
@@ -33,9 +33,10 @@ for nSteps = NSTEPS
     figure(2)
     hold off
     for i = 1:length(RKMethods)
-        loglog(NSTEPS(1:nS), abs(YY(i,1:nS)-YYadim), '*-.')
+        loglog(NSTEPS(1:nS), abs(YY(i,1:nS)-YYadim), '*-.', 'DisplayName', num2str(RKMethods(i)) )
         hold on
     end
+    legend('location', 'best')
     
     nS = nS+1;
 end
@@ -126,4 +127,21 @@ elseif (RK == -3)
         5/36+sqrt(15)/24, 2/9, 5/36-sqrt(15)/24;
         5/36+sqrt(15)/30, 2/9+sqrt(15)/15, 5/36];
     b = [5/18, 4/9, 5/18];
+    b = [-5/6, 8/3, -5/6];
+elseif (RK == -4)
+    a = [5/36, 2/9-sqrt(15)/15, 5/36-sqrt(15)/30;
+        5/36+sqrt(15)/24, 2/9, 5/36-sqrt(15)/24;
+        5/36+sqrt(15)/30, 2/9+sqrt(15)/15, 5/36];
+    b = [5/18, 4/9, 5/18];
+elseif (RK == -5)
+    a = [1/6, -1/6, 0;
+        1/6, 1/3, 0;
+        1/6, 5/6, 0];
+    b = [1/6, 2/3, 1/6];
+elseif (RK == -6)
+    a = [1/9, (-1-sqrt(6))/18, (-1+sqrt(6))/18; 
+        1/9, 11/45+(7*sqrt(6))/360, 11/45-(43*sqrt(6))/360; 
+        1/9, 11/45+(43*sqrt(6))/360, 11/45-(7*sqrt(6))/360]; 
+%         b = [1/9, 4/9+sqrt(6)/36, 4/5-sqrt(6)/36];
+        b = [1/9, 4/9+sqrt(6)/36, 4/9-sqrt(6)/36];
 end

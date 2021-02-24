@@ -19,7 +19,7 @@ nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 index = find( (Nodes(:,1) > 1) &  abs(Nodes(:,2)) < 1E-8);
 dofs = 3*([index]-1)+3;
 % dofs = 3*([nodesTop]-1)+3;
-dofs = [3:3:3*nNodes]';
+% dofs = [3:3:3*nNodes]';
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));

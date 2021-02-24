@@ -80,6 +80,8 @@ for loadStep = 1:nSteps
         return;
     end
     if ( DoSomePostProcess )
+        GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
+        GPInfo = FinalizeConstitutiveLaw(GPInfo);
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end

@@ -13,7 +13,7 @@ if (nargin == 6)
 end
 
 kSigma = zeros( 7,nn);
-
+[kappa, lambda, M, nu] = GetConstitutiveParameters();
 
 for el = 1:nElem
     
@@ -54,7 +54,7 @@ for el = 1:nElem
             GPInfo(el,gp).HistoryPrev = sigma(7:end);
             GPInfo(el,gp).DPrev(:,:,1) = D;
             m = [1,1,1,0,0,0]';
-            GPInfo(el, gp).ConstrainedModulus =  m'*D(1:6,1:6)*m/100;
+            GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/lambda;
             
             D = ComputeD(CP, sigma, strain);
         end
