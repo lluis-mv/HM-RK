@@ -36,8 +36,8 @@ for i = 2:nSteps
 end
 
 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-GPInfo = FinalizeConstitutiveLaw(GPInfo);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 
 PostProcessResults(Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisIProblem-', ElementType]);
 

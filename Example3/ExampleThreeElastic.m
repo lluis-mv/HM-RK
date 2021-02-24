@@ -11,7 +11,7 @@ CP.E = 100;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-3;
+CP.k = 1E-8;
 CP.Elastic = true;
 
 ESIZE = 0.35;
@@ -19,7 +19,7 @@ ESIZE = 0.35;
 RKReference = 8;
 RKMethods = [8,1:7];
 
-for Elem = [1,2,3]
+for Elem = [2,1,2,3]
 
 RKMethods = [8,1:7];
 if ( Elem == 2)
@@ -84,7 +84,7 @@ end
                 disp(RK)
                 if ( RK < 9)
                 tic;
-                [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
                 timing = toc;
                 elseif ( RK == 9)
                     tic;

@@ -12,7 +12,7 @@ nNodes = size(Nodes, 1);
 %nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
+[GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
 
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
@@ -59,7 +59,7 @@ for loadStep = 1:nSteps
     while( true )
         
         % Compute D, Sigma...
-        GPInfo = EvaluateConstitutiveLaw(GPInfo, Xn, Elements, true);
+        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true);
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
@@ -125,7 +125,7 @@ for loadStep = 1:nSteps
     
     X = Xn;
     
-    GPInfo = FinalizeConstitutiveLaw(GPInfo);
+    GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
     
     fin_n = fin_n1;
     
@@ -172,7 +172,7 @@ nNodes = size(Nodes, 1);
 
 
 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, Xn, Elements, true);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true);
 
 
 % Create again C with the appropriate ElastoPlastic stiffness matrix
@@ -216,7 +216,7 @@ return;
 f0(nDirichlet) = 0;
 
 % Compute D, Sigma...
-GPInfo = EvaluateConstitutiveLaw(GPInfo, Xn, Elements, true);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true);
 
 
 % Create again C with the appropriate ElastoPlastic stiffness matrix

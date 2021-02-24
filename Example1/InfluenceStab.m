@@ -95,7 +95,7 @@ if ( true)
                 
                 nSteps = NStepsRef;
                 dt = t/nSteps;
-                [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
+                [U,GPInfo] = ComputeLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end

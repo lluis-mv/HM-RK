@@ -108,7 +108,7 @@ for Elem = [1,2,3]
             dt = t/nSteps;
             
             RKMethod = 1;
-            [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
+            [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
             
             
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);

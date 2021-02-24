@@ -1,4 +1,4 @@
-function GP = FinalizeConstitutiveLaw(GP)
+function GP = FinalizeConstitutiveLaw(CP, GP)
 
 
 for i = 1:size(GP,1)
@@ -16,7 +16,12 @@ if ( GP(1,1).MCC )
     for i = 1:size(GP,1)
         for gp = 1:size(GP,2)
             p = -mean(GP(i, gp).StressNew(1:3));
-            K = p/kappa;
+            
+            if ( CP.Elastic)
+                K = p/kappa;
+            else
+                K = p/lambda;
+            end
             
             GP(i, gp).ConstrainedModulus =  3*K*(1-nu)/(1+nu);
         end

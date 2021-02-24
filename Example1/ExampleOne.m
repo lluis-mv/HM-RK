@@ -93,7 +93,7 @@ for Stab = [1, 0]
         
         
         dt = t/NStepsRef;
-        [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt,NStepsRef, ElementType, 1, Stab);
+        [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt,NStepsRef, ElementType, 1, Stab);
         if ( firstTime)
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             firstTime = false;
@@ -263,7 +263,7 @@ if (false)
             for nSteps = NSteps
                 
                 dt = t/nSteps;
-                [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
+                [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
@@ -357,7 +357,7 @@ if ( true)
             for nSteps = NSteps
                 
                 dt = t/nSteps;
-                [U,GPInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
+                [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end

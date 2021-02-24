@@ -1,6 +1,6 @@
 % Solver for a linear problem
 
-function [X, GPInfo, ThisInfo] = ComputeThisLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+function [X, GPInfo, ThisInfo] = ComputeLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
 
 if (nargout == 3)
     DoSomePostProcess = true;
@@ -50,26 +50,11 @@ if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
+AmplificationMatrix = ComputeAmplificationMatrix(a, b, dt, A);
+
 for loadStep = 1:nSteps
 
-    for i = 1:length(b)
-        XStep = X;
-        t = (loadStep-1)*dt + c(i)*dt;
-        [f, uDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
-        f(nDirichlet) = 0;
-        for j = 1:i-1
-            XStep = XStep + dt*a(i,j)*k(:,j);
-        end
-         k(:,i) = A*XStep + invC*(f+uDirichlet);
-         if ( loadStep == 1)
-             k(:,i) = k(:,i) + (1/dt)*invCfini;
-        end
-    end
-    XNew = X;
-    for i = 1:length(b)
-        XNew = XNew + dt*b(i)*k(:,i);
-    end
-    X = XNew;
+    X = AmplificationMatrix*X;
     
     if (any(isnan(X)))
         X = nan*X;
@@ -80,15 +65,30 @@ for loadStep = 1:nSteps
         return;
     end
     if ( DoSomePostProcess )
-        GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-        GPInfo = FinalizeConstitutiveLaw(GPInfo);
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end
 
 
 
-GPInfo = EvaluateConstitutiveLaw(GPInfo, X, Elements, false);
-GPInfo = FinalizeConstitutiveLaw(GPInfo);
+
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
 
+
+function M = ComputeAmplificationMatrix(a, b, dt, A)
+M = (eye(size(A)));
+for i = 1:length(a)
+    kk = M;
+    for j = 1:i-1
+        kk = kk + dt*a(i,j)*ki(:,:,j);
+    end
+    ki(:,:,i) = A * kk;
+end
+
+for i = 1:length(a)
+    M = M + dt * b(i)*ki(:,:,i);
+end
+
+M = sparse(M);
