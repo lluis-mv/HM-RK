@@ -143,7 +143,7 @@ end
 
 
 
-if (false)
+if (true)
     
     % First part. Spectral radii
     for j = 1:3
@@ -329,7 +329,7 @@ if ( true)
     
     % Now lets check the RK methods
     
-    for j = 1:2
+    for j = 1:3
         
         if ( j == 1)
             ElementType = 'T3T3';
