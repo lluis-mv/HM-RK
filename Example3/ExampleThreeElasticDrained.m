@@ -1,4 +1,4 @@
-function [] = ExampleThreeElastic()
+function [] = ExampleThreeElasticDrained()
 
 
 
@@ -11,7 +11,7 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-8;
+CP.k = 1E-5;
 CP.Elastic = true;
 CP.MCC = true;
 
@@ -73,7 +73,7 @@ for Elem = [1:3]
         drawnow
         axis equal
         axis off
-        print('ExampleThree-Elastic-FemMesh', '-dpdf')
+%         print('ExampleThree-Elastic-FemMesh', '-dpdf')
         
         % Estimate the element size
         
@@ -243,16 +243,16 @@ for Elem = [1:3]
             % Printing....
             figure(2105)
             pause(1)
-            print(['ExampleThree-Elastic-Residual-', num2str(Elem)], '-dpdf')
+            print(['ExampleThree-dr-Elastic-Residual-', num2str(Elem)], '-dpdf')
             figure(2106)
             pause(1)
-            print(['ExampleThree-Elastic-Bearing-', num2str(Elem)], '-dpdf')
+            print(['ExampleThree-dr-Elastic-Bearing-', num2str(Elem)], '-dpdf')
             figure(2107)
             pause(1)
-            print(['ExampleThree-Elastic-Error-', num2str(Elem)], '-dpdf')
+            print(['ExampleThree-dr-Elastic-Error-', num2str(Elem)], '-dpdf')
             figure(2108)
             pause(1)
-            print(['ExampleThree-Elastic-TimeError-', num2str(Elem)], '-dpdf')
+            print(['ExampleThree-dr-Elastic-TimeError-', num2str(Elem)], '-dpdf')
         end
         
         clear Time;
@@ -260,7 +260,9 @@ for Elem = [1:3]
         clear ddtt;
         clear N;
         clear Time
+        
     end
+    
 end
 
 

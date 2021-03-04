@@ -1,4 +1,4 @@
-function GPInfo = EvaluateConstitutiveLawNL2(GPInfo, CP, dt, k, a, b, nn, initialize)
+function GPInfo = EvaluateConstitutiveLawNL(GPInfo, CP, dt, k, a, b, nn, initialize)
 
 nElem = size(GPInfo,1);
 
@@ -14,6 +14,16 @@ end
 
 kSigma = zeros( 7,nn);
 [kappa, lambda, M, nu] = GetConstitutiveParameters();
+
+
+number = 1;
+if ( length([GPInfo(1,1).dofsWP]) == length([GPInfo(1,1).dofsWPreal]) )
+    if ( length([GPInfo(1,1).dofsWPreal]) == 3 )
+        number = 20;
+    else
+        number = 120;
+    end
+end
 
 for el = 1:nElem
     
@@ -55,11 +65,11 @@ for el = 1:nElem
             GPInfo(el,gp).DPrev(:,:,1) = D;
             m = [1,1,1,0,0,0]';
             
-            if ( CP.Elastic)
-                GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/kappa;
-            else
-                GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/lambda;
-            end
+%             if ( CP.Elastic)
+%                 GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/kappa;
+%             else
+%                 GPInfo(el, gp).ConstrainedModulus =  mean(abs(sigma(1:3)))/lambda * number;
+%             end
             
             D = ComputeD(CP, sigma, strain);
         end

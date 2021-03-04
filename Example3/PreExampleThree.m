@@ -7,12 +7,13 @@ addpath('../')
 
 
 CP.HydroMechanical = true;
-CP.E = 100;
+CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-3;
+CP.k = 1E-8;
 CP.Elastic = false;
+CP.MCC = true;
 
 ESIZE = 0.35;
 
@@ -72,7 +73,7 @@ for Elem = [1,2,3]
         
         Nadim = 20;
         
-        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
@@ -81,21 +82,23 @@ for Elem = [1,2,3]
                 if ( RK > 10)
                     RK = RK-10;
                     tic;
-                    [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
                     disp('caseImplex')
                     toc
                     RK = RK+10;
                     timing = toc;
                 else
                     tic;
-                    [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, true);
                     disp('caseNoImplex')
                     toc
                     timing = toc;
                 end
                 
+                
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
@@ -191,7 +194,7 @@ for Elem = [1,2,3]
                 end
                 
                 
-                xlabel('$t$ (s)', 'interpreter', 'latex')
+                xlabel('Computational cost (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
                 grid minor
                 drawnow

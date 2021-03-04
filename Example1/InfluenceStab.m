@@ -145,6 +145,7 @@ if ( true)
             set(gca, 'FontSize', 14)
             drawnow
             ylim([1E-4,1E6])
+            xlim([1E-2,1E2])
             legend('location', 'best', 'interpreter', 'latex')
             print(['ExampleOne-Stab-', num2str(Elem)], '-dpdf');
             
@@ -193,7 +194,7 @@ for Elem = [1:3]
             
             nSteps = NStepsRef;
             dt = t/nSteps;
-            [U,GPInfo] = ComputeThisLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
+            [U,GPInfo] = ComputeLinearProblemFast(Nodes, Elements, CP, dt, nSteps, ElementType, RK, -Stab);
             if ( firstTime)
                 [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
             end

@@ -7,21 +7,24 @@ addpath('../')
 
 
 CP.HydroMechanical = true;
-CP.E = 100;
+CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-3;
+CP.k = 1E-8;
 CP.Elastic = false;
+CP.MCC = true;
 
-ESIZE = [0.35];
-
-
+ESIZE = 0.35;
 
 RKReference = 8;
 RKMethods = [8,1:7];
 
-for Elem = [1,2,3]
+RKReference = 8;
+RKMethods = [8,1:7];
+    if ( Elem == 2)
+        RKMethods = [8,1:7, 9];
+    end
     
     esizeAxis = ESIZE;
     i = 1;
@@ -72,20 +75,27 @@ for Elem = [1,2,3]
         
         Nadim = 20;
         
-        NSteps = [6, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
                 dt = 0.15/nSteps;
                 
                 disp(RK)
-                tic;
-                [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-                timing = toc;
+                if ( RK < 9)
+                	tic;
+	                [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+        	        timing = toc;
+                elseif ( RK == 9)
+                    tic;
+                    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
+                    timing = toc;
+                end
                 
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
@@ -116,7 +126,11 @@ for Elem = [1,2,3]
                 end
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Residual', 'interpreter', 'latex')
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 grid minor
                 drawnow
@@ -136,7 +150,11 @@ for Elem = [1,2,3]
                 grid minor
                 drawnow
                 hold off
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
                 ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Footing load', 'interpreter', 'latex')
@@ -160,7 +178,11 @@ for Elem = [1,2,3]
                     hold on
                 end
                 
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
                 ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
@@ -188,9 +210,13 @@ for Elem = [1,2,3]
                     hold on
                 end
                 
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
                 ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
                 set(ll, 'interpreter', 'latex')
-                xlabel('$t$ (s)', 'interpreter', 'latex')
+                xlabel('Computational cost (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
                 grid minor
                 drawnow

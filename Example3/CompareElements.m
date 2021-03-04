@@ -10,27 +10,29 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-8;
+CP.k = 1E-6;
 CP.Elastic = false;
+CP.MCC = true;
 
-eSize = [0.35];
+eSize = [0.45];
 
 
-Elem = 2;
 
-LinearElastic = true;
+
+LinearElastic = false;
 if ( LinearElastic)
     CP.Elastic = true;
+    CP.MCC = false;
 end
 
 
-if (Elem == 1)
-    ElementType = 'T3T3';
-elseif (Elem == 2)
-    ElementType = 'T6T3';
-else
-    ElementType = 'T6T6';
-end
+% % if (Elem == 1)
+% %     ElementType = 'T3T3';
+% % elseif (Elem == 2)
+% %     ElementType = 'T6T3';
+% % else
+% %     ElementType = 'T6T6';
+% % end
 
 model = createpde(1);
 
@@ -42,12 +44,7 @@ R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
 g = decsg(R1);
 geometryFromEdges(model, g);
 
-if ( Elem == 1)
-    mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-else
-    mesh = generateMesh(model, 'Hmax', eSize);
-end
-
+mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
@@ -63,18 +60,18 @@ Elementsa = mesha.Elements';
 he = mean(sqrt( mean([GPInfo(:,:).Weight])));
 
 
-RK = 6;
+RK = 1;
 
-Perme = 10.^(-15);
+Perme = 10.^(-2);
 CP.k = Perme;
 
-nSteps = 30;
+nSteps = 50;
 dt = 0.15/nSteps;
 
 if ( LinearElastic)
-    [U, GPInfo,  information] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+    [U, GPInfo,  information] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', RK, 1);
 else
-    [U, GPInfo, rrr,  information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+    [U, GPInfo, rrr,  information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', RK, 1, false);
 end
 figure(555)
 pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet', 'Mesh','on');
@@ -147,10 +144,10 @@ drawnow;
 FF = [information2.F];
 figure(212)
 subplot(2,1,1)
-plot( [information.t], FF(1:2:end), 'DisplayName', ['k=', num2str(Perme)])
+plot( [information.t], FF(1:2:end), '-.', 'DisplayName', ['k=', num2str(Perme)])
 hold on
 subplot(2,1,2)
-plot( [information.t], FF(2:2:end), 'DisplayName', ['k=', num2str(Perme)])
+plot( [information.t], FF(2:2:end), '-.','DisplayName', ['k=', num2str(Perme)])
 legend('location', 'best')
 hold on
 
@@ -158,10 +155,13 @@ hold on
 
 
 
-[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
-
+[Ur, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
 figure(88)
-pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet', 'Mesh','on');
+pdeplot(model,'XYData',Ur(3:3:end),'ColorMap','jet', 'Mesh','on');
+drawnow;
+
+figure(100)
+pdeplot(model,'XYData',Ur(3:3:end)-U(3:3:end),'ColorMap','jet', 'Mesh','on');
 drawnow;
 
 FF = [information.F];
@@ -188,8 +188,19 @@ maxval = max(values);
 hola = 1;
 
 
-            
-            
+    
+maxx = 0;
+for i = [88, 555, 559, 556]
+    figure(i)
+    xx = caxis();
+    maxx = maxx+xx(2);
+end
+
+for i = [88, 555, 559, 556]
+    figure(i)
+    caxis([0, maxx/4])
+end
+    
             
 
 

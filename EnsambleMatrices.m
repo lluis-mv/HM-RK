@@ -30,6 +30,8 @@ one = [1,1,0]';
 perme = CP.k;
 
 
+
+
 for el = 1:nElements
     
     for ngp = 1:size(GPInfo,2)
@@ -50,56 +52,37 @@ for el = 1:nElements
         elseif ( all(ElementType == 'T6T6'))
             term = exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) );
             AlphaStab = +80*dt*perme/he^2*(1-term) +ConstModulus/1000000*term;
-                elseif ( all(ElementType == 'T6T3'))
+        elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         end
         
-%         if (all(ElementType == 'T3T3'))
-%             AlphaStab = 8*dt*perme/he^2*(1-exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod ));
-%         elseif ( all(ElementType == 'T6T6'))
-%             AlphaStab = 80*dt*perme/he^2*(1-exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
-%         elseif ( all(ElementType == 'T6T3'))
-%             AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
-%         else
-%             disp(ElementType)
-%             error('this element does not exist. yet')
-%         end
-        
+       
 
         if ( implicit)
             AlphaStab = 0;
         end
         
-%         if ( GPInfo(el,ngp).MCC == true)
-%             if (all(ElementType == 'T3T3'))
-%                 term = exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod);
-%                 AlphaStab = 8*dt*perme/he^2*(1-term) + ConstModulus/1000000*term;
-%             elseif ( all(ElementType == 'T6T6'))
-%                 term = exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) );
-%                 AlphaStab = +80*dt*perme/he^2*(1-term) +ConstModulus/1000000*term;
-%             end
-%         end
+
         
         
         if ( length(AlphaStabM) == 1)
             AlphaStab = -AlphaStab*AlphaStabM;
-        elseif ( length(AlphaStabM) == 2)
-            AlphaStab = AlphaStabM(1)/ConstModulus+AlphaStabM(2)*perme*dt/he^2;
         end
         
         
         
         if ( length(AlphaStabM) == 1 && AlphaStabM(1) < 0)
             if (all(ElementType == 'T3T3'))
-                AlphaStab = 8*dt*perme/he^2;        
+                term = exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod);
+                AlphaStab = abs(AlphaStabM)*8*dt*perme/he^2 + ConstModulus/1000000*term;
             elseif ( all(ElementType == 'T6T6'))
-                AlphaStab = 80*dt*perme/he^2;
+                term = exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) );
+                AlphaStab = abs(AlphaStabM)*80*dt*perme/he^2 +ConstModulus/1000000*term;
             elseif ( all(ElementType == 'T6T3'))
-                AlphaStab = 8*dt*perme/he^2;
+                AlphaStab = abs(AlphaStabM)*8*dt*perme/he^2;
             end
-            AlphaStab = AlphaStab*AlphaStabM;
+            AlphaStab = -AlphaStab;
         end
-        
    
 %         
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
