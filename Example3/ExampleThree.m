@@ -21,7 +21,9 @@ RKReference = 8;
 RKMethods = [8,1:7];
 
 RKReference = 8;
-RKMethods = [8,1:7];
+
+for Elem = [1,2,3]
+    RKMethods = [8,1:7];
     if ( Elem == 2)
         RKMethods = [8,1:7, 9];
     end
@@ -75,7 +77,7 @@ RKMethods = [8,1:7];
         
         Nadim = 20;
         
-        NSteps = [2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [2^5, 2^6, 2^7, 2^8, 2^9];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
@@ -84,12 +86,20 @@ RKMethods = [8,1:7];
                 disp(RK)
                 if ( RK < 9)
                 	tic;
-	                [U,GPInfo, rrr, information] = ComputeNLProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+	                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
         	        timing = toc;
                 elseif ( RK == 9)
                     tic;
                     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
                     timing = toc;
+                    if ( isnan(rrr) )
+                        timing = nan;
+                        for mnm = 1:length(information)
+                            for nmn = 1:length(information(mnm).F)
+                            information(mnm).F(nmn)= nan;
+                            end     
+                        end
+                    end
                 end
                 
                 

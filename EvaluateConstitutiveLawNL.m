@@ -73,7 +73,6 @@ for el = 1:nElem
             
             D = ComputeD(CP, sigma, strain);
         end
-
         
         GPInfo(el,gp).D6 = D(1:6,1:6);
         GPInfo(el,gp).D = D([1,2,4], [1,2,4]);
@@ -83,7 +82,7 @@ end
 
 
 
-function De = ComputeD(CP, X, DeltaStrain)
+function D = ComputeD(CP, X, DeltaStrain)
 X = X;
 p = 1/3*(X(1)+X(2)+X(3));
 [kappa, lambda, M, nu] = GetConstitutiveParameters();
@@ -100,12 +99,14 @@ gradYield = GradYieldSurface(X);
 
 
 loadingCondition = gradYield'*De*DeltaStrain;
+
+
 if ( CP.Elastic == true)
     loadingCondition = -100;
 end
-
-if ( loadingCondition < 0)
-    De = [De; zeros(1,6)];
+% loadingCondition = 1;
+if ( loadingCondition <= 0)
+    D = [De; zeros(1,6)];
     return;
 end
 
@@ -125,9 +126,9 @@ tracegradYield = gradYield(1)+gradYield(2)+gradYield(3);
 H = (-tracegradYield/(lambda-kappa) + U/R  ) * transpose(gradYield)*X(1:6);
 
 
-De = De - De*gradYield* transpose(gradYield)*De/( H + transpose(gradYield)*De*gradYield);
+D = De - De*gradYield* transpose(gradYield)*De/( H + transpose(gradYield)*De*gradYield);
 
-De = [De;
+D = [D;
     -pc/(lambda-kappa)* sum(gradYield(1:3))* transpose(gradYield)*De/(H + transpose(gradYield)*De*gradYield)];
 
 
