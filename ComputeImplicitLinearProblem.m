@@ -10,9 +10,12 @@ nElements = size(Elements, 1);
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 1, dt, true, AlphaStabM);
 
-[C, K, X, f, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+[C, K, X, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
-PostProcessResults(Nodes, Elements, X, GPInfo, 0, true, ['ThisIProblem-', ElementType]);
+
+
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisIProblem-', ElementType]);
+
 
 A = C\(K);
 ii = eye(3*nNodes, 3*nNodes);
@@ -39,5 +42,5 @@ end
 GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 
-PostProcessResults(Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisIProblem-', ElementType]);
+PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisIProblem-', ElementType]);
 

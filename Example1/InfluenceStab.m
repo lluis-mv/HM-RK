@@ -263,7 +263,7 @@ function [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, G
 Xa = 0*Xnum;
 
 % analytical solution
-[Ca, Ka ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 3, false, 0);
+[Ca, Ka ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 1, t, false, 0);
 
 [Ca, Ka, X0, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, Ca, Ka);
 
