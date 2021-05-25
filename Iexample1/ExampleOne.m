@@ -4,7 +4,7 @@ figure(26); clf;
 addpath('../')
 % 1. Define the problem
 
-T = 1E-1;
+T = 1E-2;
 
 
 CP.HydroMechanical = true;
@@ -17,7 +17,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.1;
+eSize = 0.4;
 
 model = createpde(1);
 
@@ -55,7 +55,7 @@ Elements1 = Elements;
 he = mean(sqrt( mean([GPInfo(:,:).Weight])));
 
 NSteps = 10.^linspace(0, 4, 10);
-NSteps = 10.^linspace(0, 3, 10);
+NSteps = 10.^linspace(0, 2, 10);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 NStepsRef = 1;
 
@@ -90,10 +90,10 @@ for j = 2
         ThisNumber = 2000;
     end
     
-    Stab = 1;
     
-    %for RK = [1,3,8,-1, -2, -3, -10]%-1,1,3,8,-1, -2, -3]
-    for RK = [1,3,8,-11]%-1,1,3,8,-1, -2, -3]
+    
+    for RK = [1,3,8,-1, -2, -3, -10]%-1,1,3,8,-1, -2, -3]
+%     for RK = [1,3,8,-11]%-1,1,3,8,-1, -2, -3]
         firstTime = true;
         i = 1;
         
@@ -101,12 +101,17 @@ for j = 2
             
             dt = t/nSteps;
             if ( RK > 0)
+                Stab = 1;
                 [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
             elseif ( RK == -10)
-                [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
+                Stab = 0;
+%                 [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
+                [U, GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 123, Stab);
+
                 Ui = U;
             elseif ( RK < 0)
-                [U,GPInfo] = ComputeRKILinearProblem2(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
+                Stab = 0;
+                [U,GPInfo] = ComputeRKILinearProblem3(Nodes, Elements, CP, dt, nSteps, ElementType, RK, Stab);
                 Urk = U;
             end
             if ( firstTime)
