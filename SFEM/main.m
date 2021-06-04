@@ -20,8 +20,8 @@ CP.k = 1;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
-perme = 1E-5;
-
+perme = 1E-12;
+dt = 1;
 
 eSize =0.02;
 
@@ -51,6 +51,17 @@ De = GPElements(1).D;
 Ce = zeros(nDofs*nNodes,nDofs*nNodes);
 Ke = zeros(nDofs*nNodes,nDofs*nNodes);
 mIdentity = [1,1,0]';
+
+he = sqrt( mean([GPElements(:).Weight]))
+AlphaStab = dt*perme/he^2;
+
+AlphaStab = max(2/(CP.M)/dt -12*perme/eSize, 0);
+AlphaStab = max(2/CP.M - 12*perme*dt/eSize^2, 0)/dt
+
+
+dt2 = 2/CP.M/( 12 * perme/eSize^2)
+ 
+
 for el = 1:nElements
     
     dofsU = GPElements(el).dofsU;
@@ -67,6 +78,8 @@ for el = 1:nElements
     
     % Kwpwp
     Ke(dofswP, dofswP) = Ke(dofswP, dofswP)  - GPElements(el).dN_dX' * perme * GPElements(el).dN_dX * GPElements(el).Weight;
+    
+    Ce(dofswP, dofswP) = Ce(dofswP, dofswP)  - GPElements(el).Ms * AlphaStab * GPElements(el).Weight;
     
 end
 
@@ -127,6 +140,9 @@ for nod = 1:nNodes
     
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
     
+    dofswP = GPElements(el).dofsWP;
+    Cn(dofswP, dofswP) = Cn(dofswP, dofswP)  - GPElements(el).Ms * AlphaStab * GPElements(el).Weight;
+    
 end
 
 
@@ -135,7 +151,7 @@ spy(Kn)
 figure(12)
 spy(Cn)
 
-dt = 1;
+
 
 ue = SolveProblem(Ke, Ce, dt, Nodes, Elements, nDofs);
 un = SolveProblem(Kn, Cn, dt, Nodes, Elements, nDofs);
