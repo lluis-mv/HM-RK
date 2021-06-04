@@ -4,7 +4,7 @@ figure(26); clf;
 addpath('../')
 % 1. Define the problem
 
-T = 1E-2;
+T = 1E-1;
 
 
 CP.HydroMechanical = true;
@@ -17,7 +17,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.4;
+eSize = 0.2;
 
 model = createpde(1);
 
@@ -55,7 +55,7 @@ Elements1 = Elements;
 he = mean(sqrt( mean([GPInfo(:,:).Weight])));
 
 NSteps = 10.^linspace(0, 4, 10);
-NSteps = 10.^linspace(0, 2, 10);
+NSteps = 10.^linspace(0, 3, 10);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 NStepsRef = 1;
 
@@ -92,7 +92,8 @@ for j = 2
     
     
     
-    for RK = [1,3,8,-1, -2, -3, -10]%-1,1,3,8,-1, -2, -3]
+%     for RK = [1,3,8,-1, -2, -3, -10]%-1,1,3,8,-1, -2, -3]
+    for RK = [1,5,-1, -2, -3, -4, -5, -10]%-1,1,3,8,-1, -2, -3]
 %     for RK = [1,3,8,-11]%-1,1,3,8,-1, -2, -3]
         firstTime = true;
         i = 1;

@@ -51,9 +51,28 @@ if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
 
+
+IsDirk = true;
+for i = 1:length(b)
+    for j = i+1:length(b)
+        if ( a(i,j)~= 0)
+            IsDirk = false;
+        end
+    end
+end
+
+
 for loadStep = 1:nSteps
     
-    k = ComputeTheseK(X,  k, a, b, c, dt, Nodes, Elements, GPInfo, CP, nDirichlet, A, invC);
+    if ( IsDirk)
+        k = ComputeTheseKDirk(X,  k, a, b, c, dt, Nodes, Elements, GPInfo, CP, nDirichlet, A, invC);
+%         k2 = ComputeTheseK(X,  k, a, b, c, dt, Nodes, Elements, GPInfo, CP, nDirichlet, A, invC);
+        hola = 1;
+    else
+        k = ComputeTheseK(X,  k, a, b, c, dt, Nodes, Elements, GPInfo, CP, nDirichlet, A, invC);
+        X = nan*X; 
+        return;
+    end
     
     XNew = X;
     for i = 1:length(b)
@@ -126,4 +145,17 @@ for i = 1:length(b)
 end
 
 
+function k = ComputeTheseKDirk(X,  k, a, b, c, dt, Nodes, Elements, GPInfo, CP, nDirichlet, A, invC)
 
+
+I = eye(size(X,1));
+
+
+for i =  1:length(a)
+    XStep = X;
+    for j = 1:i-1
+        XStep = XStep + dt*a(i,j)*k(:,j);
+    end
+    
+    k(:,i) = ( I - A*a(i,i)*dt)\(A*XStep);
+end
