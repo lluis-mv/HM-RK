@@ -12,7 +12,7 @@ CP.k = 1E-2;
 CP.Elastic = false;
 CP.MCC = true;
 
-eSize= 0.45;
+eSize= 0.35;
 
 
 model = createpde(1);
@@ -63,6 +63,18 @@ plot( [information.t], info1(1:2:end), 'k')
 figure(557)
 pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
 drawnow
+
+figure(957)
+SV = [GPNodes.StressNew]
+pdeplot(model,'XYData',SV(2,:),'ColorMap','jet');
+drawnow
+figure(956)
+pdeplot(model,'XYData',SV(1,:),'ColorMap','jet');
+drawnow
+
+figure(960)
+pdeplot(model,'XYData',[GPNodes.HistoryNew],'ColorMap','jet');
+
 
 
 
