@@ -8,7 +8,7 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-2;
+CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = true;
 
@@ -30,13 +30,13 @@ Elements = mesh.Elements';
 
 
 
-nSteps = 100;
+nSteps = 50;
 dt = 0.15/nSteps;
 
-
+tic
 
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
-
+toc
 figure(1); clf;
 info1 = [information.F];
 plot( [information.t], info1(1:2:end), 'r')
@@ -47,13 +47,17 @@ pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
 drawnow
 
 
+figure(956)
+SV = [GPInfo.StressNew];
+SV = SV(2,:);
+PlotHistoryVariable( Nodes, Elements, GPInfo, SV);
+drawnow
 
 
-
-
+tic
 
 [U, GPInfo, GPNodes, rrr,  information] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, 'T3T3');
-
+toc
 figure(1)
 hold on
 info1 = [information.F];
@@ -65,16 +69,34 @@ pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
 drawnow
 
 figure(957)
-SV = [GPNodes.StressNew]
-pdeplot(model,'XYData',SV(2,:),'ColorMap','jet');
+SV = [GPNodes.StressNew];
+SV = SV(2,:);
+PlotHistoryVariableNodal( Nodes, Elements, GPNodes, SV);
 drawnow
+
+
+figure(958)
+pdeplot(model,'XYData',SV,'ColorMap','jet');
+drawnow
+
+
 figure(956)
-pdeplot(model,'XYData',SV(1,:),'ColorMap','jet');
-drawnow
+m2 = caxis();
 
-figure(960)
-pdeplot(model,'XYData',[GPNodes.HistoryNew],'ColorMap','jet');
+figure(957)
+caxis(m2)
 
+
+
+return
+
+% figure(956)
+% pdeplot(model,'XYData',SV(1,:),'ColorMap','jet');
+% drawnow
+% 
+% figure(960)
+% pdeplot(model,'XYData',[GPNodes.HistoryNew],'ColorMap','jet');
+% 
 
 
 
