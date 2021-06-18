@@ -14,6 +14,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-8;
 CP.Elastic = false;
 CP.MCC = true;
+CP.RK = 1;
 
 ESIZE = 0.35;
 
@@ -21,7 +22,6 @@ RKReference = 8;
 RKMethods = [8,1:7];
 
 RKReference = 8;
-
 for Elem = [1,2,3]
     RKMethods = [8,1:7];
     if ( Elem == 2)

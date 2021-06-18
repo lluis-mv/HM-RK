@@ -106,7 +106,7 @@ patch(xP, yP, c, 'FaceColor', 'interp')
 
 function PlotGradient(C, x, y, theNode, GPElem)
 
-nElem = size(C,1)
+nElem = size(C,1);
 
 xP = [];
 yP = [];
@@ -167,7 +167,7 @@ for node = 1:nNodes
         
         for elem = [GPNodal(node).NeigElement]'
             
-            Celem = C(elem,:)
+            Celem = C(elem,:);
             index = find(Celem == node);
             if ( index == 1)
                 i1 = Celem(2); i2 = Celem(3);

@@ -17,7 +17,7 @@ CP.MCC = true;
 
 eSize = [0.35];
 
-
+CP.RK = 1;
 
 
 LinearElastic = false;

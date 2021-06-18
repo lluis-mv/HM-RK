@@ -3,7 +3,7 @@ function [] = ExampleOne()
 addpath('../')
 % 1. Define the problem
 
-T = 1E-02;
+T = 1E-08;
 
 
 CP.HydroMechanical = true;
