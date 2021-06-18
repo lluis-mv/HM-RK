@@ -164,12 +164,12 @@ for Elem = [1,2,3]
         end
         
         figure(50)
-        name = ['$L_2 p_w;$ $\alpha$ =', num2str(MyNumber)];
+        name = ['$L_2 p_w;$ $\beta$ =', num2str(MyNumber)];
         merda = loglog(esizeAxis, L2, [thisColor, '*-.']);
         set(merda, 'DisplayName', name);
         
         hold on
-        name = ['$L_2u;$ $\alpha$ =', num2str(MyNumber)];
+        name = ['$L_2u;$ $\beta$ =', num2str(MyNumber)];
         merda = loglog(esizeAxis, L2U, [thisColor, 'v-.']);
         set(merda, 'DisplayName', name);
         
