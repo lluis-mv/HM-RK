@@ -1,12 +1,14 @@
 
-function [X, GPElements, GPNodes, normRes, ThisInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType)
+function [X, GPElements, GPNodes, normRes, ThisInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 if (nargout == 5)
     DoSomePostProcess = true;
 else
     DoSomePostProcess = false;
 end
-
+if ( nargin < 7)
+    AlphaStab = 0;
+end
 nNodes = size(Nodes, 1);
 %nElements = size(Elements, 1);
 
@@ -16,7 +18,7 @@ nNodes = size(Nodes, 1);
 
 
 
-[C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true);
+[C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
 
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
 
@@ -31,7 +33,7 @@ end
 f0(nDirichlet) = 0;
 
 fin_n = f0;
-fext_n = fini;
+fext_n = 0*fini;
 
 t = 0;
 
@@ -52,6 +54,9 @@ for loadStep = 1:nSteps
     t = t + dt;
     [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPElements, CP);
     fext_n1 = fext_n + dt*df;
+    if ( loadStep == 1)
+        fext_n1 = fext_n1+fini;
+    end
     uDirichlet = uDirichlet + dt*vDirichlet;
     
     
@@ -62,7 +67,7 @@ for loadStep = 1:nSteps
         [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true);
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true);
+        [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
         
         
@@ -128,7 +133,7 @@ for loadStep = 1:nSteps
     X = Xn;
     
     GPNodes = FinalizeConstitutiveLaw(CP, GPNodes);
-    
+    GPElements = ComputeConstrainedModulus(CP, Nodes, Elements, GPElements, GPNodes);
     fin_n = fin_n1;
     
     %PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
@@ -144,6 +149,7 @@ function [Cn, Kn] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, 
 
 nDofs = 3;
 nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
 
 Cn = sparse(nDofs*nNodes, nDofs*nNodes);
 Kn = sparse(nDofs*nNodes, nDofs*nNodes);
@@ -171,41 +177,52 @@ for nod = 1:nNodes
     
     % Adding internal forces due to water phase Kuwp
     for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight*2;
+        weight = GPElements(el).Weight;
         N = zeros(1, length(dofswP));
         Cel = Elements(el,:);
         for ind = 1:3
             index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/216;
+            N(index) = 7/108;
         end
         index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/108;
+        N(index) = 11/54;
         
         Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).B'*mIdentity* N*weight;
     end
     
     % Adding mixsture deformation into mass balance Kwpu
     for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight*2;
+        weight = GPElements(el).Weight;
         N = zeros(1, length(dofswP));
         Cel = Elements(el,:);
         for ind = 1:3
             index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/216;
+            N(index) = 7/108;
         end
         index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/108;
+        N(index) = 11/54;
         Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + N'*mIdentity'*GPNodes(nod).B*weight;
     end
     
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
     
-    dofswP = GPElements(el).dofsWP;
-    Cn(dofswP, dofswP) = Cn(dofswP, dofswP)  - GPElements(el).Ms * AlphaStab * GPElements(el).Weight;
+    
+    
     
 end
 
-
+ngp = 1;
+for el = 1:nElements
+    ConstModulus=  GPElements(el,ngp).ConstrainedModulus;
+    he = sqrt( sum([GPElements(el,:).Weight]));
+    AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
+    AlphaStab = max(0.0, AlphaStab);
+    AlphaStab = -AlphaStab*AlphaStabM;
+    
+    dofswP = GPElements(el).dofsWP;
+    
+    Cn(dofswP, dofswP) = Cn(dofswP, dofswP) - GPElements(el).Ms*AlphaStab * GPElements(el).Weight;
+end
 
 
 
@@ -239,18 +256,18 @@ for nod = 1:nNodes
     
     % Adding internal forces due to water phase Kuwp
     for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight*2;
+        weight = GPElements(el).Weight;
         N = zeros(1, length(dofswP));
         wPn = zeros(length(dofswP), 1);
         
         Cel = Elements(el,:);
         for ind = 1:3
             index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/216;
+            N(index) = 7/108;
             wPn(index) = X( dofswP(index));
         end
         index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/108;
+        N(index) = 11/54;
         wPn(index) = X( dofswP(index));
         wP = N*wPn;
         
@@ -348,3 +365,27 @@ end
 
 
 
+function [GPElements] = ComputeConstrainedModulus(CP, Nodes, Elements, GPElements, GPNodes)
+
+
+
+if ( GPElements(1,1).MCC )
+    [kappa, lambda, M, nu] = GetConstitutiveParameters();
+    
+    for el = 1:size(GPElements,1)
+        Celem = Elements(el,:);
+        for i = 1:length(Celem)
+            pNode(i) = -mean(mean(GPNodes(Celem(i)).StressNew(1:3)));
+        end
+        p = mean(pNode);
+        for gp = 1:size(GPElements,2)
+            if ( CP.Elastic)
+                K = p/kappa;
+            else
+                K = p/lambda;
+            end
+            
+            GPElements(el, gp).ConstrainedModulus =  3*K*(1-nu)/(1+nu);
+        end
+    end
+end

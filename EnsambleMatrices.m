@@ -58,8 +58,9 @@ for el = 1:nElements
         
        
 
-        if ( implicit)
-            AlphaStab = 0;
+        if ( implicit && all(ElementType == 'T3T3'))
+            AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
+            AlphaStab = max(0, AlphaStab);
         end
         
 
@@ -83,8 +84,7 @@ for el = 1:nElements
             end
             AlphaStab = -AlphaStab;
         end
-   
-%         
+     
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
         
         

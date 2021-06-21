@@ -9,75 +9,118 @@ CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-12;
+CP.k = 1E-2;
 CP.Elastic = false;
-CP.MCC = true;
+CP.MCC = 2;
 
 eSize= 0.35;
+
 
 
 model = createpde(1);
 
 
-R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
+R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
+
+
 
 g = decsg(R1);
 geometryFromEdges(model, g);
-
-mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-
+mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
 
+model1 = createpde(1);
+geometryFromEdges(model1, g);
+mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
+Nodes1 = mesh1.Nodes';
+Elements1 = mesh1.Elements';
 
-nSteps = 50;
+
+
+nSteps = 100;
 dt = 0.15/nSteps;
 
 tic
-
-[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T3T3');
+[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-figure(1); clf;
-info1 = [information.F];
-plot( [information.t], info1(1:2:end), 'r')
+FF = [information.F];
+figure(212); clf;
+plot( [information.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
+hold on
+
+figure(214); clf;
+plot( [information.t], FF(2:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
+hold on
+
+
 
 
 figure(556)
-pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+pdeplot(model1,'XYData',U(3:3:end),'ColorMap','jet');
 drawnow
 
 
 figure(956)
 SV = [GPInfo.StressNew];
 SV = SV(2,:);
-PlotHistoryVariable( Nodes, Elements, GPInfo, SV);
+PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
 drawnow
 
 
 tic
 
-[U, GPInfo, GPNodes, rrr,  information] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, 'T3T3');
+[U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-figure(1)
+FF = [information2.F];
+figure(212)
+plot( [information2.t], FF(1:2:end), 'b--', 'linewidth', 2,'DisplayName', ['S-T3T3'])
 hold on
-info1 = [information.F];
-plot( [information.t], info1(1:2:end), 'k')
+legend('location', 'best')
+figure(214)
+plot( [information2.t], FF(2:2:end), 'b--', 'linewidth', 2, 'DisplayName', ['S-T3T3'])
+legend('location', 'best')
+hold on
 
 
 figure(557)
-pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+pdeplot(model1,'XYData',U(3:3:end),'ColorMap','jet');
 drawnow
 
 figure(957)
 SV = [GPNodes.StressNew];
 SV = SV(2,:);
-PlotHistoryVariableNodal( Nodes, Elements, GPNodes, SV);
+PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, SV);
 drawnow
 
 
 figure(958)
-pdeplot(model,'XYData',SV,'ColorMap','jet');
+pdeplot(model1,'XYData',SV,'ColorMap','jet');
 drawnow
+
+
+
+
+
+tic
+[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
+toc
+
+FF = [information.F];
+figure(212)
+plot( [information.t], FF(1:2:end), 'k-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])
+hold on
+
+
+figure(214)
+plot( [information.t], FF(2:2:end), 'k-.', 'linewidth', 2, 'DisplayName', ['T6T3'])
+hold on
+
+figure(559)
+pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+drawnow
+
 
 
 figure(956)
@@ -85,302 +128,5 @@ m2 = caxis();
 
 figure(957)
 caxis(m2)
-
-
-
-return
-
-% figure(956)
-% pdeplot(model,'XYData',SV(1,:),'ColorMap','jet');
-% drawnow
-% 
-% figure(960)
-% pdeplot(model,'XYData',[GPNodes.HistoryNew],'ColorMap','jet');
-% 
-
-
-
-model2 = createpde(1);
-geometryFromEdges(model2, g);
-mesh = generateMesh(model2, 'Hmax', eSize);
-Nodes2 = mesh.Nodes';
-Elements2 = mesh.Elements';
-
-
-[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes2, Elements2, CP, dt, nSteps, 'T6T3');
-
-figure(1)
-info1 = [information.F];
-hold on
-plot( [information.t], info1(1:2:end), 'b')
-
-figure(559)
-pdeplot(model2,'XYData',U(3:3:end),'ColorMap','jet');
-drawnow
-
-
-
-return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-RKReference = 8;
-RKMethods = [8,1:7];
-
-RKReference = 8;
-
-for Elem = [1,2,3]
-    RKMethods = [8,1:7];
-    if ( Elem == 2)
-        RKMethods = [8,1:7, 9];
-    end
-    
-    esizeAxis = ESIZE;
-    i = 1;
-    for eSize = ESIZE
-        
-        if (Elem == 1)
-            ElementType = 'T3T3';
-        elseif (Elem == 2)
-            ElementType = 'T6T3';
-        else
-            ElementType = 'T6T6';
-        end
-        
-        model = createpde(1);
-        
-        
-        R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
-        
-        g = decsg(R1);
-        geometryFromEdges(model, g);
-        
-        if ( Elem == 1)
-            mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-        else
-            mesh = generateMesh(model, 'Hmax', eSize);
-        end
-        
-        Nodes = mesh.Nodes';
-        Elements = mesh.Elements';
-        
-        figure(1);
-        clf;
-        if ( Elem == 1)
-            triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
-        end
-        drawnow
-        axis equal
-        axis off
-        print('ExampleThree-Plastic-FemMesh', '-dpdf')
-        
-        % Estimate the element size
-        
-        mesha = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-        Nodesa = mesha.Nodes';
-        Elementsa = mesha.Elements';
-        [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
-        he = mean(sqrt( mean([GPInfo(:,:).Weight])));
-        
-        Nadim = 20;
-        
-        NSteps = [2^5, 2^6, 2^7, 2^8, 2^9];
-        for j = 1:length(NSteps)
-            for RK = RKMethods
-                nSteps = NSteps(j);
-                dt = 0.15/nSteps;
-                
-                disp(RK)
-                if ( RK < 9)
-                	tic;
-	                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-        	        timing = toc;
-                elseif ( RK == 9)
-                    tic;
-                    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
-                    timing = toc;
-                    if ( isnan(rrr) )
-                        timing = nan;
-                        for mnm = 1:length(information)
-                            for nmn = 1:length(information(mnm).F)
-                            information(mnm).F(nmn)= nan;
-                            end     
-                        end
-                    end
-                end
-                
-                
-                ThisInfo(RK,j).t = [information.t];
-                ThisInfo(RK,j).F = [information.F];
-                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
-                
-                if ( RK == RKReference)
-                    Nadim = ThisInfo(RK,j).F(end);
-                end
-                
-                RES(RK,j) = rrr;
-                ddtt(RK,j) = dt;
-                N(RK,j) = ThisInfo(RK,j).F(end);
-                Time(RK,j) = timing;
-                ind = find(N == 0);
-                N(ind) = nan; ddtt(ind) = nan; Time(ind) = nan; RES(ind) = nan;
-                
-                if ( j < 2 )
-                    continue;
-                end
-                
-                figure(2105); clf
-                for jj = 1:size(RES,1)
-                    merda = '';
-                    if ( jj == 8)
-                        merda = 'k';
-                    elseif (jj == 9)
-                        merda = 'r';
-                    end
-                    loglog(ddtt(jj,:), RES(jj,:), [merda, '*-.'])
-                    hold on
-                    
-                end
-                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-                ylabel('Residual', 'interpreter', 'latex')
-                if (length(RKMethods) ==9)
-                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
-                else
-                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
-                end
-                set(ll, 'interpreter', 'latex')
-                grid minor
-                drawnow
-                hold off
-                
-                figure(2106); clf
-                for jj = 1:size(RES,1)
-                    merda = '';
-                    if ( jj == 8)
-                        merda = 'k';
-                    elseif (jj == 9)
-                        merda = 'r';
-                    end
-                    loglog(ddtt(jj,:), N(jj,:), [merda, '*-.'])
-                    hold on
-                end
-                grid minor
-                drawnow
-                hold off
-                if (length(RKMethods) ==9)
-                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
-                else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
-                end
-                set(ll, 'interpreter', 'latex')
-                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-                ylabel('Footing load', 'interpreter', 'latex')
-                
-                figure(2107); clf
-                ind = find(N == 0);
-                N(ind) = nan;
-                for jj = 1:size(RES,1)
-                    merda = '';
-                    if ( jj == 8)
-                        merda = 'k';
-                    elseif (jj == 9)
-                        merda = 'r';
-                    end
-                    plotThis = abs(N(jj,:)-Nadim);
-                    if ( jj ~= RKReference)
-                        index = find( plotThis == 0);
-                        plotThis(index) = 1E-14*(1+rand(size(index)));
-                    end
-                    loglog(ddtt(jj,:), plotThis, [merda, '*-.'])
-                    hold on
-                end
-                
-                if (length(RKMethods) ==9)
-                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
-                else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
-                end
-                set(ll, 'interpreter', 'latex')
-                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-                ylabel('Error norm', 'interpreter', 'latex')
-                grid minor
-                drawnow
-                hold off
-                
-                
-                figure(2108); clf
-                ind = find(Time == 0);
-                Time(ind) = nan;
-                for jj = 1:size(RES,1)
-                    merda = '';
-                    if ( jj == 8)
-                        merda = 'k';
-                    elseif (jj == 9)
-                        merda = 'r';
-                    end
-                    plotThis = abs(N(jj,:)-Nadim);
-                    if ( jj ~= RKReference)
-                        index = find( plotThis == 0);
-                        plotThis(index) = 1E-14*(1+rand(size(index)));
-                    end
-                    loglog(Time(jj,:), plotThis, [merda, '*-.'])
-                    hold on
-                end
-                
-                if (length(RKMethods) ==9)
-                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
-                else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
-                end
-                set(ll, 'interpreter', 'latex')
-                xlabel('Computational cost (s)', 'interpreter', 'latex')
-                ylabel('Error norm', 'interpreter', 'latex')
-                grid minor
-                drawnow
-                hold off
-                
-                
-                % Printing....
-                figure(2105)
-                pause(1)
-                print(['ExampleThree-Plastic-Residual-', num2str(Elem)], '-dpdf')
-                figure(2106)
-                pause(1)
-                print(['ExampleThree-Plastic-Bearing-', num2str(Elem)], '-dpdf')
-                figure(2107)
-                pause(1)
-                print(['ExampleThree-Plastic-Error-', num2str(Elem)], '-dpdf')
-                figure(2108)
-                pause(1)
-                print(['ExampleThree-Plastic-TimeError-', num2str(Elem)], '-dpdf')
-            end
-            
-            
-            
-        end
-        clear Time;
-        clear RES;
-        clear ddtt;
-        clear N;
-        clear Time
-    end
-end
-
 
 

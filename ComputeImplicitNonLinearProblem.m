@@ -1,11 +1,16 @@
 % Solver for a linear problem
 
-function [X, GPInfo, normRes, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType)
+function [X, GPInfo, normRes, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+
 
 if (nargout == 4)
     DoSomePostProcess = true;
 else
     DoSomePostProcess = false;
+end
+
+if ( nargin < 7)
+    AlphaStab = 0;
 end
 
 nNodes = size(Nodes, 1);
@@ -15,7 +20,7 @@ nNodes = size(Nodes, 1);
 [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
 
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
+[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 if ( any([GPInfo.VonMises] == true) )
@@ -29,7 +34,7 @@ end
 f0(nDirichlet) = 0;
 
 fin_n = f0;
-fext_n = fini;
+fext_n = 0*fini;
 
 t = 0;
 
@@ -52,6 +57,9 @@ for loadStep = 1:nSteps
     t = t + dt;
     [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
     fext_n1 = fext_n + dt*df;
+    if ( loadStep == 1)
+        fext_n1 = fext_n1+fini;
+    end
     uDirichlet = uDirichlet + dt*vDirichlet;
     
     
@@ -63,7 +71,7 @@ for loadStep = 1:nSteps
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, 1);
+        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
         
         
@@ -138,90 +146,5 @@ for loadStep = 1:nSteps
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end
-
-
-function CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, dt, A, X, Xn)
-delta = 1E-6;
-for i = 1:length(Xn)
-    X2 = Xn;
-    X2(i) = X2(i)+delta*1i;
-    ThisResidual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType, dt, X, X2);
-    deri = imag(ThisResidual)/delta;
-    J(:,i)= deri;
-end
-
-hola = 1;
-
-function residual = ComputeThisResidual( Nodes, Elements, GPInfo, CP, ElementType,  dt, X, Xn)
-
-
-
-
-
-nNodes = size(Nodes, 1);
-
-[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-[GPInfo] = InitializeConstitutiveLaw(GPInfo);
-
-
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true);
-[~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-
-
-
-
-[f0] = ComputeInternalForces(Elements, GPInfo, X, CP.HydroMechanical);
-
-
-
-
-
-GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true);
-
-
-% Create again C with the appropriate ElastoPlastic stiffness matrix
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, 1);
-[C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
-
-
-% mechanical part
-fin_n1 = ComputeInternalForces( Elements, GPInfo, Xn, CP.HydroMechanical);
-
-residual = fin_n1;
-
-
-residual(nDirichlet) = -Xn(nDirichlet);
-
-
-
-
-
-
-function [f] = ComputeNodalInternalForces(Elements, GPElements, GPNodes, X )
-
-
-nElements = size(Elements, 1);
-
-
-sign = -1;
-Idev = eye(6);
- 
-
-
-f = zeros(size(X));
-m = [1;1;0];
-for el = 1:nElements
-    
-    for gp = 1:size(GPElements, 2)
-               
-        wP = GPElements(el, gp).N * X( GPElements(el,gp).dofsWP );
-        
-        index = GPElements(el,gp).dofsU;
-        ThisStress = Idev*GPElements(el,gp).StressNew;
-        f(index) = f(index) + GPElements(el,gp).B'*( ThisStress([1,2,4]) + sign*wP*m )*GPElements(el,gp).Weight;
-
-    end
-end
-
 
 
