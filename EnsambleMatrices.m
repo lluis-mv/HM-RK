@@ -58,9 +58,13 @@ for el = 1:nElements
         
        
 
-        if ( implicit && all(ElementType == 'T3T3'))
-            AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
-            AlphaStab = max(0, AlphaStab);
+        if ( implicit)
+            if ( all(ElementType == 'T3T3'))
+                AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
+                AlphaStab = max(0, AlphaStab);
+            else
+                AlphaStab = 0;
+            end
         end
         
 

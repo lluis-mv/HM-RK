@@ -41,7 +41,7 @@ t = 0;
 uDirichlet = 0*uDirichlet;
 
 % % % % PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPElements, 0, true, ['ImplicitProblem-', ElementType]);
-if ( DoSomePostProcess ) 
+if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPElements, X, CP);
 end
 
@@ -67,7 +67,7 @@ for loadStep = 1:nSteps
         [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true);
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
+        [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab, C, K);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
         
         
@@ -80,7 +80,7 @@ for loadStep = 1:nSteps
         if ( CP.HydroMechanical)
             
             res2 = C*(Xn-X)-dt*K*Xn;
-        
+            
             for jj = 1:nNodes
                 residual(3*jj) = -res2(3*jj);
             end
@@ -93,18 +93,18 @@ for loadStep = 1:nSteps
         normRes = norm(residual);
         
         
-        disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+%         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10)
-            disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+%             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
         if ( normRes < 1E-12 && iter > 0)
             break;
         end
         if ( iter == 30)
-%             X = nan*X; 
-%             Xn = nan*X;
-%             normRes = nan;
-%             return;
+            %             X = nan*X;
+            %             Xn = nan*X;
+            %             normRes = nan;
+            %             return;
             break
         end
         if ( iter > 25)
@@ -137,7 +137,7 @@ for loadStep = 1:nSteps
     fin_n = fin_n1;
     
     %PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
-    if ( DoSomePostProcess ) 
+    if ( DoSomePostProcess )
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPElements, X, CP, ThisInfo, fin_n1);
     end
 end
@@ -145,14 +145,43 @@ end
 hola = 1;
 
 
-function [Cn, Kn] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, RKMethod, dt, implicit, AlphaStabM)
+function [Cn, Kn] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, Cn, Kn)
 
 nDofs = 3;
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
+
 Cn = sparse(nDofs*nNodes, nDofs*nNodes);
 Kn = sparse(nDofs*nNodes, nDofs*nNodes);
+
+% if ( nargin == 10)
+%     Cn = sparse(nDofs*nNodes, nDofs*nNodes);
+%     Kn = sparse(nDofs*nNodes, nDofs*nNodes);
+% else
+%     Cn(1:3:end, 1:3:end) = 0;
+%     Cn(1:3:end, 2:3:end) = 0;
+%     Cn(2:3:end, 1:3:end) = 0;
+%     Cn(2:3:end, 2:3:end) = 0;
+%     
+%     for nod = 1:nNodes
+%         CPatch = GPNodes(nod).NeigNodes;
+%         
+%         dofsU = [];
+%         dofswP = [];
+%         for mm = 1:length(CPatch)
+%             dofsU = [dofsU, (CPatch(mm)-1)*nDofs+[1, 2]];
+%             dofswP = [dofswP, (CPatch(mm)-1)*nDofs+3];
+%         end
+%         
+%         % Adding effective stresses Kuu
+%         Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
+%     end
+%     return;
+% end
+
+
+
 
 perme = CP.k;
 
@@ -188,25 +217,10 @@ for nod = 1:nNodes
         N(index) = 11/54;
         
         Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).B'*mIdentity* N*weight;
-    end
-    
-    % Adding mixsture deformation into mass balance Kwpu
-    for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight;
-        N = zeros(1, length(dofswP));
-        Cel = Elements(el,:);
-        for ind = 1:3
-            index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/108;
-        end
-        index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/54;
         Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + N'*mIdentity'*GPNodes(nod).B*weight;
     end
     
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
-    
-    
     
     
 end
@@ -215,7 +229,7 @@ ngp = 1;
 for el = 1:nElements
     ConstModulus=  GPElements(el,ngp).ConstrainedModulus;
     he = sqrt( sum([GPElements(el,:).Weight]));
-    AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
+    AlphaStab = 2/ConstModulus - dt*perme/he^2/1200;
     AlphaStab = max(0.0, AlphaStab);
     AlphaStab = -AlphaStab*AlphaStabM;
     
@@ -235,14 +249,14 @@ nNodes = size(Nodes, 1);
 
 sign = -1;
 Idev = eye(6);
- 
+
 f = zeros(size(X));
 mIdentity = [1;1;0];
 
 
 for nod = 1:nNodes
-
-	CPatch = GPNodes(nod).NeigNodes;
+    
+    CPatch = GPNodes(nod).NeigNodes;
     
     dofsU = [];
     dofswP = [];
@@ -278,8 +292,8 @@ for nod = 1:nNodes
     
     
 end
-    
-    
+
+
 
 
 
@@ -296,7 +310,7 @@ nNodes = size(GPNodes, 1);
 for nod = 1:nNodes
     
     
-	CPatch = GPNodes(nod).NeigNodes;
+    CPatch = GPNodes(nod).NeigNodes;
     
     dofsU = [];
     for mm = 1:length(CPatch)
@@ -325,7 +339,7 @@ if (GP.MCC)
             [Xnew, D, ~] = ExplicitCamClayE(X, DeltaStrain, -1);
         else
             [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
-%             [Xnew, D, ~] = Hashiguchi3(X, DeltaStrain, CP.RK, true);
+            %             [Xnew, D, ~] = Hashiguchi3(X, DeltaStrain, CP.RK, true);
         end
     else
         if ( RKMethod == 1)
@@ -354,7 +368,7 @@ elseif (GP.VonMises)
     end
     
     GP.StressNew  = Xnew(1:6);
-
+    
     GP.D6 = D;
     GP.D = D([1,2,4], [1,2,4]);
     
