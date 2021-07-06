@@ -1,4 +1,4 @@
-function [] = ExampleTwo()
+function [] = ExampleOneBis()
 figure(30); clf;
 figure(50); clf;
 figure(900); clf;
@@ -19,163 +19,100 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
+DT = 10.^linspace(-7,2,40);
 
-
-
-ESIZE = [0.2, 0.1, 0.075, 0.05];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03, 0.025];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
-ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05];
 
 
 figure(50); clf;
 
+eSize = 0.05;
 
 
 
-for Elem = [1,2,3]
+for Stab = [0,1]
     
-    
-    figure(30); clf;
     figure(50); clf;
-    figure(900); clf;
-    figure(1); clf;
+    figure(51); clf;
     color = 1;
-%      for MyNumber = [1, 10, 100, 1000]
-     for MyNumber = [1,10]
-%         esizeAxis = ESIZE;
+    
+    
+    
+    
+    for Elem = [1,2,3]
         i = 1;
-        for eSize = ESIZE
+        
+        
+        if (Elem == 1)
+            ElementType = 'T3T3';
+        elseif (Elem == 2)
+            ElementType = 'T3T3';
+        else
+            ElementType = 'T6T3';
+        end
+        
+        dx = 0.4; dy = 1;
+        model = createpde(1);
+        
+        R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
+        g = decsg(R1);
+        geometryFromEdges(model, g);
+        
+        if ( Elem < 3)
+            mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+        else
+            mesh = generateMesh(model, 'Hmax', eSize);
+        end
+        
+        Nodes = mesh.Nodes';
+        Elements = mesh.Elements';
+        
+        
+        mesha = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+        Nodesa = mesha.Nodes';
+        Elementsa = mesha.Elements';
+        
+        figure(1);
+        clf;
+        triplot(Elementsa, Nodesa(:,1), Nodesa(:,2), 'k');
+        drawnow
+        axis equal
+        axis off
+        [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
+        he = mean(sqrt([GPInfo(:,:).Weight]));
+        
+        
+        for dt = [DT]
             
-            if (Elem == 1)
-                ElementType = 'T3T3';
-                ThisNumber = 200;
-            elseif (Elem == 2)
-                ElementType = 'T3T3';
-                ThisNumber = 6;
+            nSteps = 1;
+            
+            if (Elem ~= 1)
+                [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, Stab);
             else
-                ElementType = 'T6T6';
-                ThisNumber = 2000;
-            end
-            ThisNumber = 200;
-            
-            dx = 0.4; dy = 1;
-            model = createpde(1);
-            
-            if ( MyNumber > 1)
-                dy = 0.2;
-                eSize = eSize*0.4;
-            end
-            R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
-            
-            g = decsg(R1);
-            geometryFromEdges(model, g);
-            
-            if ( Elem < 3)
-                mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-            else
-                mesh = generateMesh(model, 'Hmax', eSize);
+                [U, GPInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, Stab);
             end
             
-            Nodes = mesh.Nodes';
-            Elements = mesh.Elements';
-            
-            
-            
-            % First part. compute the eigenvalues
-            
-            
-            % Estimate the element size
-            
-            mesha = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-            
-            
-            
-            
-            Nodesa = mesha.Nodes';
-            Elementsa = mesha.Elements';
-            
-            if ( MyNumber > 1)
-                Nodes(:,2) = Nodes(:,2)/0.2;
-                Nodesa(:,2) = Nodesa(:,2)/0.2;
-            end
-            
-            
-            
-            figure(1);
-            clf;
-            triplot(Elementsa, Nodesa(:,1), Nodesa(:,2), 'k');
-            drawnow
-            axis equal
-            axis off
-            sizeString = num2str(eSize);
-            index = find(sizeString == '.');
-            sizeString(index) ='_'; 
-            print(['ExampleOneBis-FemMesh-',sizeString, '.pdf'], '-dpdf')
-            
-            [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
-            he = mean(sqrt([GPInfo(:,:).Weight]));
-%             esizeAxis(i)=he;
-            esizeAxis(i) = size(Nodes,1);
-            
-            
-            
-            
-            dt = he^2/(1*CP.k*CP.M)
-            
-            nSteps = ceil(t/dt)
-            dt = t/nSteps;
-
-            RKMethod = 1;
-%             [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
-            if (Elem ~= 2)
-                [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 0);
-            else
-                [U, GPInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, 0);
-            end
-            
-            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);
+            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, dt*nSteps, CP, GPInfo, U);
             [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
             
             
             
             figure(30)
             
-            loglog( esizeAxis(1:i), L2(1:i), 'k*-.', esizeAxis(1:i), L2U(1:i), 'rv-.',  esizeAxis(1:i), LInf(1:i), 'g*-.',  esizeAxis(1:i), LInfU(1:i), 'bv-.')
+            loglog( DT(1:i), L2(1:i), 'k*-.', DT(1:i), L2U(1:i), 'rv-.',  DT(1:i), LInf(1:i), 'g*-.',  DT(1:i), LInfU(1:i), 'bv-.')
             hold on
-            xlabel('$h_e$ (m)', 'interpreter', 'latex')
+            xlabel('$dt$ (s)', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');
             set(gca, 'FontSize', 14)
             drawnow
-            yy = ylim();
-            xx = (he)^2/(6000*CP.k*CP.M*ThisNumber)*[1,1];
-            %         plot(xx, yy, 'k-.')
-            if ( yy(2) > 1E20)
-                yy(2) = 1E20;
-            end
-            ylim(yy);
+            
             ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
             set(ll, 'interpreter', 'latex')
             drawnow
             hold off
             
-            
-            
-            SlopeInfp = []; SlopeL2p = []; SlopeInfU = []; SlopeL2U = [];
-            for ii = 2:i
-                SlopeInfp(ii) = log10(LInf(ii)/LInf(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-                SlopeL2p(ii) = log10(L2(ii)/L2(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-                SlopeInfU(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-                SlopeL2U(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
-            end
-            SlopeInfp
-            SlopeL2p
-            SlopeInfU
-            SlopeL2U
-            
+            DTAxis(i) = dt * CP.M*CP.k/(he^2);
             i = i+1;
         end
-        
         if ( color == 1)
             thisColor = 'r';
         elseif (color == 2)
@@ -185,36 +122,169 @@ for Elem = [1,2,3]
         elseif ( color == 4)
             thisColor = 'm';
         end
-        
+        ElementType1 = ElementType;
+        if ( Elem == 1)
+            ElementType1 = ['NS-', ElementType1];
+        end
+        if (Elem < 3 && Stab > 0)
+            ElementType1 = [ElementType1, '. Stab'];
+        end
         figure(50)
-        name = ['$L_2 p_w;$ $\beta$ =', num2str(MyNumber)];
-        merda = loglog(esizeAxis, L2, [thisColor, '*-.']);
-        set(merda, 'DisplayName', name);
-        
+        semilogx(DTAxis, LInf, [thisColor, 'v-.'], 'DisplayName', ElementType1)
         hold on
-        name = ['$L_2u;$ $\beta$ =', num2str(MyNumber)];
-        merda = loglog(esizeAxis, L2U, [thisColor, 'v-.']);
-        set(merda, 'DisplayName', name);
-        
-        xlabel('$h_e$ (m)', 'interpreter', 'latex');
-        ylabel('Error norm', 'interpreter', 'latex');
-        set(gca, 'FontSize', 14)
-        drawnow
-        
-        %     ylim(yy);
-        ll = legend( 'location', 'best');
-        set(ll, 'interpreter', 'latex')
-        drawnow
-        %         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-        %         xticks(ticks);
-        print(['ExampleOneBis-ErrorNorms-', ElementType], '-dpdf')
-        hold on
-        
+        ylim([0, 1])
+        %         plot([6,6], [0, 1.2], 'k:', 'HandleVisibility','off')
+        ll = legend();
+        set(ll, 'interpreter', 'latex', 'location', 'best')
+        drawnow;
+        hold on;
         color = color+1;
+        xlabel('$\Delta t \, c_v / h_e^2$', 'interpreter', 'latex')
+        ylabel('$L_\infty p_w$ (kPa)', 'interpreter', 'latex')
+        set(gca, 'FontSize', 15);
+        
+        print(['Oed-LInf', num2str(Stab)], '-dpdf')
+        
+        figure(51)
+        semilogx(DTAxis, L2, [thisColor, 'v-.'], 'DisplayName', ElementType1)
+        hold on
+        %         plot([6,6], [0, 1.2], 'k:', 'HandleVisibility','off')
+        ll = legend();
+        set(ll, 'interpreter', 'latex', 'location', 'best')
+        drawnow;
+        hold on;
+        ylim([0, 0.25])
+        xlabel('$\Delta t \, c_v / h_e^2$', 'interpreter', 'latex')
+        ylabel('$L_2 p_w$ (kPa)', 'interpreter', 'latex')
+        set(gca, 'FontSize', 15);
+        print(['Oed-L2', num2str(Stab)], '-dpdf')
     end
     
     
 end
+return;
+
+Stab = 0;
+figure(50); clf;
+color = 1;
+
+ElementType = 'T3T3';
+ESIZE = [0.05, 0.1, 0.05, 0.1, 0.05, 0.1];
+M = [1, 1, 1, 1, 10, 10, 10, 10]
+k = [1, 1, 0.1, 0.1, 1, 1, 0.1, 0.1]
+DT = 10.^linspace(-6,1,20);
+Elem = 1;
+
+
+for jj = 1:length(ESIZE)
+    
+    
+    CP.HydroMechanical = true;
+    CP.E = M(jj);
+    CP.nu = 0.0;
+    CP.k = k(jj);
+    nu = CP.nu;
+    CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
+    
+    eSize = ESIZE(jj);
+    
+    
+    dx = 0.4; dy = 1;
+    model = createpde(1);
+    
+    R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
+    g = decsg(R1);
+    geometryFromEdges(model, g);
+    
+    if ( Elem < 3)
+        mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+    else
+        mesh = generateMesh(model, 'Hmax', eSize);
+    end
+    
+    Nodes = mesh.Nodes';
+    Elements = mesh.Elements';
+    
+    
+    mesha = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+    Nodesa = mesha.Nodes';
+    Elementsa = mesha.Elements';
+    
+    figure(1);
+    clf;
+    triplot(Elementsa, Nodesa(:,1), Nodesa(:,2), 'k');
+    drawnow
+    axis equal
+    axis off
+    [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
+    he = mean(sqrt([GPInfo(:,:).Weight]));
+    
+    i = 1;
+    
+    for dt = [DT]
+        
+        nSteps = 10;
+        
+        if (Elem ~= 1)
+            [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, Stab);
+        else
+            [U, GPInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, Stab);
+        end
+        
+        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, dt*nSteps, CP, GPInfo, U);
+        [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
+        
+        
+        
+        figure(30)
+        
+        loglog( DT(1:i), L2(1:i), 'k*-.', DT(1:i), L2U(1:i), 'rv-.',  DT(1:i), LInf(1:i), 'g*-.',  DT(1:i), LInfU(1:i), 'bv-.')
+        hold on
+        xlabel('$dt$ (s)', 'interpreter', 'latex')
+        ylabel('Error norm', 'interpreter', 'latex');
+        set(gca, 'FontSize', 14)
+        drawnow
+        
+        ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
+        set(ll, 'interpreter', 'latex')
+        drawnow
+        hold off
+        
+        DTAxis(i) = dt *  CP.M*CP.k/(he^2);
+        i = i+1;
+        
+        
+        
+    end
+    if ( color == 1)
+        thisColor = 'r';
+    elseif (color == 2)
+        thisColor = 'g';
+    elseif ( color == 3)
+        thisColor = 'b';
+    elseif ( color == 4)
+        thisColor = 'm';
+    end
+    ElementType1 = ElementType;
+    if ( Elem == 1)
+        ElementType1 = ['NS-', ElementType1];
+    end
+    figure(50)
+    semilogx(DTAxis, LInf, [thisColor, 'v-.'], 'DisplayName', ElementType1)
+    hold on
+    plot([6,6], [0, 1.2], 'k:', 'HandleVisibility','off')
+    ll = legend();
+    set(ll, 'interpreter', 'latex', 'location', 'best')
+    drawnow;
+    hold on;
+    color = color+1;
+    xlabel('$\Delta t \, c_v / h_e^2$', 'interpreter', 'latex')
+    ylabel('$L_\infty p_w$ (kPa)', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15);
+end
+
+
+
 
 
 

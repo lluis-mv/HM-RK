@@ -77,6 +77,31 @@ hold on
 axis off;
 hold off
 
+for i = 1:4
+    figure(i); set(gca, 'FontSize', 15)
+end
+
+figure(3);
+cc = caxis; 
+m = max(abs(cc));
+cc = [-m, m];
+for iii = [3,4]
+    figure(iii)
+    colormap jet
+    caxis(cc);
+    colorbar
+    drawnow
+end
+
+
+
+figure(1); drawnow; print('SFEM-MeshPatch', '-dpdf')
+figure(2);  drawnow; print('SFEM-N', '-dpdf')
+figure(3);  drawnow; print('SFEM-gradN', '-dpdf')
+figure(4);  drawnow; print('SFEM-gradS', '-dpdf')
+
+
+
 function PlotShapeFunction(C, x, y, theNode)
 
 nElem = size(C,1)
@@ -97,7 +122,7 @@ for elem = 1:nElem
         
         
     end
-
+    
 end
 
 patch(xP, yP, c, 'FaceColor', 'interp')
@@ -125,7 +150,7 @@ for elem = 1:nElem
         
         
     end
-
+    
 end
 
 patch(xP, yP, c)
@@ -143,27 +168,27 @@ for node = 1:nNodes
     if (any(GPNodal(node).NeigNodes == theNode))
         index = find( GPNodal(node).NeigNodes == theNode);
         value = GPNodal(node).dN_dX(1,index);
-% %         
-% %         % now I have to create something to plot the patch value....
-% %         u = []; v = [];
-% %         for nNode = [GPNodal(node).NeigNodes]'
-% %             u = [u, mean([x(node),x(nNode)])]
-% %             v = [v, mean([y(node),y(nNode)])]
-% %         end
-% %         
-% %         for elem = [GPNodal(node).NeigElement]'
-% %             Celem = C(elem,:);
-% %             u = [u, mean( x(Celem))];
-% %             v = [v, mean( y(Celem))];
-% %         end
-% %         
-% %         tri = delaunay(u, v);
-% %         
-% %         for m = 1:size(tri,1)
-% %             xP = [xP, u(tri(m,:))']
-% %             yP = [yP, v(tri(m,:))']
-% %             c = [c, value];
-% %         end
+        % %
+        % %         % now I have to create something to plot the patch value....
+        % %         u = []; v = [];
+        % %         for nNode = [GPNodal(node).NeigNodes]'
+        % %             u = [u, mean([x(node),x(nNode)])]
+        % %             v = [v, mean([y(node),y(nNode)])]
+        % %         end
+        % %
+        % %         for elem = [GPNodal(node).NeigElement]'
+        % %             Celem = C(elem,:);
+        % %             u = [u, mean( x(Celem))];
+        % %             v = [v, mean( y(Celem))];
+        % %         end
+        % %
+        % %         tri = delaunay(u, v);
+        % %
+        % %         for m = 1:size(tri,1)
+        % %             xP = [xP, u(tri(m,:))']
+        % %             yP = [yP, v(tri(m,:))']
+        % %             c = [c, value];
+        % %         end
         
         for elem = [GPNodal(node).NeigElement]'
             
@@ -185,8 +210,8 @@ for node = 1:nNodes
             
             
         end
-
-        patch(xP, yP, c)        
+        
+        patch(xP, yP, c)
     end
 end
 
@@ -194,7 +219,7 @@ end
 
 function [] = PlotPatches(C, x, y)
 
-nElem = size(C,1)
+nElem = size(C,1);
 
 for elem = 1:nElem
     Celem = C(elem,:);
