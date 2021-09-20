@@ -231,7 +231,12 @@ for el = 1:nElements
     he = sqrt( sum([GPElements(el,:).Weight]));
     AlphaStab = 2/ConstModulus - dt*perme/he^2/1200;
     AlphaStab = max(0.0, AlphaStab);
-    AlphaStab = -AlphaStab*AlphaStabM;
+    if ( length(AlphaStabM) == 1)
+        AlphaStab = -AlphaStab*AlphaStabM;
+    elseif ( length(AlphaStabM) == 2)
+        AlphaStab = AlphaStabM(1)/ConstModulus - dt*perme/he^2*AlphaStabM(2);
+        AlphaStab = -max(0.0, AlphaStab);
+    end
     
     dofswP = GPElements(el).dofsWP;
     

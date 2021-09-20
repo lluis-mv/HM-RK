@@ -209,11 +209,13 @@ if (true)
         figure(j+1);
         clf;
         
-        loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
+        %loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
+        loglog(ddtt, maxval2, 'r*-.')
         
         drawnow;
         hold on
-        loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
+        %loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
+        loglog(ddtt, maxval, 'b*-.')
         drawnow
         
         xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
@@ -221,19 +223,21 @@ if (true)
         set(gca, 'FontSize', 14)
         drawnow
         yy = ylim();
+        yy(1) = 0.1;
         xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
         plot(xx, yy, 'k-.')
         ylim(yy);
-        ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
-            'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
+        %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
+        %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
+        ll = legend('max$(|\lambda|)$ Primal', ...
+           'max$(|\lambda|)$ Stab', 'location', 'NorthWest');
         set(ll, 'interpreter', 'latex')
         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
         xticks(ticks);
         print(['ExampleOne-Radii-', ElementType], '-dpdf')
     end
     
-    
-    
+    return
     
     
     
