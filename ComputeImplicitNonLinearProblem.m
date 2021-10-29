@@ -27,6 +27,7 @@ if ( any([GPInfo.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
 elseif ( any([GPInfo.MCC] == true) )
     addpath('../ModifiedCamClay/')
+    addpath('../ModifiedCamClay/Hashiguchi/')
 end
 
 
