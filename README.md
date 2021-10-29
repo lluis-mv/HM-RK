@@ -1,5 +1,5 @@
 # HM-RK
-Implementation of explicit Runge-Kutta time-marching schemes for the coupled hydro-mechanical problem. 
+Implementation of explicit Runge-Kutta time-marching schemes for the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) 
 
 Three types of triangular elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants.
 
@@ -14,7 +14,8 @@ The code has been tested in Matlab R2019a and R2020a.
 Some of the constitutive models (elastoplastic) are developed in another [repository](https://github.com/lluis-mv/ExplicitStressIntegration)
 
 ## Sign convention
-Geomechanics sign conventions is used in this implementation (compressions are positive).
+Computational geomechanics sign conventions is used in this implementation: in the water pressure field compression pressures are positive whereas negative values of the effective Cauchy stress tensor denote compression.
+
 
 ## License and citation
 
