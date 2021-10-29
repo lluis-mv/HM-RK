@@ -14,7 +14,7 @@ The code has been tested in Matlab R2019a and R2020a.
 Some of the constitutive models (elastoplastic) are developed in another [repository](https://github.com/lluis-mv/ExplicitStressIntegration)
 
 ## Sign convention
-Geomechanics sign conventions is used in this implementation (compressions are positive).
+Computational geomechanics sign conventions is used in this implementation: compressive water pressure is positive whereas compressive stresses of the effective Cauchy stress tensor are negative.
 
 ## License and citation
 
