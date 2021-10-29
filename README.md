@@ -5,6 +5,14 @@ Three types of triangular elements are considered: T3T3 employs linear interpola
 
 Constitutive models: linear elasticity, non-linear elasticity (pressure-dependent hypo-elastic law) and Subloading Modified Cam Clay [(Hashiguchi, 2017)](https://doi.org/10.1007/978-3-319-48821-9)
 
+### Matlab versions
+
+The code has been tested in Matlab R2019a and R2020a.
+
+### Submodules
+
+Some of the constitutive models (elastoplastic) are developed in another [repository](https://github.com/lluis-mv/ExplicitStressIntegration)
+
 ## Sign convention
 Geomechanics sign conventions is used in this implementation (compressions are positive).
 
