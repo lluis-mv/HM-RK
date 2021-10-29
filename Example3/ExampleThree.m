@@ -134,6 +134,7 @@ for Elem = [1,2,3]
                     hold on
                     
                 end
+                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Residual', 'interpreter', 'latex')
                 if (length(RKMethods) ==9)
@@ -166,6 +167,7 @@ for Elem = [1,2,3]
                 ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
+                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Footing load', 'interpreter', 'latex')
                 
@@ -194,6 +196,7 @@ for Elem = [1,2,3]
                 ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
+                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
                 grid minor
