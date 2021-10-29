@@ -1,5 +1,5 @@
 # HM-RK
-Implementation of explicit Runge-Kutta time-marching schemes for the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sup>w</sup formulation) 
+Implementation of explicit Runge-Kutta time-marching schemes for the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) 
 
 Three types of triangular elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants.
 
