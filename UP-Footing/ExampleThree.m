@@ -17,7 +17,7 @@ CP.nu = 0.49;
 
 
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03];
-ESIZE = [0.35];
+ESIZE = [1.35];
 
 
 figure(50); clf;
@@ -91,13 +91,13 @@ for Elem = 2
         
         nSteps = 30;
         
-        [U,GPInfo, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/5, 5*nSteps, ElementType);
+        [U,GPInfo, normRes, information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt/5, 5*nSteps, ElementType);
         ThisInfo(1).t = [information.t];
         ThisInfo(1).F = [information.F];
         i = i+1;
         for RK = [1:8]
                 dt = 0.25/nSteps;
-                [U,GPInfo, rrr, information] = ComputeThisNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
+                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 0, false);
                 ThisInfo(i).t = [information.t];
                 ThisInfo(i).F = [information.F];
                 RES(i, RK) = rrr;

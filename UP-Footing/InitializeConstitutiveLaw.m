@@ -1,4 +1,4 @@
-function [GPInfo] = InitializeConstitutiveLaw(GPInfo)
+function [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo)
 
 nElements = size(GPInfo,1);
 
