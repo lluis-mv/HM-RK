@@ -237,7 +237,6 @@ if (true)
         print(['ExampleOne-Radii-', ElementType], '-dpdf')
     end
     
-    return
     
     
     
