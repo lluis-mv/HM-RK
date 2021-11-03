@@ -73,7 +73,7 @@ for Elem = [1:3]
         drawnow
         axis equal
         axis off
-        print('ExampleThree-Elastic-FemMesh', '-dpdf')
+        my_Print('ExampleThree-Elastic-FemMesh', '-dpdf')
         
         % Estimate the element size
         
@@ -130,13 +130,13 @@ for Elem = [1:3]
                 
                 figure(2105); clf
                 for jj = 1:size(RES,1)
-                    merda = '';
+                    merda = '*-.';
                     if ( jj == 8)
-                        merda = 'k';
+                        merda = 'k*-.';
                     elseif (jj == 9)
-                        merda = 'r';
+                        merda = 'rs-.';
                     end
-                    loglog(ddtt(jj,:), RES(jj,:), [merda, '*-.'])
+                    loglog(ddtt(jj,:), RES(jj,:), [merda])
                     hold on
                     
                 end
@@ -154,13 +154,13 @@ for Elem = [1:3]
                 
                 figure(2106); clf
                 for jj = 1:size(RES,1)
-                    merda = '';
+                    merda = '*-.';
                     if ( jj == 8)
-                        merda = 'k';
+                        merda = 'k*-.';
                     elseif (jj == 9)
-                        merda = 'r';
+                        merda = 'rs-.';
                     end
-                    loglog(ddtt(jj,:), N(jj,:), [merda, '*-.'])
+                    loglog(ddtt(jj,:), N(jj,:), [merda])
                     hold on
                 end
                 grid minor
@@ -179,18 +179,18 @@ for Elem = [1:3]
                 ind = find(N == 0);
                 N(ind) = nan;
                 for jj = 1:size(RES,1)
-                    merda = '';
+                    merda = '*-.';
                     if ( jj == 8)
-                        merda = 'k';
+                        merda = 'k*-.';
                     elseif (jj == 9)
-                        merda = 'r';
+                        merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
                     if ( jj ~= RKReference)
                         index = find( plotThis == 0);
                         plotThis(index) = 1E-14*(1+rand(size(index)));
                     end
-                    loglog(ddtt(jj,:), plotThis, [merda, '*-.'])
+                    loglog(ddtt(jj,:), plotThis, [merda])
                     hold on
                 end
                 
@@ -211,18 +211,18 @@ for Elem = [1:3]
                 ind = find(Time == 0);
                 Time(ind) = nan;
                 for jj = 1:size(RES,1)
-                    merda = '';
+                    merda = '*-.';
                     if ( jj == 8)
-                        merda = 'k';
+                        merda = 'k*-.';
                     elseif (jj == 9)
-                        merda = 'r';
+                        merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
                     if ( jj ~= RKReference)
                         index = find( plotThis == 0);
                         plotThis(index) = 1E-14*(1+rand(size(index)));
                     end
-                    loglog(Time(jj,:), plotThis, [merda, '*-.'])
+                    loglog(Time(jj,:), plotThis, [merda])
                     hold on
                 end
                 
@@ -243,16 +243,16 @@ for Elem = [1:3]
             % Printing....
             figure(2105)
             pause(1)
-            print(['ExampleThree-Elastic-Residual-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Residual-', num2str(Elem)], '-dpdf')
             figure(2106)
             pause(1)
-            print(['ExampleThree-Elastic-Bearing-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Bearing-', num2str(Elem)], '-dpdf')
             figure(2107)
             pause(1)
-            print(['ExampleThree-Elastic-Error-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Error-', num2str(Elem)], '-dpdf')
             figure(2108)
             pause(1)
-            print(['ExampleThree-Elastic-TimeError-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-TimeError-', num2str(Elem)], '-dpdf')
         end
         
         clear Time;
@@ -264,4 +264,7 @@ for Elem = [1:3]
 end
 
 
+function [] = my_Print(XNAME, FORMAT)
+print(XNAME, FORMAT)
+savefig([XNAME, '.fig'])
 
