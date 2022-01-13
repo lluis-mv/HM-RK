@@ -15,6 +15,11 @@ CP.k = 1E-8;
 CP.Elastic = false;
 CP.MCC = false;
 
+
+CP.nVisco = 1;
+CP.mVisco = 0.02;
+
+
 eSize = [0.25];
 
 CP.RK = 1;

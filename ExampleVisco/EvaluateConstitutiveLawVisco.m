@@ -15,8 +15,8 @@ end
 kSigma = zeros( 6,nn);
 [kappa, lambda, M, nu] = GetConstitutiveParameters();
 
-nVisco = 1;
-mVisco = 0.02;
+nVisco = CP.nVisco;
+mVisco = CP.mVisco;
 
 for el = 1:nElem
     
