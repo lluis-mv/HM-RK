@@ -13,7 +13,7 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
-eSize= 0.35;
+eSize= 0.2;
 
 model = createpde(1);
 

@@ -19,7 +19,10 @@ if ( isfield(CP, 'M') )
     end
 end
 
-
+this = min( min( [GPInfo.Weight]));
+if ( this < 0)
+    error('There is one element in the mesh with negative area');
+end
 
 
 function [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP)

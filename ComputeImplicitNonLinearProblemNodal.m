@@ -1,7 +1,7 @@
 
-function [X, GPElements, GPNodes, normRes, ThisInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPElements, GPNodes, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
-if (nargout == 5)
+if (nargout >= 5)
     DoSomePostProcess = true;
 else
     DoSomePostProcess = false;
@@ -142,7 +142,7 @@ for loadStep = 1:nSteps
     end
 end
 
-hola = 1;
+nZero = nnz(A);
 
 
 function [Cn, Kn] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, Cn, Kn)

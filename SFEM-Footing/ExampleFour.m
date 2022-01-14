@@ -13,7 +13,6 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
-eSize= 0.35;
 
 model = createpde(1);
 
@@ -66,14 +65,16 @@ if (true)
         
         
         tic
-        [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
+        [U, GPInfo, GPNodes, rrr,  information2, nZero] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
         TIMEnodal(i)= toc;
         nDofs(i) = size(Nodes1,1)*3;
+        nZeronodal(i) = nZero;
         ind = find(Nodes(:,2) == max( Nodes(:,2)));
         xx = sort(Nodes(ind,1));
         ind = find(xx == 1);
         l = 0.5*(xx(ind)+xx(ind+1));
         l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
+        
         
         
         FF = [information2.F];
@@ -82,21 +83,29 @@ if (true)
         
         
         tic
-        [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
+        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
         TIMElinear(i)= toc;
+        nZerolinear(i) = nZero;
         TIMEnodal./TIMElinear
         FF = [information.F];
         PWlinear(i) = FF(end);
         Qlinear(i) = FF(end-1)/l;
         
         tic
-        [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
+        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
         TIMEquad(i) = toc;
+        nZeroquad(i) = nZero;
         FF = [information.F];
         PWquad(i) = FF(end);
         Qquad(i) = FF(end-1)/l2;
         nDofsquad(i) = size(Nodes,1)*3;
         
+        
+        save('UndrainedData.mat', ...
+            'ESIZE', 'i', ...
+            'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
+            'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
+            'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad');
         
         
         figure(99); clf
@@ -156,9 +165,9 @@ if (true)
     
 end
 
-return;
 
-eSize = 1/3;
+
+eSize = 1/4;
 mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
@@ -234,28 +243,11 @@ for nSteps = NSTEPS
     drawnow
     set(gca, 'XScale', 'log')
     
-%     figure(101); clf
-%     plot(nDofs, TIMEnodal(1:i), 'r*-.', 'DisplayName', 'NS-T3T3')
-%     hold on
-%     plot(nDofs, TIMElinear(1:i), 'g*-.', 'DisplayName', 'T3T3')
-%     plot(nDofsquad, TIMEquad(1:i), 'b*-.', 'DisplayName', 'T6T3')
-%     drawnow
-%     xlabel('Number of dofs', 'interpreter', 'latex')
-%     ylabel('Computational cost (s)', 'interpreter', 'latex')
-%     set(gca, 'XScale', 'log')
-%     set(gca, 'YScale', 'log')
-%     
-%     
-%     figure(102); clf
-%     plot(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
-%     hold on
-%     plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
-%     plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
-%     drawnow
-%     xlabel('Number of dofs', 'interpreter', 'latex')
-%     ylabel('Computational cost / Number of dofs (s)', 'interpreter', 'latex')
-%     set(gca, 'XScale', 'log')
-%     set(gca, 'YScale', 'log')
+    save('TimeUndrainedData.mat', ...
+        'i', 'dtAxis', 'NSTEPS', ...
+        'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
+        'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
+        'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad');
     
     for jj = [99, 100]
         figure(jj)

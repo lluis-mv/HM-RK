@@ -6,8 +6,9 @@ x = meshgrid(linspace(0,1,n));
 [x,y] = meshgrid(linspace(0,1,n));
 x = x(1:size(x,1)*size(x,2));
 y = y(1:size(x,1)*size(x,2));
-x = x+0.02*rand(1,length(x));
-y = y+0.02*rand(1,length(x));
+s = RandStream('dsfmt19937', 'seed', 5);
+x = x+0.02*rand(s,1,length(x));
+y = y+0.02*rand(s,1,length(x));
 
 
 

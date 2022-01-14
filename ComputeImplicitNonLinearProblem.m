@@ -1,9 +1,9 @@
 % Solver for a linear problem
 
-function [X, GPInfo, normRes, ThisInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPInfo, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 
-if (nargout == 4)
+if (nargout >= 4)
     DoSomePostProcess = true;
 else
     DoSomePostProcess = false;
@@ -110,6 +110,7 @@ for loadStep = 1:nSteps
             X = nan*X; 
             Xn = nan*X;
             normRes = nan;
+            nZero = nnz(A);
             return;
         end
         if ( iter > 25)
@@ -149,3 +150,4 @@ for loadStep = 1:nSteps
 end
 
 
+nZero = nnz(A);
