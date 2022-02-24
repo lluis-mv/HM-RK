@@ -54,6 +54,8 @@ for el = 1:nElements
             AlphaStab = +80*dt*perme/he^2*(1-term) +ConstModulus/1000000*term;
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 8*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
+        else
+            AlphaStab = 0;
         end
         
        
@@ -102,6 +104,17 @@ for el = 1:nElements
             H = [H, zeros(3,3);
                 zeros(3,6)];
             Ke = [zeros(12,18); 0*Q2, H];
+        elseif ( all(ElementType =='Q8Q4') )
+            Q2 = [Q'; zeros(4,16)];
+            Ms = [Ms, zeros(4,4);
+                -1,-1,0,0,2,0,0,0;
+                 0, -1, -1,0, 0 ,2, 0,0;
+                 0, 0, -1, -1,0, 0 ,2, 0;
+                 -1, 0, 0, -1, 0, 0, 0,2];
+            Ce = [kke, Q, zeros(16,4); Q2, Ms];
+            H = [H, zeros(4,4);
+                zeros(4,8)];
+            Ke = [zeros(16,24); 0*Q2, H];
         else
         
             Ce = [kke, Q; Q', Ms];
