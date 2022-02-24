@@ -49,6 +49,6 @@ else
         c = [c, v2];
         
     end
-    patch(xP, yP, c, 'edgecolor', 'none')
+    surf(xP, yP, c, 'edgecolor', 'none')
     
 end

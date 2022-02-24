@@ -42,11 +42,18 @@ dt = 0.15/nSteps;
 
 
 
+ind = find(Nodes(:,2) == max( Nodes(:,2)));
+xx = sort(Nodes(ind,1));
+ind = find(xx == 1);
+l = 0.5*(xx(ind)+xx(ind+1));
+l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
+
 
 tic
 [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-FF = [information2.F];
+FF = [information2.F]/l;
+FF(1:2:end) = FF(1:2:end)/l;
 figure(212); clf
 plot( [information2.t], FF(1:2:end), 'r', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
 hold on
@@ -78,6 +85,7 @@ tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
 FF = [information.F];
+FF(1:2:end) = FF(1:2:end)/l;
 figure(212)
 plot( [information.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
 figure(214)
@@ -112,6 +120,7 @@ tic
 toc
 
 FF = [information.F];
+FF(1:2:end) = FF(1:2:end)/l2;
 figure(212)
 plot( [information.t], FF(1:2:end), 'b-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])
 hold on
@@ -155,31 +164,33 @@ for iii = [956, 957, 959]
     colorbar
     drawnow
     pause(1)
-
-    print(['F1-SV-', num2str(i)], '-dpdf');
+    
+    fig = figure(iii);
+    exportgraphics(fig,['F1-SV-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
 
 figure(357)
-cc = caxis; 
+cc = caxis;
 i = 1;
 pause(1)
 for iii = [356, 357, 359]
-    figure(iii)
+    fig = figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
     caxis(cc);
     colorbar
     drawnow
     pause(1)
-    print(['F1-pEff-', num2str(i)], '-dpdf');
+    fig = figure(iii);
+    exportgraphics(fig,['F1-pEff-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
 
 figure(557)
-cc = caxis; 
+cc = caxis;
 i = 1;
 pause(1)
 for iii = [556, 557, 559]
@@ -190,7 +201,8 @@ for iii = [556, 557, 559]
     colorbar
     drawnow
     pause(1)
-    print(['F1-Water-', num2str(i)], '-dpdf');
+    fig = figure(iii);
+    exportgraphics(fig,['F1-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -200,11 +212,13 @@ legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
 ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
-print('F1-Reaction', '-dpdf')
+fig = figure(212);
+exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
 
 figure(214)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
-print('F1-Water', '-dpdf')
+fig = figure(212);
+exportgraphics(fig,['F1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
