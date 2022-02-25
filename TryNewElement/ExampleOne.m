@@ -87,15 +87,8 @@ for Stab = [1, 0]
             Elements = Elements2;
         elseif ( j == 4)
             ElementType = 'Q8Q4';
-            Nodes = [-1,-1;
-                1, -1;
-                1, 1,;
-                -1, 1;
-                0, -1;
-                1, 0;
-                0, 1;
-                -1,0];
-            Elements = [1,2,3,4,5,6,7,8];
+            NodesQ; 
+            ElementsQ;
         end
         
         
@@ -146,6 +139,14 @@ for Stab = [1, 0]
         set(gca, 'FontSize', 14)
         print(['ExampleOne-Solution-', num2str(Stab)], '-dpdf')
         
+        if (all('Q8Q4' == ElementType))
+            figure(45)
+            PlotQ8Nodal(Nodes, Elements, U(3:3:end) );
+            colorbar
+            axis off
+            
+        end
+        
     end
 end
 
@@ -157,7 +158,7 @@ end
 if (true)
     
     % First part. Spectral radii
-    for j = 1:3
+    for j = 4:-1:1
         
         if ( j == 1)
             ElementType = 'T3T3';
@@ -169,12 +170,19 @@ if (true)
             Nodes = Nodes2;
             Elements = Elements2;
             ThisNumber = 6;
-        else
+        elseif ( j == 3)
             ElementType = 'T6T6';
             Nodes = Nodes2;
             Elements = Elements2;
             ThisNumber = 2000;
+        elseif ( j == 4)
+            ElementType = 'Q8Q4';
+            NodesQ; 
+            ElementsQ;
+            ThisNumber = 1;
         end
+        
+        
         
         
         minval = nan*ddtt;

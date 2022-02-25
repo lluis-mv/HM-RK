@@ -60,15 +60,21 @@ if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
     for el = 1:nElements
         dofsWP = GPInfo(el,1).dofsWP;
         dofsReal = GPInfo(el,1).dofsWPreal;
-        
-        KK = 1/2*[1,1,0;
-            0, 1, 1;
-            1, 0,1];
-        X0( dofsReal(4:6)) = KK*X0(dofsWP) ;
-          
+        if ( length(GPInfo(1,1).dofsWP) == 3)
+            KK = 1/2*[1,1,0;
+                0, 1, 1;
+                1, 0,1];
+            X0( dofsReal(4:6)) = KK*X0(dofsWP) ;
+        elseif ( length(GPInfo(1,1).dofsWP) == 4)
+            KK = 1/2*[1,1,0,0;
+                0, 1, 1, 0;
+                0, 0, 1, 1;
+                1, 0, 0, 1];
+            X0( dofsReal(5:8)) = KK*X0(dofsWP) ;
+        end
     end
 end
-
-
+    
+    
 fini = zeros(3*nNodes, 1);
-
+    
