@@ -210,21 +210,24 @@ for el = 1:nElements
         Nsmall =  [ -1/4*(1-alfa)*(1-beta)*(1+alfa+beta);
             -1/4*(1+alfa)*(1-beta)*(1-alfa+beta);
             -1/4*(1+alfa)*(1+beta)*(1-alfa-beta);
-            -1/4*(1-alfa)*(1-beta)*(1+alfa-beta);
+            -1/4*(1-alfa)*(1+beta)*(1+alfa-beta);
             1/2*(1-alfa^2)*(1-beta);
             1/2*(1+alfa)*(1-beta^2);
             1/2*(1-alfa^2)*(1+beta);
             1/2*(1-alfa)*(1-beta^2);
             ];
         
-        Nsmall_chi = [ -((2*alfa + beta)*(beta - 1))/4,     -((alfa + 2*beta)*(alfa - 1))/4;
-            -((beta - 1)*(2*alfa - beta))/4,     -((alfa - 2*beta)*(alfa + 1))/4;
-            ((2*alfa + beta)*(beta + 1))/4,      ((alfa + 2*beta)*(alfa + 1))/4;
-            -((beta - 1)*(2*alfa - beta))/4, -((alfa - 1)*(alfa - 2*beta + 2))/4;
-            alfa*(beta - 1),                      alfa^2/2 - 1/2;
-            1/2 - beta^2/2,                    -beta*(alfa + 1);
-            -alfa*(beta + 1),                      1/2 - alfa^2/2;
-            beta^2/2 - 1/2,                     beta*(alfa - 1)];
+        Nsmall_chi  = [ -((2*alfa + beta)*(beta - 1))/4, -((alfa + 2*beta)*(alfa - 1))/4;
+            -((beta - 1)*(2*alfa - beta))/4, -((alfa - 2*beta)*(alfa + 1))/4;
+            ((2*alfa + beta)*(beta + 1))/4,  ((alfa + 2*beta)*(alfa + 1))/4;
+            ((beta + 1)*(2*alfa - beta))/4,  ((alfa - 2*beta)*(alfa - 1))/4;
+            alfa*(beta - 1),                  alfa^2/2 - 1/2;
+            1/2 - beta^2/2,                -beta*(alfa + 1);
+            -alfa*(beta + 1),                  1/2 - alfa^2/2;
+            beta^2/2 - 1/2,                 beta*(alfa - 1)];
+ 
+
+ 
  
         
         Nu = (zeros(ndim, 8*ndim));
@@ -243,7 +246,7 @@ for el = 1:nElements
         end
         
         
-        Area = det(J);
+        Area = det(J)*4;
         
         he = 0;
         for i = 1:8
@@ -284,8 +287,8 @@ for el = 1:nElements
         
         GPInfo(el,gp).dofs = dofs;
         GPInfo(el,gp).dofsU = dofsU;
-        GPInfo(el,gp).dofsWP = dofsWP;
-        GPInfo(el,gp).dofsWPreal = dofsWP;
+        GPInfo(el,gp).dofsWP = dofsWP(1:4);
+        GPInfo(el,gp).dofsWPreal = dofsWP; % Those relevant to compute internal forces,... blahblah
         GPInfo(el,gp).IndexReorder = [1,2,17, 3,4,18, 5,6,19, 7,8,20, 9,10,21, 11,12,22,13,14,23,15,16,24];
     end
 end
