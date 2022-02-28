@@ -33,34 +33,16 @@ if ( LinearElastic)
     CP.MCC = false;
 end
 
+[Nodes, Elements] = ReadTheMesh('ThisMesh.msh');
+[NodesT, ElementsT] = ConvertToTriangles(Nodes, Elements);
 
-
-model = createpde(1);
-
-
-R1 = [3,5, 0, 1, 5, 5, 0, 0, 0, 0, -5, -5]';
-
-
-
-g = decsg(R1);
-geometryFromEdges(model, g);
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
 
 
 RK = 2;
 
 
-nSteps = 20;
-dt = 0.15/100*nSteps;
+nSteps = 50;
+dt = 0.15/1000*nSteps;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Q8Q4
@@ -68,18 +50,18 @@ ElementsQ; NodesQ;
 
 
 if ( LinearElastic)
-    [U1, GPInfo1,  information1] = ComputeImplicitLinearProblem(NodesQQ, ElementsQQ, CP, dt, nSteps, 'Q8Q4',1);
+    [U1, GPInfo1,  information1] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, 'Q8Q4',1);
 else
-    [U1, GPInfo1, rrr1,  information1] = ComputeImplicitNonLinearProblem(NodesQQ, ElementsQQ, CP, dt, nSteps, 'Q8Q4', 0);
+    [U1, GPInfo1, rrr1,  information1] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'Q8Q4', 0);
 end
 
 figure(1)
-PlotQ8Nodal(NodesQQ, ElementsQQ, U1(3:3:end) )
+PlotNodal(Nodes, Elements, U1(3:3:end) )
 drawnow;
 colorbar; 
 
 figure(11)
-PlotQ8Nodal(NodesQQ, ElementsQQ, U1(2:3:end) )
+PlotNodal(Nodes, Elements, U1(2:3:end) )
 drawnow;
 colorbar;
 
@@ -100,18 +82,21 @@ hold on
 
 
 if ( LinearElastic)
-    [U2, GPInfo,  information2] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
+    [U2, GPInfo,  information2] = ComputeImplicitLinearProblem(NodesT, ElementsT, CP, dt, nSteps, 'T6T3', 1);
 else
-    [U2, GPInfo, rrr,  information2] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 0);
+    [U2, GPInfo, rrr,  information2] = ComputeImplicitNonLinearProblem(NodesT, ElementsT, CP, dt, nSteps, 'T6T3', 0);
 end
 
 figure(2)
-pdeplot(model,'XYData',U2(3:3:end),'ColorMap','jet', 'Mesh','on');
+PlotNodal(NodesT, ElementsT, U2(3:3:end))
 drawnow;
+colorbar
 
 figure(12)
-pdeplot(model,'XYData',U2(2:3:end),'ColorMap','jet', 'Mesh','on');
+PlotNodal(NodesT, ElementsT, U2(2:3:end))
 drawnow;
+colorbar
+
 FF = [information2.F];
 figure(212)
 plot( [information2.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T6T3'])
