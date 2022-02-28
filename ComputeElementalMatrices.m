@@ -205,7 +205,11 @@ for el = 1:nElements
         beta = be(gp);
         
         NsmallP =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
-        Nsmall_chiP = 1/4*[-1 -1; 1 -1; 1 1; -1 1];
+        Nsmall_chiP = [   beta/4 - 1/4,   alfa/4 - 1/4;
+            1/4 - beta/4, - alfa/4 - 1/4;
+            beta/4 + 1/4,   alfa/4 + 1/4;
+            - beta/4 - 1/4,   1/4 - alfa/4];
+
         
         Nsmall =  [ -1/4*(1-alfa)*(1-beta)*(1+alfa+beta);
             -1/4*(1+alfa)*(1-beta)*(1-alfa+beta);
@@ -225,7 +229,7 @@ for el = 1:nElements
             1/2 - beta^2/2,                -beta*(alfa + 1);
             -alfa*(beta + 1),                  1/2 - alfa^2/2;
             beta^2/2 - 1/2,                 beta*(alfa - 1)];
- 
+
 
  
  
