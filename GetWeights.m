@@ -9,7 +9,7 @@ else
         elseif (element(1)=='T')
             [al, be, w] = GetTheseWeights(3);
         elseif (all( element == 'Q8Q8'))
-            [al, be, w] = GetTheseWeights(8);
+            [al, be, w] = GetTheseWeights(4);
         end
     else
         if ( all( element == 'T3T3') )
@@ -49,8 +49,13 @@ elseif ( nn == 6)
     al = auxK(:,1)';
     be = auxK(:,2)';
     w = auxK(:,3)'/sum(auxK(:,3)');
-elseif ( nn == 8)
+elseif ( nn == 4)
     al = 1/sqrt(3)*[-1, 1, 1, -1];
     be = 1/sqrt(3)*[-1, -1, 1, 1];
     w = 1/4*[1,1,1,1];
+elseif ( nn == 9)
+    tt = sqrt(0.6);
+    al = [-tt, -tt, -tt, 0, 0, 0, tt, tt, tt];
+    be = [-tt, 0, tt, -tt, 0, tt, -tt, 0, tt];
+    w = 1/81*[25, 40, 25, 40, 64, 40, 25, 40, 25]/4;
 end

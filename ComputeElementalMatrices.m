@@ -181,6 +181,8 @@ D = De([1,2,4], [1,2,4]);
 
 [al, be, w] = GetWeights(CP.HydroMechanical, 'Q8Q8');
 
+[al, be, w] = GetWeights(4);
+
 for el = 1:nElements
     for gp = 1:length(w)
         
@@ -263,7 +265,10 @@ for el = 1:nElements
         he = sqrt(2)*he;
         he = 4/he;
         
-        Ms = zeros(4,4);
+        Ms = 1/36* [  7, -1, -5, -1;
+            -1,  7, -1, -5;
+            -5, -1,  7, -1;
+            -1, -5, -1,  7];
         
         GPInfo(el,gp).Weight = Area*w(gp);
         GPInfo(el,gp).B =B;
@@ -403,12 +408,6 @@ for el = 1:nElements
         he = sqrt(2)*he;
         he = 4/he;
         
-        Ms = 1/150*[   1, 1/3, 1/3,   -1,  1/3,   -1;
-            1/3,   1, 1/3,   -1,   -1,  1/3;
-            1/3, 1/3,   1,  1/3,   -1,   -1;
-            -1,  -1, 1/3,  7/3, -1/3, -1/3;
-            1/3,  -1,  -1, -1/3,  7/3, -1/3;
-            -1, 1/3,  -1, -1/3, -1/3,  7/3];
         
         Ms = 1/360*[  6, -1, -1,  0, -4,  0;
             -1,  6, -1,  0,  0, -4;
@@ -542,7 +541,7 @@ for el = 1:nElements
         
         
         
-        Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
+        Ms = 1/72*[2,-1,-1;-1,2,-1;-1,-1,2];
         
         
         GPInfo(el,gp).Weight = Area*w(gp);
