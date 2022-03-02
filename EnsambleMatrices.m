@@ -53,7 +53,7 @@ for el = 1:nElements
             term = exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) );
             AlphaStab = +80*dt*perme/he^2*(1-term) +ConstModulus/1000000*term;
         elseif ( all(ElementType == 'T6T3'))
-            AlphaStab = 24*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
+            AlphaStab = 32*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         elseif ( all(ElementType == 'Q8Q4'))
             AlphaStab = 4*dt*perme/he^2*(1-exp(- (6*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) ));
         else

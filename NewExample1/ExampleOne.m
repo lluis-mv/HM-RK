@@ -3,7 +3,7 @@ close all
 addpath('../')
 % 1. Define the problem
 
-T = 1E-3;
+T = 1E-1;
 
 
 CP.HydroMechanical = true;
@@ -24,7 +24,7 @@ model = createpde(1);
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
 [GPInfo] = ComputeElementalMatrices(NodesT, ElementsT, CP, 'T6T3');
-he = mean(sqrt( mean([GPInfo(:,:).Weight])));
+
 
 
 NSteps = 10.^linspace(0, 6, 10);
@@ -103,21 +103,29 @@ end
 
 
 
-if (true)
+if (false)
     
     % First part. Spectral radii
-    for j = [2]
-        ThisNumber = 1;
+    for j = [2, 1]
+        
         if ( j == 1)
             ElementType = 'T6T3';
             Nodes = NodesT;
             Elements = ElementsT;
+            ThisNumber = 6;
         elseif (j == 2)
             ElementType = 'Q8Q4';
             Nodes = NodesQ;
             Elements = ElementsQ;
+            ThisNumber = 6;
         end
         
+        
+        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+        for eell = 1:size(GPInfo, 1)
+            hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+        end
+        he = mean(hhee);
         
         minval = nan*ddtt;
         maxval = nan*ddtt;
@@ -178,7 +186,7 @@ if (true)
         yy = ylim();
         yy(1) = 0.1;
         xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-        %         plot(xx, yy, 'k-.')
+        plot(xx, yy, 'k-.')
         ylim(yy);
         %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
         %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
@@ -194,20 +202,26 @@ if (true)
         
         % Now the same to compute norms...
         for Stab = [1, 0]
-
-            for j = [2]
+            
+            for j = [2, 1]
                 
-                ThisNumber = 1;
+                
                 if ( j == 1)
                     ElementType = 'T6T3';
                     Nodes = NodesT;
                     Elements = ElementsT;
+                    ThisNumber = 6;
                 elseif (j == 2)
                     ElementType = 'Q8Q4';
                     Nodes = NodesQ;
                     Elements = ElementsQ;
+                    ThisNumber = 6;
                 end
-                
+                [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+                for eell = 1:size(GPInfo, 1)
+                    hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+                end
+                he = mean(hhee);
                 
                 firstTime = true;
                 i = 1;
@@ -235,7 +249,7 @@ if (true)
                     plot(xx, yy, 'k-.')
                     if ( yy(2) > 1E20)
                         yy(2) = 1E20;
-                        yy(1) = 1E-10;
+                        yy(1) = 1E-15;
                     end
                     ylim(yy);
                     ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
@@ -276,33 +290,34 @@ if (true)
 end
 
 
-return;
+
 
 if ( true)
-    
-    
+
     % Now lets check the RK methods
     
-    for j = 1:3
+    for j = [2, 1]
+        
         
         if ( j == 1)
-            ElementType = 'T3T3';
-            Nodes = Nodes1;
-            Elements = Elements1;
-            ThisNumber = 200;
-        elseif (j == 2)
             ElementType = 'T6T3';
-            Nodes = Nodes2;
-            Elements = Elements2;
+            Nodes = NodesT;
+            Elements = ElementsT;
             ThisNumber = 6;
-        else
-            ElementType = 'T6T6';
-            Nodes = Nodes2;
-            Elements = Elements2;
-            ThisNumber = 2000;
+        elseif (j == 2)
+            ElementType = 'Q8Q4';
+            Nodes = NodesQ;
+            Elements = ElementsQ;
+            ThisNumber = 6;
         end
         
         Stab = 1;
+        
+        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+        for eell = 1:size(GPInfo, 1)
+            hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+        end
+        he = mean(hhee);
         
         for RK = [1,3,8]
             firstTime = true;
@@ -315,10 +330,8 @@ if ( true)
                 if ( firstTime)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
-                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes1, Elements1, GPInfo);
-                
-                
-                
+                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
+                    
                 i = i+1;
             end
             
@@ -354,7 +367,7 @@ if ( true)
         plot(xx, yy, 'k-.', 'HandleVisibility','off')
         if ( yy(2) > 1E20)
             yy(2) = 1E20;
-            yy(1) = 1E-10;
+            yy(1) = 1E-15;
         end
         ylim(yy);
         drawnow
@@ -362,15 +375,9 @@ if ( true)
         xticks(ticks);
         legend('location', 'best', 'interpreter', 'latex')
         print(['ExampleOne-RK-', ElementType], '-dpdf')
-        
-        
-        
-        
+         
     end
 end
-
-
-
 
 
 
