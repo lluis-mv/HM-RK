@@ -72,14 +72,5 @@ colormap jet
 
 
 if ( showMesh)
-    if ( size(C, 2) == 8)
-        tt = [1, 5, 2, 6, 3, 7, 4, 8, 1];
-    elseif ( size(C, 2) == 6)
-        tt = [1, 4, 2, 5, 3, 6, 1];
-    end
-    for elem = 1:nElem
-        Cel = C(elem,:);
-        plot3( X( Cel(tt), 1), X( Cel(tt), 2), 1E9*ones( size(X( Cel(tt), 2))),  'k*-')
-        hold on;
-    end
+   PlotMesh(X, C);
 end

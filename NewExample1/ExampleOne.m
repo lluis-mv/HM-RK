@@ -3,7 +3,7 @@ close all
 addpath('../')
 % 1. Define the problem
 
-T = 1E-1;
+T = 0.05;
 
 
 CP.HydroMechanical = true;
@@ -22,12 +22,14 @@ model = createpde(1);
 
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
+[NodesQQ, ElementsQQ] = ReadTheMesh('ThisMeshQ.msh');
+[NodesTT, ElementsTT] = ReadTheMesh('ThisMeshT.msh');
 
 [GPInfo] = ComputeElementalMatrices(NodesT, ElementsT, CP, 'T6T3');
 
 
 
-NSteps = 10.^linspace(0, 6, 10);
+NSteps = 10.^linspace(0, 6, 20);
 NSteps = floor(NSteps); NSteps = sort(NSteps);
 NStepsRef = 1;
 ddtt = t./NSteps;
@@ -52,6 +54,13 @@ for Stab = [1, 0]
             Nodes = NodesQ;
             Elements = ElementsQ;
         end
+        
+        figure(380); clf;
+        PlotMesh(Nodes, Elements);
+        axis off
+        axis equal
+        print(['ExampleOne-FemMesh-', ElementType], '-dpdf')
+        
         
         
         dt = t/NStepsRef;
@@ -103,197 +112,239 @@ end
 
 
 
-if (false)
+if (true)
     
     % First part. Spectral radii
     for j = [2, 1]
         
-        if ( j == 1)
-            ElementType = 'T6T3';
-            Nodes = NodesT;
-            Elements = ElementsT;
-            ThisNumber = 6;
-        elseif (j == 2)
-            ElementType = 'Q8Q4';
-            Nodes = NodesQ;
-            Elements = ElementsQ;
-            ThisNumber = 6;
-        end
-        
-        
-        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-        for eell = 1:size(GPInfo, 1)
-            hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
-        end
-        he = mean(hhee);
-        
-        minval = nan*ddtt;
-        maxval = nan*ddtt;
-        minval2 = nan*ddtt;
-        maxval2 = nan*ddtt;
-        i = 1;
-        
-        for dt = ddtt
-            
-            [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 1);
-            nNodes = size(Nodes, 1);
-            ii = eye(3*nNodes, 3*nNodes);
-            
-            B = ii + dt*A;
-            B = B(nnoDir, nnoDir);
-            
-            values = eig(full(B), 'nobalance');
-            values = abs(values);
-            minval(i)= min(values);
-            maxval(i) = max(values);
-            
-            
-            
-            
-            [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 0);
-            nNodes = size(Nodes, 1);
-            ii = eye(3*nNodes, 3*nNodes);
-            
-            B = ii + dt*A;
-            B = B(nnoDir, nnoDir);
-            
-            
-            values = eig(full(B), 'nobalance');
-            values = abs(values);
-            minval2(i)= min(values);
-            maxval2(i) = max(values);
-            i = i+1;
-            
-            
-            
-        end
         figure(j+1);
         clf;
-        
-        %loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
-        loglog(ddtt, maxval2, 'r*-.')
-        
-        drawnow;
-        hold on
-        %loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
-        loglog(ddtt, maxval, 'b*-.')
-        drawnow
-        
-        xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-        ylabel('$\| \lambda \|$', 'interpreter', 'latex')
-        set(gca, 'FontSize', 14)
-        drawnow
-        yy = ylim();
-        yy(1) = 0.1;
-        xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-        plot(xx, yy, 'k-.')
-        ylim(yy);
-        %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
-        %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
-        ll = legend('max$(|\lambda|)$ Primal', ...
-            'max$(|\lambda|)$ Stab', 'location', 'NorthWest');
-        set(ll, 'interpreter', 'latex')
-        xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-        %         xticks(ticks);
-        print(['ExampleOne-Radii-', ElementType], '-dpdf')
-    end
-    
-    if ( true)
-        
-        % Now the same to compute norms...
-        for Stab = [1, 0]
+        for Mesh = [1,2]
             
-            for j = [2, 1]
-                
-                
-                if ( j == 1)
-                    ElementType = 'T6T3';
+            if ( j == 1)
+                ElementType = 'T6T3';
+                if ( Mesh == 1)
                     Nodes = NodesT;
                     Elements = ElementsT;
-                    ThisNumber = 6;
-                elseif (j == 2)
-                    ElementType = 'Q8Q4';
+                elseif (Mesh == 2)
+                    Nodes = NodesTT;
+                    Elements = ElementsTT;
+                    figure(380); clf;
+                    PlotMesh(Nodes, Elements);
+                    axis off
+                    axis equal
+                    print(['ExampleOne-FemMesh2-', ElementType], '-dpdf')
+                end
+                ThisNumber = 6;
+            elseif (j == 2)
+                ElementType = 'Q8Q4';
+                if ( Mesh == 1)
                     Nodes = NodesQ;
                     Elements = ElementsQ;
-                    ThisNumber = 6;
+                elseif (Mesh == 2)
+                    Nodes = NodesQQ;
+                    Elements = ElementsQQ;
+                    figure(380); clf;
+                    PlotMesh(Nodes, Elements);
+                    axis off
+                    axis equal
+                    print(['ExampleOne-FemMesh2-', ElementType], '-dpdf')
                 end
-                [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-                for eell = 1:size(GPInfo, 1)
-                    hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
-                end
-                he = mean(hhee);
+                ThisNumber = 6;
+            end
+            
+            
+            [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+            hhee = [];
+            for eell = 1:size(GPInfo, 1)
+                hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+            end
+            he = mean(hhee);
+            
+            minval = nan*ddtt;
+            maxval = nan*ddtt;
+            minval2 = nan*ddtt;
+            maxval2 = nan*ddtt;
+            i = 1;
+            
+            for dt = ddtt
                 
-                firstTime = true;
-                i = 1;
-                for nSteps = NSteps
-                    
-                    dt = t/nSteps;
-                    [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
-                    if ( firstTime)
-                        [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
-                    end
-                    [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
-                    
-                    
-                    
-                    figure(30+Stab*10+j)
-                    
-                    loglog( ddtt(1:i), L2(1:i), 'k*-.', ddtt(1:i), L2U(1:i), 'rv-.',  ddtt(1:i), LInf(1:i), 'g*-.',  ddtt(1:i), LInfU(1:i), 'bv-.')
-                    hold on
-                    xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-                    ylabel('Error norm', 'interpreter', 'latex');
-                    set(gca, 'FontSize', 14)
-                    drawnow
-                    yy = ylim();
-                    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-                    plot(xx, yy, 'k-.')
-                    if ( yy(2) > 1E20)
-                        yy(2) = 1E20;
-                        yy(1) = 1E-15;
-                    end
-                    ylim(yy);
-                    ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
-                    set(ll, 'interpreter', 'latex')
-                    drawnow
-                    hold off
-                    
-                    i = i+1;
+                [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 1);
+                nNodes = size(Nodes, 1);
+                ii = eye(3*nNodes, 3*nNodes);
+                
+                B = ii + dt*A;
+                B = B(nnoDir, nnoDir);
+                
+                values = eig(full(B), 'nobalance');
+                values = abs(values);
+                minval(i)= min(values);
+                maxval(i) = max(values);
+                
+                
+                
+                
+                [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 0);
+                nNodes = size(Nodes, 1);
+                ii = eye(3*nNodes, 3*nNodes);
+                
+                B = ii + dt*A;
+                B = B(nnoDir, nnoDir);
+                
+                
+                values = eig(full(B), 'nobalance');
+                values = abs(values);
+                minval2(i)= min(values);
+                maxval2(i) = max(values);
+                i = i+1;
+                
+                
+                
+            end
+            figure(j+1);
+            
+            if ( Mesh == 1)
+                spec1 = 'rs-.';
+                spec2 = 'bs-.';
+            elseif (Mesh == 2)
+                 spec1 = 'mv-.';
+                spec2 = 'cv-.';
+            end
+            
+            %loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
+            loglog(ddtt/he^2, maxval2, spec1)
+            
+            drawnow;
+            hold on
+            %loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
+            loglog(ddtt/he^2, maxval, spec2)
+            drawnow
+            
+            xlabel('$\Delta T = c_v \Delta t / h_e^2  $', 'interpreter', 'latex')
+            ylabel('$\| \lambda \|$', 'interpreter', 'latex')
+            set(gca, 'FontSize', 14)
+            drawnow
+            if ( Mesh == 2)
+                yy = ylim();
+                yy(1) = 0.1;
+                xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+                xx = 1/ThisNumber*[1,1];
+                plot(xx, yy, 'k-.')
+                ylim(yy);
+                %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
+                %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
+                ll = legend('max$(|\lambda|)$ Primal. Mesh A', ...
+                    'max$(|\lambda|)$ Stab. Mesh A', ...
+                    'max$(|\lambda|)$ Primal. Mesh B', ...
+                    'max$(|\lambda|)$ Stab. Mesh B','location', 'NorthWest');
+                set(ll, 'interpreter', 'latex')
+%                 xlim([0.9999*min(ddtt/he^2), 1.0001*max(ddtt/he^2)])
+                %         xticks(ticks);
+                print(['ExampleOne-Radii-', ElementType], '-dpdf')
+            end
+        end
+    end
+end
+return;
+if ( true)
+    
+    % Now the same to compute norms...
+    for Stab = [1, 0]
+        
+        for j = [2, 1]
+            
+            
+            if ( j == 1)
+                ElementType = 'T6T3';
+                Nodes = NodesT;
+                Elements = ElementsT;
+                ThisNumber = 6;
+            elseif (j == 2)
+                ElementType = 'Q8Q4';
+                Nodes = NodesQ;
+                Elements = ElementsQ;
+                ThisNumber = 6;
+            end
+            [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+            hhee = [];
+            for eell = 1:size(GPInfo, 1)
+                hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+            end
+            he = mean(hhee);
+            
+            firstTime = true;
+            i = 1;
+            for nSteps = NSteps
+                
+                dt = t/nSteps;
+                [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, 1, Stab);
+                if ( firstTime)
+                    [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
+                [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
+                
+                
                 
                 figure(30+Stab*10+j)
-                clf;
-                loglog( ddtt, LInf, 'g*-.',  ddtt, LInfU, 'bv-.', ddtt, L2, 'k*-.', ddtt, L2U, 'rv-.' )
+                
+                loglog( ddtt(1:i)/he, L2(1:i), 'k*-.', ddtt(1:i)/he, L2U(1:i), 'rv-.',  ddtt(1:i)/he, LInf(1:i), 'g*-.',  ddtt(1:i)/he, LInfU(1:i), 'bv-.')
                 hold on
-                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+                xlabel('$\Delta T = c_v \Delta t / h_e^2  $', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex');
                 set(gca, 'FontSize', 14)
                 drawnow
                 yy = ylim();
                 xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+                xx = 1/ThisNumber*[1,1];
                 plot(xx, yy, 'k-.')
                 if ( yy(2) > 1E20)
                     yy(2) = 1E20;
-                    yy(1) = 1E-10;
+                    yy(1) = 1E-15;
                 end
                 ylim(yy);
-                ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
+                ll = legend('$L_2 p_w$', '$L_2 u$', '$L_\infty p_w$', '$L_\infty u$', 'location', 'best');
                 set(ll, 'interpreter', 'latex')
                 drawnow
-                xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-                xticks(ticks);
-                print(['ExampleOne-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
                 hold off
+                
+                i = i+1;
             end
+            
+            figure(30+Stab*10+j)
+            clf;
+            loglog( ddtt/he^2, LInf, 'g*-.',  ddtt/he^2, LInfU, 'bv-.', ddtt/he^2, L2, 'k*-.', ddtt/he^2, L2U, 'rv-.' )
+            hold on
+            xlabel('$\Delta T = c_v \Delta t / h_e^2  $', 'interpreter', 'latex')
+            ylabel('Error norm', 'interpreter', 'latex');
+            set(gca, 'FontSize', 14)
+            drawnow
+            yy = ylim();
+            xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+            xx = 1/ThisNumber*[1,1];
+            plot(xx, yy, 'k-.')
+            if ( yy(2) > 1E20)
+                yy(2) = 1E20;
+                yy(1) = 1E-10;
+            end
+            ylim(yy);
+            ll = legend( '$L_\infty p_w$', '$L_\infty u$', '$L_2 p_w$', '$L_2 u$','location', 'best');
+            set(ll, 'interpreter', 'latex')
+            drawnow
+            xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
+            xticks(ticks);
+            print(['ExampleOne-ErrorNorms-', ElementType, '-', num2str(Stab)], '-dpdf')
+            hold off
         end
     end
-    
 end
 
 
 
 
-if ( true)
 
+
+if ( true)
+    
     % Now lets check the RK methods
     
     for j = [2, 1]
@@ -314,6 +365,7 @@ if ( true)
         Stab = 1;
         
         [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+        hhee = [];
         for eell = 1:size(GPInfo, 1)
             hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
         end
@@ -331,7 +383,7 @@ if ( true)
                     [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
                 end
                 [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
-                    
+                
                 i = i+1;
             end
             
@@ -348,11 +400,11 @@ if ( true)
             if (RK == 1)
                 clf;
             end
-            loglog( ddtt, L2, [color, '*-.'], 'DisplayName',  ['$L_2 p_w$ RK-', num2str(RK)]);
+            loglog( ddtt/he^2, L2, [color, '*-.'], 'DisplayName',  ['$L_2 p_w$ RK-', num2str(RK)]);
             hold on
-            loglog( ddtt, L2U, [color, 'v-.'], 'DisplayName',  ['$L_2 u$ RK-', num2str(RK)]);
+            loglog( ddtt/he^2, L2U, [color, 'v-.'], 'DisplayName',  ['$L_2 u$ RK-', num2str(RK)]);
             hold on
-            xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+            xlabel('$\Delta T = c_v \Delta t / h_e^2  $', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');
             set(gca, 'FontSize', 14)
             drawnow
@@ -364,6 +416,7 @@ if ( true)
         drawnow
         yy = ylim();
         xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+        xx = 1/ThisNumber*[1,1];
         plot(xx, yy, 'k-.', 'HandleVisibility','off')
         if ( yy(2) > 1E20)
             yy(2) = 1E20;
@@ -375,7 +428,7 @@ if ( true)
         xticks(ticks);
         legend('location', 'best', 'interpreter', 'latex')
         print(['ExampleOne-RK-', ElementType], '-dpdf')
-         
+        
     end
 end
 

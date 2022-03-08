@@ -18,13 +18,13 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-8;
+CP.k = 1E-1;
 CP.Elastic = false;
 CP.MCC = 2;
 
 eSize = [0.35];
 
-CP.RK = 1;
+CP.RK = 3;
 
 
 LinearElastic = false;
@@ -41,8 +41,8 @@ end
 RK = 2;
 
 
-nSteps = 50;
-dt = 0.15/1000*nSteps;
+nSteps = 20;
+dt = 0.15/2000*nSteps;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Q8Q4
@@ -56,12 +56,12 @@ else
 end
 
 figure(1)
-PlotNodal(Nodes, Elements, U1(3:3:end) )
+PlotNodal(Nodes, Elements, U1(3:3:end), true )
 drawnow;
 colorbar; 
 
 figure(11)
-PlotNodal(Nodes, Elements, U1(2:3:end) )
+PlotNodal(Nodes, Elements, U1(2:3:end), true )
 drawnow;
 colorbar;
 
@@ -88,12 +88,12 @@ else
 end
 
 figure(2)
-PlotNodal(NodesT, ElementsT, U2(3:3:end))
+PlotNodal(NodesT, ElementsT, U2(3:3:end), true)
 drawnow;
 colorbar
 
 figure(12)
-PlotNodal(NodesT, ElementsT, U2(2:3:end))
+PlotNodal(NodesT, ElementsT, U2(2:3:end), true)
 drawnow;
 colorbar
 

@@ -32,11 +32,11 @@ ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
 figure(50); clf;
 
 
-ESIZE = [1:3];
+ESIZE = [1:4];
 
 
 
-for Elem = [2]
+for Elem = [1,2]
     
     
     figure(30); clf;
@@ -44,7 +44,7 @@ for Elem = [2]
     figure(900); clf;
     figure(1); clf;
     color = 1;
-    for MyNumber = [1, 10, 100, 1000]
+    for MyNumber = [1, 10, 100]
         
         esizeAxis = ESIZE;
         i = 1;
@@ -65,6 +65,18 @@ for Elem = [2]
                 Elements = ElementsQ;
                 ThisNumber = 6;
             end
+            
+            figure(380); clf;
+            if ( eSize == 1)
+                plotNodes = false;
+            else
+                plotNodes = false;
+            end
+            PlotMesh(Nodes, Elements, plotNodes);
+            axis off
+            axis equal
+            ylim([0,1])
+            print(['ExampleOneBis-FemMesh-' ElementType, '-' ,num2str(eSize)], '-dpdf')
             
             
             % Estimate the element size
@@ -87,15 +99,17 @@ for Elem = [2]
             RKMethod = 1;
             [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
             
+            PlotNodal(Nodes, Elements, 1000*U(3:3:end), true);
+            
             
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);
             [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
             
             
-            figure(2105); clf; PlotNodal(Nodes, Elements, U(3:3:end)); colorbar; hold off;
-            figure(2106); clf; PlotNodal(Nodes, Elements,Xa(3:3:end)); colorbar; hold off;
-            figure(2107); clf; PlotNodal(Nodes, Elements, U(3:3:end)-Xa(3:3:end)); colorbar; hold off;
-            figure(2108); clf; PlotNodal(Nodes, Elements, U(3:3:end)-Xa(3:3:end), true); colorbar; hold off;
+            %figure(2105); clf; PlotNodal(Nodes, Elements, U(3:3:end)); colorbar; hold off;
+            %figure(2106); clf; PlotNodal(Nodes, Elements,Xa(3:3:end)); colorbar; hold off;
+            %figure(2107); clf; PlotNodal(Nodes, Elements, U(3:3:end)-Xa(3:3:end)); colorbar; hold off;
+            %figure(2108); clf; PlotNodal(Nodes, Elements, U(3:3:end)-Xa(3:3:end), true); colorbar; hold off;
             
             
             figure(30)

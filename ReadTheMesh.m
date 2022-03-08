@@ -5,6 +5,7 @@ end
 fid = fopen(XFILE, 'r');
 
 line = fgetl(fid);
+elType = str2num(line(end));
 line = fgetl(fid);
 
 
@@ -27,6 +28,6 @@ while (true)
         break;
     end
     line1 = str2num(line);
-    C(line1(1),:) = line1(2:9);
+    C(line1(1),:) = line1(2:end);
 end
 hola = 1;
