@@ -12,7 +12,7 @@ T = 1;
 CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.0;
-CP.k = 1;
+CP.k = 1E-3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
@@ -32,11 +32,11 @@ ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
 figure(50); clf;
 
 
-ESIZE = [1:4];
+ESIZE = [1:6];
 
 
 
-for Elem = [1,2]
+for Elem = [2,1]
     
     
     figure(30); clf;
@@ -93,17 +93,18 @@ for Elem = [1,2]
             dt = he^2/(MyNumber*CP.k*CP.M)
             
             nSteps = ceil(t/dt)
-%             nSteps = MyNumber; 
+%             nSteps = MyNumber
             dt = t/nSteps;
+            dt = 1/nSteps;
             
-            RKMethod = 1;
+            RKMethod = 8;
             [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, 1);
             
             PlotNodal(Nodes, Elements, 1000*U(3:3:end), true);
             
             
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);
-            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
+            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo, CP, t);
             
             
             %figure(2105); clf; PlotNodal(Nodes, Elements, U(3:3:end)); colorbar; hold off;
