@@ -1,5 +1,5 @@
 
-function [L2, L2U, LInf, LInfU] = ComputeErrorNorms(X, Xa, Nodes, Elements, GPInfo)
+function [L2, L2U, LInf, LInfU] = ComputeErrorNorms2(X, Xa, Nodes, Elements, GPInfo)
 
 if (any(isnan(X)) ||any(isnan(Xa)) )
     L2 = nan; L2U= nan; LInf = nan; LInfU=nan;
@@ -43,9 +43,12 @@ for el = 1:nElements
     
     for gp = 1:length(w)
         [Nu, Np] = GetShapeFunctions( al(gp), be(gp), length(dofsU), length(dofsWP));
+        NN = Nu(1,1:2:end);
+        xgp = NN * Nodes(Elements(el,:),:);
+        [u,v, pw] = solution(xgp(1), xgp(2));
         
-        L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)))^2;
-        L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)))^2;
+        L2U = L2U + wA*w(gp)* norm( Nu*X(dofsU)- [u;v])^2;
+        L2 = L2 + wA*w(gp)*abs( Np * X(dofsWP)-pw )^2;
     end
     
 end
@@ -91,6 +94,8 @@ elseif ( nU == 16)
         1/2*(1+alfa)*(1-beta^2);
         1/2*(1-alfa^2)*(1+beta);
         1/2*(1-alfa)*(1-beta^2)];
+elseif ( nU == 8)
+    Nsmall =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
 end
 
 Nu = (zeros(ndim, size(Nsmall,1)*ndim));
