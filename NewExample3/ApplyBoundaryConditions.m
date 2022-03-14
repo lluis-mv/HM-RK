@@ -26,7 +26,7 @@ if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
     for el = 1:nElements
         nF = 0;
         ind = [];
-        for ij = 1:6
+        for ij = 1:size(Elements,2)
             if ( any(Elements(el,ij) == index) )
                 nF = nF+1;
                 ind = [ind, Elements(el,ij)];

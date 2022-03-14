@@ -18,7 +18,8 @@ nodesLeft = find(Nodes(:,1) == min(Nodes(:,1)));
 nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 % Fix wp on top
-index= nodesTop;
+index = ([nodesBottom; nodesTop; nodesLeft; nodesRight]);
+index = ([nodesBottom; nodesTop]);
 if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
     ss = size(Elements,2)/2;
     for ii = 1:length(index)
@@ -36,12 +37,17 @@ else
 end
 nDirichlet = [nDirichlet; dofs];
 
+
+
+
+
+
 C(dofs,:) = 0;
 K(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
 
 % Fix uY bottom
-dofs = 3*(nodesBottom-1)+2;
+dofs = 3*( [1:nNodes]'-1)+2;
 nDirichlet = [nDirichlet; dofs];
 
 C(dofs,:) = 0;
@@ -49,7 +55,7 @@ K(dofs,:) = 0;
 C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
-dofs = 3*([nodesLeft; nodesRight]-1)+1;
+dofs = 3*([1:nNodes]'-1)+1;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 K(dofs,:) = 0;
@@ -157,3 +163,40 @@ end
 
 fini = 0*f;
 
+
+
+% now I have to compute the source term,....
+for el = 1:nElements
+    Cel = Elements(el,:);
+    indexU = GPInfo(el,1).dofsU;
+    
+    
+    for gp = 1:size(GPInfo, 2)
+        NN = GPInfo(el,gp).Nu;
+        NN = NN(1,1:2:end);
+        xGP = NN *Nodes(Cel,:);
+        
+        tt = source(xGP(1), xGP(2));
+        f(indexU) = f(indexU) + ( tt' * GPInfo(el,gp).Nu  * GPInfo(el,gp).Weight )';
+    end
+    
+end
+
+for el = 1:nElements
+    Cel = Elements(el,:);
+    indexU = GPInfo(el,1).dofsWP;
+    
+    
+    for gp = 1:size(GPInfo, 2)
+        NN = GPInfo(el,gp).Nu;
+        NN = NN(1,1:2:end);
+        xGP = NN *Nodes(Cel,:);
+        
+        tt = sourceWP(xGP(1), xGP(2));
+        f(indexU) = f(indexU) + ( tt' * GPInfo(el,gp).N  * GPInfo(el,gp).Weight )';
+    end
+    
+end
+
+fini = 0*f;
+f = 0*f;

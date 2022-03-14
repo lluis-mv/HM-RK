@@ -119,7 +119,6 @@ for el = 1:nElements
                 zeros(4,8)];
             Ke = [zeros(16,24); 0*Q2, H];
         else
-        
             Ce = [kke, Q; Q', Ms];
             Ke = [0*kke, 0*Q; 0*Q', H];
         end
@@ -175,8 +174,9 @@ for el = 1:nElements
         elseif ( all(ElementType == 'T6T3'))
             AlphaStab = 0;
         else
-            disp(ElementType)
-            error('this element does not exist. yet')
+            AlphaStab = 0;
+%             disp(ElementType)
+%             error('this element does not exist. yet')
         end
         
 
@@ -192,11 +192,16 @@ for el = 1:nElements
                  0, -1, -1, 0 ,2, 0;
                  -1, 0, -1, 0, 0, 2];
             Ce = [kke, Q, zeros(12,3); Q2, Ms];
-            
+        elseif ( all(ElementType =='Q8Q4') )
+            Q2 = [Qt; zeros(4,16)];
+            Ms = [Ms+H, zeros(4,4);
+                 -1,-1, 0, 0,  2,0,0,0;
+                  0,-1,-1, 0,  0,2,0,0;
+                  0, 0,-1,-1,  0,0,2,0;
+                 -1, 0, 0,-1,  0,0,0,2];
+            Ce = [kke, Q, zeros(16,4); Q2, Ms];
         else
-        
             Ce = [kke, Q; Qt, Ms+H];
-            
         end
         
         aux = GPInfo(el,ngp).IndexReorder;

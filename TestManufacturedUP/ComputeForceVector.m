@@ -1,66 +1,19 @@
-
-function [C, K, X0, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
-
-if (nargin ~= 5)
-    error('it should be five!!!!')
-end
-
-penalty = 1;
+function [f, uDir, AllZero] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP)
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
 
-nDirichlet = [];
-
-nodesBottom = find(Nodes(:,2) == 0);
-nodesTop = find(Nodes(:,2) == max(Nodes(:,2)));
-nodesLeft = find(Nodes(:,1) == min(Nodes(:,1)));
-nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
-
-% Fix wp on top
-index= nodesTop;
-if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
-    ss = size(Elements,2)/2;
-    for ii = 1:length(index)
-        if ( any(any( index(ii) == Elements(:,ss+1:end)) ))
-            index(ii) = 0;
-        end 
-    end
-    index = unique(index);
-    if ( index(1) == 0)
-        index = index(2:end);
-    end
-    dofs = 3*([index]-1)+3;
-else
-    dofs = 3*([index]-1)+3;
-end
-nDirichlet = [nDirichlet; dofs];
-
-C(dofs,:) = 0;
-K(dofs,:) = 0;
-C(dofs,dofs) =penalty*eye(length(dofs));
-
-% Fix uY bottom
-dofs = 3*(nodesBottom-1)+2;
-nDirichlet = [nDirichlet; dofs];
-
-C(dofs,:) = 0;
-K(dofs,:) = 0;
-C(dofs,dofs) = penalty*eye(length(dofs));
-
-% Fix uX on left and Right
-dofs = 3*([nodesLeft; nodesRight]-1)+1;
-nDirichlet = [nDirichlet; dofs];
-C(dofs,:) = 0;
-K(dofs,:) = 0;
-C(dofs,dofs) =penalty*eye(length(dofs));
-
-X0 = zeros(3*nNodes, 1);
-
-
-
 
 f = zeros(3*nNodes, 1);
+uDir = f;
+
+% nodesTop = find(Nodes(:,2) == max(Nodes(:,2)));
+% uDir(3* (nodesTop-1)+2) = 0.01;
+
+
+AllZero = false;
+
+nodesTop = find(Nodes(:,2) == max(Nodes(:,2)));
 
 if (size(Elements,2) == 3)
     for el = 1:nElements
@@ -111,9 +64,9 @@ elseif (size(Elements,2) == 6)
             normal = [XX(2), -XX(1)];
             normal = normal/norm(normal);
             ff = [ 1/6,   0, 1/6,   0, 2/3,   0;
-                    0, 1/6,   0, 1/6,   0, 2/3]';
+                0, 1/6,   0, 1/6,   0, 2/3]';
             fe = 1*ff*normal'*norm(XX);
-
+            
             
             index = [];
             for i = 1:3
@@ -142,9 +95,9 @@ elseif (size(Elements,2) == 8)
             normal = [XX(2), -XX(1)];
             normal = normal/norm(normal);
             ff = [ 1/6,   0, 1/6,   0, 2/3,   0;
-                    0, 1/6,   0, 1/6,   0, 2/3]';
+                0, 1/6,   0, 1/6,   0, 2/3]';
             fe = 1*ff*normal'*norm(XX);
-
+            
             
             index = [];
             for i = 1:3
@@ -153,7 +106,11 @@ elseif (size(Elements,2) == 8)
             f(index) = f(index) + fe;
         end
     end
+    
 end
 
-fini = 0*f;
+if ( t > 1)
+    f = 0*f;
+end
+f = 0*f;
 
