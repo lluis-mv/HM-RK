@@ -35,7 +35,7 @@ ESIZE = [1:4];
 
 figure(50); clf;
 color = 1;
-for Elem = [1,2]
+for Elem = [1,2,3,4]
     
     
     figure(30); clf;
@@ -59,6 +59,17 @@ for Elem = [1,2]
                 ElementType = 'Q8Q4';
                 Nodes = NodesQ;
                 Elements = ElementsQ;
+                ThisNumber = 6;
+            elseif (Elem == 3)
+                ElementType = 'Q8Q8';
+                Nodes = NodesQ;
+                Elements = ElementsQ;
+                ThisNumber = 6;
+            elseif (Elem == 4)
+                ElementType = 'Q4Q4';
+                Nodes = NodesQ;
+                Elements = ElementsQ;
+                [Nodes, Elements] = SimplifyOrder(Nodes,Elements);
                 ThisNumber = 6;
             end
             

@@ -12,7 +12,7 @@ T = 1;
 CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.0;
-CP.k = 1E-1;
+CP.k = 1E-0;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
@@ -32,7 +32,7 @@ ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
 figure(50); clf;
 
 
-ESIZE = [1:3];
+ESIZE = [1:4];
 
 
 
@@ -103,7 +103,7 @@ for Elem = [2,1]
             
             
             [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo, U);
-            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms(U, Xa, Nodes, Elements, GPInfo);
+            [L2(i), L2U(i), LInf(i), LInfU(i)] = ComputeErrorNorms3(U, Xa, Nodes, Elements, GPInfo, t, CP);
             
             
             %figure(2105); clf; PlotNodal(Nodes, Elements, U(3:3:end)); colorbar; hold off;
@@ -183,6 +183,7 @@ for Elem = [2,1]
         hold on
         esizeAxis
         color = color+1;
+        error('the end')
     end
     
     
