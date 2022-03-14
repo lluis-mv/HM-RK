@@ -140,9 +140,9 @@ for Elem = [2,1]
                 SlopeInfU(ii) = log10(LInfU(ii)/LInfU(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
                 SlopeL2U(ii) = log10(L2U(ii)/L2U(ii-1)) / log10(esizeAxis(ii)/esizeAxis(ii-1));
             end
-            SlopeInfp
+%             SlopeInfp
             SlopeL2p
-            SlopeInfU
+%             SlopeInfU
             SlopeL2U
             
             i = i+1;
