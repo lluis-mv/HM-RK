@@ -21,10 +21,6 @@ t = 1;
 
 
 
-[NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
-[NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
-
-
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.04, 0.035, 0.03, 0.025];
 ESIZE = [0.2, 0.15, 0.1, 0.075, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025];
 
