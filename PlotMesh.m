@@ -9,6 +9,10 @@ if ( size(C, 2) == 8)
     tt = [1, 5, 2, 6, 3, 7, 4, 8, 1];
 elseif ( size(C, 2) == 6)
     tt = [1, 4, 2, 5, 3, 6, 1];
+elseif ( size(C, 2) == 3)
+    tt = [1, 2,3, 1];
+elseif ( size(C, 2) == 4)
+    tt = [1, 2,3, 4,1];
 end
 for elem = 1:nElem
     Cel = C(elem,:);
