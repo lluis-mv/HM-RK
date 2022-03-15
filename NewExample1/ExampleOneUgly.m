@@ -39,180 +39,20 @@ ticks = [ticks, min(ddtt), max(ddtt)];
 ticks = 10.^unique( log10(ticks));
 ticks = unique(ticks);
 
-for Stab = [1, 0]
-    firstTime = true;
-    for j = [2, 1]
-        
-        if ( j == 1)
-            ElementType = 'T6T3';
-            Nodes = NodesT;
-            Elements = ElementsT;
-        elseif (j == 2)
-            ElementType = 'Q8Q4';
-            Nodes = NodesQ;
-            Elements = ElementsQ;
-        end
-        
-        figure(380); clf;
-        PlotMesh(Nodes, Elements);
-        axis off
-        axis equal
-        print(['ExampleOneUgly-FemMesh-', ElementType], '-dpdf')
-        
-        
-        
-        dt = t/NStepsRef;
-        [U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt,NStepsRef, ElementType, 1, Stab);
-        if ( firstTime)
-            [Xa] = ComputeAnalyticalSolution(Nodes, Elements, ElementType, t, CP, GPInfo,U);
-            firstTime = false;
-            
-            index = find(Nodes(:,1) == 0);
-            WP = Xa(3*(index-1)+3);
-            
-            y = Nodes(index,2);
-            [ya, index] = sort(y);
-            WPa = WP(index);
-            figure(987+Stab);
-            clf;
-            [WPa, ya] = CorrectInterpolation(WPa, ya);
-            plot(WPa, ya, 'k', 'linewidth', 2, 'DisplayName', 'Reference')
-        end
-        
-        index = find(Nodes(:,1) == 0);
-        WP = U(3*(index-1)+3);
-        
-        y = Nodes(index,2);
-        [y, index] = sort(y);
-        WP = WP(index);
-        
-        
-        [WP, y] = CorrectInterpolation(WP, y);
-        
-        
-        figure(987+Stab)
-        hold on
-        
-        plot(WP, y, 'DisplayName', ElementType, 'linewidth', 1.5)
-        
-        ll = legend('location', 'best');
-        set(ll, 'interpreter', 'latex')
-        xlabel('$p_w$ (kPa)', 'interpreter', 'latex')
-        ylabel('$z$ (m)', 'interpreter', 'latex')
-        set(gca, 'FontSize', 14)
-        print(['ExampleOneUgly-Solution-', num2str(Stab)], '-dpdf')
-        
-    end
-end
 
+for Mesh = [1,2,3]
 
-
-
-
-
-if (true)
-    
-    % First part. Spectral radii
-    for j = [2, 1]
-        
-        figure(j+1);
-        clf;
-        
-        
-        if ( j == 1)
-            ElementType = 'T6T3';
-            Nodes = NodesT;
-            Elements = ElementsT;
-            ThisNumber = 6;
-        elseif (j == 2)
-            ElementType = 'Q8Q4';
-            Nodes = NodesQ;
-            Elements = ElementsQ;
-            ThisNumber = 6;
-        end
-        
-        
-        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
-        hhee = [];
-        for eell = 1:size(GPInfo, 1)
-            hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
-        end
-        he = mean(hhee);
-        
-        minval = nan*ddtt;
-        maxval = nan*ddtt;
-        minval2 = nan*ddtt;
-        maxval2 = nan*ddtt;
-        i = 1;
-        
-        for dt = ddtt
-            
-            [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 1);
-            nNodes = size(Nodes, 1);
-            ii = eye(3*nNodes, 3*nNodes);
-            
-            B = ii + dt*A;
-            B = B(nnoDir, nnoDir);
-            
-            values = eig(full(B), 'nobalance');
-            values = abs(values);
-            minval(i)= min(values);
-            maxval(i) = max(values);
-            
-            
-            
-            
-            [A, nDir, nnoDir] = GetAMatrix(Nodes, Elements, CP, dt, ElementType, 1, 0);
-            nNodes = size(Nodes, 1);
-            ii = eye(3*nNodes, 3*nNodes);
-            
-            B = ii + dt*A;
-            B = B(nnoDir, nnoDir);
-            
-            
-            values = eig(full(B), 'nobalance');
-            values = abs(values);
-            minval2(i)= min(values);
-            maxval2(i) = max(values);
-            i = i+1;
-            
-        end
-        figure(j+1);
-        
-        
-        spec1 = 'rs-.';
-        spec2 = 'bs-.';
-        
-        
-        %loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
-        loglog(ddtt, maxval2, spec1)
-        
-        drawnow;
-        hold on
-        %loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
-        loglog(ddtt, maxval, spec2)
-        drawnow
-        
-        xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-        ylabel('$\| \lambda \|$', 'interpreter', 'latex')
-        set(gca, 'FontSize', 14)
-        drawnow
-        
-        %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
-        %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
-        ll = legend('max$(|\lambda|)$ Primal. Mesh', ...
-            'max$(|\lambda|)$ Stab. Mesh', 'location', 'NorthWest');
-        set(ll, 'interpreter', 'latex')
-        xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
-        %         xticks(ticks);
-        print(['ExampleOneUgly-Radii-', ElementType], '-dpdf')
+    if ( Mesh == 1)
+        [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
+        [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
+    elseif (Mesh == 2)
+        [NodesQQ, ElementsQQ] = ReadTheMesh('ThisMeshQ.msh');
+        [NodesTT, ElementsTT] = ReadTheMesh('ThisMeshT.msh');
+    elseif (Mesh == 3)
+        [NodesQ, ElementsQ] = ReadTheMesh('MeshUglyQ.msh');
+        [NodesT, ElementsT] = ReadTheMesh('MeshUglyT.msh');
     end
     
-end
-
-
-
-if ( true)
     
     % Now lets check the RK methods
     for j = [2, 1]
@@ -245,8 +85,7 @@ if ( true)
                 
                 i = i+1;
             end
-            
-            
+
             color = 'r';
             if ( RK == 3)
                 color = 'b';
@@ -273,12 +112,10 @@ if ( true)
         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
         xticks(ticks);
         legend('location', 'best', 'interpreter', 'latex')
-        print(['ExampleOneUgly-RK-', ElementType], '-dpdf')
+        print(['ExampleOneUgly-RK-', ElementType, '-MESH-', num2str(Mesh)], '-dpdf')
         
     end
 end
-
-
 
 
 

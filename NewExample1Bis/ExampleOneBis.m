@@ -12,7 +12,7 @@ T = 1;
 CP.HydroMechanical = true;
 CP.E = 1;
 CP.nu = 0.0;
-CP.k = 1E-0;
+CP.k = 1E0;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 

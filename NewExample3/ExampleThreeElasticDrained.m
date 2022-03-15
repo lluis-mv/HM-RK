@@ -1,4 +1,4 @@
-function [] = ExampleThree()
+function [] = ExampleThreeElasticDrained()
 
 
 
@@ -11,10 +11,9 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-8;
-CP.Elastic = false;
+CP.k = 1E-2;
+CP.Elastic = true;
 CP.MCC = true;
-CP.RK = 1;
 
 ESIZE = 0.35;
 
@@ -23,28 +22,33 @@ RKMethods = [8,1:7];
 
 
 
+LinearElastic = false;
+if ( LinearElastic)
+    CP.Elastic = true;
+    CP.MCC = false;
+end
 
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
 
-for Elem = [1,2]
-    
-    RKMethods = [8,1:7, 9];
-    
+for Elem = [1:2]
+
+   RKMethods = [8,1:7, 9];
+
     
     esizeAxis = ESIZE;
     i = 1;
     for eSize = ESIZE
         
         if (Elem == 1)
-            ElementType = 'T6T3';
-            Elements = ElementsT;
-            Nodes = NodesT;
-        elseif (Elem == 2)
             ElementType = 'Q8Q4';
             Elements = ElementsQ;
             Nodes = NodesQ;
+        elseif (Elem == 2)
+            ElementType = 'T6T3';
+            Elements = ElementsT;
+            Nodes = NodesT;
         end
         
         figure(1);
@@ -52,14 +56,14 @@ for Elem = [1,2]
         drawnow
         axis equal
         axis off
-        my_Print(['ExampleThree-Plastic-FemMesh-', ElementType], '-dpdf')
+        my_Print(['ExampleThree-Elastic-FemMesh-', ElementType], '-dpdf')
         
         % Estimate the element size
         
         
         Nadim = 20;
         
-        NSteps = [2^5, 2^6, 2^7, 2^8, 2^9];
+        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
@@ -67,9 +71,15 @@ for Elem = [1,2]
                 
                 disp(RK)
                 if ( RK < 9)
-                	tic;
-	                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-        	        timing = toc;
+                    tic;
+                    
+                    if ( LinearElastic)
+                        [U, GPInfo,  information] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+                        rrr = 10E-14*rand();
+                    else
+                        [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
+                    end
+                    timing = toc;
                 elseif ( RK == 9)
                     tic;
                     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
@@ -116,7 +126,6 @@ for Elem = [1,2]
                     hold on
                     
                 end
-                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Residual', 'interpreter', 'latex')
                 if (length(RKMethods) ==9)
@@ -146,10 +155,9 @@ for Elem = [1,2]
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
-                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Footing load', 'interpreter', 'latex')
                 
@@ -175,10 +183,9 @@ for Elem = [1,2]
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
-                xticks([4E-4, 1E-3, 4E-3])
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Error norm', 'interpreter', 'latex')
                 grid minor
@@ -208,7 +215,7 @@ for Elem = [1,2]
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -218,23 +225,20 @@ for Elem = [1,2]
                 hold off
                 
                 
-                % Printing....
-                figure(2105)
-                pause(1)
-                my_Print(['ExampleThree-Plastic-Residual-', ElementType], '-dpdf')
-                figure(2106)
-                pause(1)
-                my_Print(['ExampleThree-Plastic-Bearing-', ElementType], '-dpdf')
-                figure(2107)
-                pause(1)
-                my_Print(['ExampleThree-Plastic-Error-', ElementType], '-dpdf')
-                figure(2108)
-                pause(1)
-                my_Print(['ExampleThree-Plastic-TimeError-', ElementType], '-dpdf')
-            end
-            
-            
-            
+            % Printing....
+            figure(2105)
+            pause(1)
+            my_Print(['ExampleThreeDRAINED-Elastic-Residual-', ElementType], '-dpdf')
+            figure(2106)
+            pause(1)
+            my_Print(['ExampleThreeDRAINED-Elastic-Bearing-', ElementType], '-dpdf')
+            figure(2107)
+            pause(1)
+            my_Print(['ExampleThreeDRAINED-Elastic-Error-', ElementType], '-dpdf')
+            figure(2108)
+            pause(1)
+            my_Print(['ExampleThreeDRAINED-Elastic-TimeError-', ElementType], '-dpdf')
+       	     end
         end
         clear Time;
         clear RES;

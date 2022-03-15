@@ -1,4 +1,4 @@
-function [] = CompareThis()
+function [] = CompareElementsElasticDrained()
 
 figure(212); hold off; clf;
 figure(214); hold off; clf;
@@ -11,13 +11,13 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-8;
-CP.Elastic = false;
+CP.k = 1E-2;
+CP.Elastic = true;
 CP.MCC = true;
 
 eSize = [0.35];
 
-CP.RK = 1;
+
 
 
 LinearElastic = false;
@@ -31,7 +31,7 @@ end
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
-RK = 2;
+RK = 1;
 
 
 nSteps = 100;
@@ -45,7 +45,7 @@ dt = 0.15/nSteps;
 
 
 figure(1)
-PlotNodal(NodesT, ElementsT, U1(3:3:end))
+PlotNodal(NodesT, ElementsT, U1(3:3:end), true)
 drawnow;
 colorbar; 
 
@@ -73,7 +73,7 @@ drawnow
 
 
 figure(2)
-PlotNodal(NodesQ, ElementsQ, U2(3:3:end))
+PlotNodal(NodesQ, ElementsQ, U2(3:3:end), true)
 drawnow;
 colorbar; 
 
@@ -95,7 +95,7 @@ drawnow
 [Uimp, GPInfo, rrr,  informationI] = ComputeImplicitNonLinearProblem(NodesT, ElementsT, CP, dt, nSteps, 'T6T3');
 
 figure(3)
-PlotNodal(NodesT, ElementsT, Uimp(3:3:end))
+PlotNodal(NodesT, ElementsT, Uimp(3:3:end), true)
 drawnow;
 colorbar; 
 
@@ -114,22 +114,22 @@ drawnow
 %%%%%%%%%%%%%%%%%%%%%%%%% Q8Q4  Implicit
 
 
-[Uimp2, GPInfo, rrr,  informationI] = ComputeImplicitNonLinearProblem(NodesQ, ElementsQ, CP, dt, nSteps, 'Q8Q4');
+[Uimp2, GPInfo, rrr,  informationI2] = ComputeImplicitNonLinearProblem(NodesQ, ElementsQ, CP, dt, nSteps, 'Q8Q4');
 
 figure(4)
-PlotNodal(NodesQ, ElementsQ, Uimp2(3:3:end) )
+PlotNodal(NodesQ, ElementsQ, Uimp2(3:3:end) , true)
 drawnow;
 colorbar; 
 
 
-FF = [informationI.F];
+FF = [informationI2.F];
 figure(212)
-plot( [informationI.t], FF(1:2:end), 'b:', 'linewidth', 2, 'DisplayName',  ['Q8Q4 Implicit'])
+plot( [informationI2.t], FF(1:2:end), 'b:', 'linewidth', 2, 'DisplayName',  ['Q8Q4 Implicit'])
 hold on
 drawnow
 
 figure(214)
-plot( [informationI.t], FF(2:2:end), 'b:', 'linewidth', 2, 'DisplayName', ['Q8Q4 Implicit'])
+plot( [informationI2.t], FF(2:2:end), 'b:', 'linewidth', 2, 'DisplayName', ['Q8Q4 Implicit'])
 hold on
 drawnow
 
@@ -155,7 +155,7 @@ for i = [1:4]
     ylim([-4,0])
     axis off
     pbaspect([1 1 10])
-    print(['WaterPressurePlastic-', num2str(i)], '-dpdf')
+    print(['WaterPressureElasticDrained-', num2str(i)], '-dpdf')
 end
 
 figure(212)
@@ -164,11 +164,11 @@ xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Footing pressure (kN)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
-print('Plastic-RR', '-dpdf')
+print('ElasticDrained-RR', '-dpdf')
 
 figure(214)
 xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Water pressure (kPa)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
-print('Plastic-WP', '-dpdf')
+print('ElasticDrained-WP', '-dpdf')

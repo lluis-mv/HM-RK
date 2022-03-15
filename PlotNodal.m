@@ -69,7 +69,7 @@ end
 
 view(0,90)
 colormap jet
-
+drawnow
 
 if ( showMesh)
    PlotMesh(X, C);

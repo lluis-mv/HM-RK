@@ -228,16 +228,16 @@ for Elem = [1:2]
             % Printing....
             figure(2105)
             pause(1)
-            my_Print(['ExampleThree-Elastic-Residual-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Residual-', ElementType], '-dpdf')
             figure(2106)
             pause(1)
-            my_Print(['ExampleThree-Elastic-Bearing-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Bearing-', ElementType], '-dpdf')
             figure(2107)
             pause(1)
-            my_Print(['ExampleThree-Elastic-Error-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-Error-', ElementType], '-dpdf')
             figure(2108)
             pause(1)
-            my_Print(['ExampleThree-Elastic-TimeError-', num2str(Elem)], '-dpdf')
+            my_Print(['ExampleThree-Elastic-TimeError-', ElementType], '-dpdf')
        	     end
         end
         clear Time;

@@ -38,7 +38,7 @@ nSteps = 100;
 dt = 0.15/nSteps;
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%% T3T3 
+%%%%%%%%%%%%%%%%%%%%%%%%% T6T3 
 
 [U1, GPInfo1, rrr1,  information1] = ComputeNLProblem(NodesT, ElementsT, CP, dt, nSteps, 'T6T3', RK, 1, false);
 
@@ -111,7 +111,7 @@ plot( [informationI.t], FF(2:2:end), 'k:', 'linewidth', 2, 'DisplayName', ['T6T3
 hold on
 drawnow
 
-%%%%%%%%%%%%%%%%%%%%%%%%% T6T3  Implicit
+%%%%%%%%%%%%%%%%%%%%%%%%% Q8Q4  Implicit
 
 
 [Uimp2, GPInfo, rrr,  informationI] = ComputeImplicitNonLinearProblem(NodesQ, ElementsQ, CP, dt, nSteps, 'Q8Q4');
