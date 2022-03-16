@@ -5,6 +5,8 @@ alias matlab='/usr/local/MATLAB/R2020a/bin/matlab -nodesktop -nosplash -noFigure
 
 cd NewExample1/
 
+matlab "MakeSnapShotsOfTheSolution; quit" > output 2>&1 &
+
 
 matlab "PlotTheMeshes; quit" > output 2>&1 &
 

@@ -1,4 +1,5 @@
-
+close all
+addpath('../')
 
 [Nodes, Elements] = ReadTheMesh('ThisMesh.msh');
 [Nodes, Elements] = ConvertToTriangles(Nodes, Elements);

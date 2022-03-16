@@ -29,13 +29,6 @@ model = createpde(1);
 
 
 
-NSteps = 10.^linspace(0, 6, 100);
-NSteps = floor(NSteps); NSteps = sort(NSteps);
-
-
-
-
-
 
 DDTT = 10.^linspace(-6,6,60);
 
@@ -59,7 +52,7 @@ for elem = [2, 1]
             Elements = ElementsQ;
             ThisNumber = 6;
         end
-        disp(ElementType)
+        
         [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
         hhee = [];
         for eell = 1:size(GPInfo, 1)
@@ -71,8 +64,16 @@ for elem = [2, 1]
         i = 1;
         ddtt = DDTT;
         for dt = DDTT
-            disp(dt)
+            
             nSteps = 1;
+            
+            
+            [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+            hhee = [];
+            for eell = 1:size(GPInfo, 1)
+                hhee(eell) =  sqrt( sum([GPInfo(eell,:).Weight]));
+            end
+            he = mean(hhee);
             if ( Stab < 0)
                 %[U,GPInfo] = ComputeLinearProblem(Nodes, Elements, CP, dt/nSteps, nSteps, ElementType, 1, Stab);
                 [U, GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt/nSteps, nSteps, ElementType, 0);
@@ -133,9 +134,8 @@ for elem = [2, 1]
         ylabel('Error norm', 'interpreter', 'latex');
         set(gca, 'FontSize', 13)
         drawnow
-        
-        
         set(gcf, 'Position', [371, 663, 570, 650])
+        
         
         ll = legend('location', 'northoutside');
         set(ll, 'interpreter', 'latex')
@@ -151,6 +151,13 @@ for elem = [2, 1]
     end
     figure(30+elem)
     drawnow
+    
+    yy = ylim();
+    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1]
+    plot(xx, yy, 'k-.')
+    ylim(yy);
+    drawnow
+    
     print(['ExampleZero-ErrorNorms-', ElementType], '-dpdf')
     hold off;
     
@@ -164,6 +171,13 @@ for elem = [2, 1]
     ll = legend('max$(|\lambda|)$. Primal', ...
         'max$(|\lambda|)$. Stab', 'location', 'best');
     set(ll, 'interpreter', 'latex')
+    drawnow
+    yy = ylim();
+    yy(1) = 0.1;
+    
+    xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+    plot(xx, yy, 'k-.')
+    ylim(yy);
     drawnow
     print(['ExampleZero-AMatrix-', ElementType], '-dpdf')
     
@@ -335,7 +349,7 @@ for elem = [2, 1]
             set(gca, 'FontSize', 13)
             drawnow
             hold on
-            if ( Stab == 1)
+            if ( Stab == 0)
                 set(gcf, 'Position', [371, 663, 570, 650])
                 
                 ll = legend('location', 'northoutside');
@@ -343,6 +357,13 @@ for elem = [2, 1]
             end
             drawnow
         end
+          yy = ylim();
+    
+        xx = 10*(he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
+        plot(xx, yy, 'k-.')
+        ylim(yy);
+        drawnow
+    
         print(['ExampleZero-ErrorNorms-3-', ElementType, '-', num2str(Stab)], '-dpdf')
         hold off;
     end
