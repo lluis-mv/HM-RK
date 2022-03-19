@@ -46,7 +46,9 @@ k = zeros(  3*nNodes, length(b));
 
 
 
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+if ( ElementType(1) == 'T')
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+end
 if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
@@ -91,5 +93,7 @@ end
 
 GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+if ( ElementType(1) == 'T')
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
+end
 

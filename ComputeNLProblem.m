@@ -37,7 +37,9 @@ if ( RKMethod)
 end
 k = zeros(  3*nNodes, length(b));
 
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+if ( ElementType(1) == 'T')
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisProblem-', ElementType]);
+end
 if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end
@@ -119,8 +121,9 @@ for loadStep = 1:nSteps
 end
 
 
-
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1, false, ['ThisProblem-', ElementType]);
+if ( ElementType(1) == 'T')
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps+0.1, false, ['ThisProblem-', ElementType]);
+end
 
 
 

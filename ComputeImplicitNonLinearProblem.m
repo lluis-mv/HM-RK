@@ -43,8 +43,9 @@ t = 0;
 uDirichlet = 0*uDirichlet;
 
 
-
-PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ImplicitProblem-', ElementType]);
+if ( ElementType(1) == 'T')
+    PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ImplicitProblem-', ElementType]);
+end
 if ( DoSomePostProcess ) 
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
 end

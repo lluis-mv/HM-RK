@@ -24,18 +24,20 @@ for i = 1:nNodes
 end
 
 
-[al, be, w] = GetWeights(6);
+if ( size(Elements,2) == 8)
+    [al, be, w] = GetWeights(9);
+else
+    [al, be, w] = GetWeights(6);
+end
 
 L2 = 0;
 L2U = 0;
 
 
-
-
 for el = 1:nElements
     
     dofsU = GPInfo(el,1).dofsU;
-    dofsWP = GPInfo(el,1).dofsWPreal;
+    dofsWP = GPInfo(el,1).dofsWP;
     
     wA = sum([GPInfo(el,:).Weight]);
     
@@ -44,8 +46,6 @@ for el = 1:nElements
         
         L2U = L2U + wA*w(gp)* norm( Nu*(X(dofsU)-Xa(dofsU)))^2;
         L2 = L2 + wA*w(gp)*abs( Np * ( X(dofsWP)-Xa(dofsWP)))^2;
-    
-    
     end
     
 end
@@ -69,34 +69,34 @@ end
 
 
 
-
-
 function [Nu, Np] = GetShapeFunctions( alfa, beta, nU, nP)
 
 ndim = 2;
 if (nU == 6)
     Nsmall =  [ 1 - alfa - beta; alfa;  beta];
-    
-    Nu = (zeros(ndim, 3*ndim));
-    for i = 1:3
-        for dd = 1:2
-            Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
-        end
-    end
+ 
 elseif (nU == 12)
     Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
         alfa*(2*alfa-1);
         beta*(2*beta-1);
         4*alfa*(1-alfa-beta);
         4*alfa*beta;
-        4*beta*(1-alfa-beta)];
-    
-    
-    Nu = (zeros(ndim, 6*ndim));
-    for i = 1:6
-        for dd = 1:2
-            Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
-        end
+        4*beta*(1-alfa-beta)];    
+elseif ( nU == 16)
+    Nsmall =  [ -1/4*(1-alfa)*(1-beta)*(1+alfa+beta);
+        -1/4*(1+alfa)*(1-beta)*(1-alfa+beta);
+        -1/4*(1+alfa)*(1+beta)*(1-alfa-beta);
+        -1/4*(1-alfa)*(1+beta)*(1+alfa-beta);
+        1/2*(1-alfa^2)*(1-beta);
+        1/2*(1+alfa)*(1-beta^2);
+        1/2*(1-alfa^2)*(1+beta);
+        1/2*(1-alfa)*(1-beta^2)];
+end
+
+Nu = (zeros(ndim, size(Nsmall,1)*ndim));
+for i = 1:size(Nsmall,1)
+    for dd = 1:2
+        Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
     end
 end
 
@@ -110,6 +110,16 @@ elseif ( nP == 6)
         4*alfa*(1-alfa-beta);
         4*alfa*beta;
         4*beta*(1-alfa-beta)]';
+elseif ( nP == 4)
+    Np =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)]';
+elseif (nP == 8)
+    Np =  [ -1/4*(1-alfa)*(1-beta)*(1+alfa+beta);
+        -1/4*(1+alfa)*(1-beta)*(1-alfa+beta);
+        -1/4*(1+alfa)*(1+beta)*(1-alfa-beta);
+        -1/4*(1-alfa)*(1+beta)*(1+alfa-beta);
+        1/2*(1-alfa^2)*(1-beta);
+        1/2*(1+alfa)*(1-beta^2);
+        1/2*(1-alfa^2)*(1+beta);
+        1/2*(1-alfa)*(1-beta^2)]';
 end
-
 

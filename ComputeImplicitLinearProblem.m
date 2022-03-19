@@ -1,7 +1,13 @@
 % Solver for a linear problem
 
-function [X, GPInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RKMethod, AlphaStabM)
+function [X, GPInfo, ThisInfo] = ComputeImplicitLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStabM)
 
+
+if (nargout == 3)
+    DoSomePostProcess = true;
+else
+    DoSomePostProcess = false;
+end
 
 nNodes = size(Nodes, 1);
 nElements = size(Elements, 1);
@@ -13,9 +19,12 @@ nElements = size(Elements, 1);
 [C, K, X, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 
-
+if ( ElementType(1) == 'T')
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ThisIProblem-', ElementType]);
-
+end
+if ( DoSomePostProcess )
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
+end
 
 A = C\(K);
 ii = eye(3*nNodes, 3*nNodes);
@@ -36,11 +45,17 @@ for i = 2:nSteps
     [f] = ComputeForceVector(i*dt, Nodes, Elements, GPInfo);
     
     X = B*(X +  (1/nSteps)*invC*f);
+	if ( DoSomePostProcess )
+        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+        GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
+        ThisInfo = DoThisPostProcess( i*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
+    end
 end
 
 
 GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 
+if ( ElementType(1) == 'T')
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisIProblem-', ElementType]);
-
+end
