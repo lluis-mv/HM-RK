@@ -1,7 +1,7 @@
-function [] = CompareThis()
+function [] = CompareElements()
 
-figure(212); hold off; clf;
-figure(214); hold off; clf;
+new_figure(212); hold off; clf;
+new_figure(214); hold off; clf;
 addpath('../')
 % 1. Define the problem
 
@@ -15,7 +15,7 @@ CP.k = 1E-8;
 CP.Elastic = false;
 CP.MCC = true;
 
-eSize = [0.35];
+
 
 CP.RK = 1;
 
@@ -44,7 +44,7 @@ dt = 0.15/nSteps;
 
 
 
-figure(1)
+new_figure(1)
 PlotNodal(NodesT, ElementsT, U1(3:3:end))
 drawnow;
 colorbar; 
@@ -53,12 +53,12 @@ colorbar;
 
 
 FF = [information1.F];
-figure(212)
+new_figure(212)
 plot( [information1.t], FF(1:2:end), 'r', 'linewidth', 2 , 'DisplayName', ['T6T3'])
 hold on
 drawnow
 
-figure(214)
+new_figure(214)
 plot( [information1.t], FF(2:2:end), 'r', 'linewidth', 2, 'DisplayName', ['T6T3'])
 hold on
 drawnow
@@ -72,18 +72,18 @@ drawnow
 [U2, GPInfo, rrr,  information2] = ComputeNLProblem(NodesQ, ElementsQ, CP, dt, nSteps, 'Q8Q4', RK, 1, false);
 
 
-figure(2)
+new_figure(2)
 PlotNodal(NodesQ, ElementsQ, U2(3:3:end))
 drawnow;
 colorbar; 
 
 FF = [information2.F];
-figure(212)
+new_figure(212)
 plot( [information2.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
 hold on
 drawnow
 
-figure(214)
+new_figure(214)
 plot( [information2.t], FF(2:2:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
 hold on
 drawnow
@@ -94,19 +94,19 @@ drawnow
 
 [Uimp, GPInfo, rrr,  informationI] = ComputeImplicitNonLinearProblem(NodesT, ElementsT, CP, dt, nSteps, 'T6T3');
 
-figure(3)
+new_figure(3)
 PlotNodal(NodesT, ElementsT, Uimp(3:3:end))
 drawnow;
 colorbar; 
 
 
 FF = [informationI.F];
-figure(212)
+new_figure(212)
 plot( [informationI.t], FF(1:2:end), 'k:', 'linewidth', 2, 'DisplayName',  ['T6T3 Implicit'])
 hold on
 drawnow
 
-figure(214)
+new_figure(214)
 plot( [informationI.t], FF(2:2:end), 'k:', 'linewidth', 2, 'DisplayName', ['T6T3 Implicit'])
 hold on
 drawnow
@@ -116,19 +116,19 @@ drawnow
 
 [Uimp2, GPInfo, rrr,  informationI] = ComputeImplicitNonLinearProblem(NodesQ, ElementsQ, CP, dt, nSteps, 'Q8Q4');
 
-figure(4)
+new_figure(4)
 PlotNodal(NodesQ, ElementsQ, Uimp2(3:3:end) )
 drawnow;
 colorbar; 
 
 
 FF = [informationI.F];
-figure(212)
+new_figure(212)
 plot( [informationI.t], FF(1:2:end), 'b:', 'linewidth', 2, 'DisplayName',  ['Q8Q4 Implicit'])
 hold on
 drawnow
 
-figure(214)
+new_figure(214)
 plot( [informationI.t], FF(2:2:end), 'b:', 'linewidth', 2, 'DisplayName', ['Q8Q4 Implicit'])
 hold on
 drawnow
@@ -142,33 +142,42 @@ drawnow
     
 maxx = 0;
 for i = [1:4]
-    figure(i)
+    new_figure(i)
     xx = caxis();
     maxx = maxx+xx(2);
 end
 
 for i = [1:4]
-    figure(i)
+    new_figure(i)
     caxis([0, maxx/4])
     axis equal
     xlim([0,4])
     ylim([-4,0])
     axis off
     pbaspect([1 1 10])
-    print(['WaterPressurePlastic-', num2str(i)], '-dpdf')
+    MyPrint(['WaterPressurePlastic-', num2str(i)], '-dpdf')
 end
 
-figure(212)
+new_figure(212)
 
 xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Footing pressure (kN)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
-print('Plastic-RR', '-dpdf')
+MyPrint('Plastic-RR', '-dpdf')
 
-figure(214)
+new_figure(214)
 xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Water pressure (kPa)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
-print('Plastic-WP', '-dpdf')
+MyPrint('Plastic-WP', '-dpdf')
+
+
+function [] = MyPrint( NAME, FORMAT)
+
+drawnow;
+print(NAME, FORMAT)
+function [] = new_figure(fig)
+fig = figure(fig);
+% fig.Renderer='Painters';

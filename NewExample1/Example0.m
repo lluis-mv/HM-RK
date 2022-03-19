@@ -15,10 +15,6 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 
 
-model = createpde(1);
-
-
-
 
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
@@ -154,7 +150,7 @@ for elem = [2, 1]
     
     yy = ylim();
     xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1]
-    plot(xx, yy, 'k-.')
+    plot(xx, yy, 'k-.', 'HandleVisibility','off')
     ylim(yy);
     drawnow
     
@@ -176,7 +172,7 @@ for elem = [2, 1]
     yy(1) = 0.1;
     
     xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-    plot(xx, yy, 'k-.')
+    plot(xx, yy, 'k-.', 'HandleVisibility','off')
     ylim(yy);
     drawnow
     print(['ExampleZero-AMatrix-', ElementType], '-dpdf')
@@ -360,7 +356,7 @@ for elem = [2, 1]
           yy = ylim();
     
         xx = 10*(he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
-        plot(xx, yy, 'k-.')
+        plot(xx, yy, 'k-.', 'HandleVisibility','off')
         ylim(yy);
         drawnow
     

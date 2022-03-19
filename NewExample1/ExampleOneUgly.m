@@ -40,14 +40,14 @@ ticks = 10.^unique( log10(ticks));
 ticks = unique(ticks);
 
 
-for Mesh = [1,2,3]
+for Mesh = [2,3]
 
     if ( Mesh == 1)
         [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
         [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
     elseif (Mesh == 2)
-        [NodesQQ, ElementsQQ] = ReadTheMesh('ThisMeshQ.msh');
-        [NodesTT, ElementsTT] = ReadTheMesh('ThisMeshT.msh');
+        [NodesQ, ElementsQ] = ReadTheMesh('ThisMeshQ.msh');
+        [NodesT, ElementsT] = ReadTheMesh('ThisMeshT.msh');
     elseif (Mesh == 3)
         [NodesQ, ElementsQ] = ReadTheMesh('MeshUglyQ.msh');
         [NodesT, ElementsT] = ReadTheMesh('MeshUglyT.msh');
@@ -105,6 +105,7 @@ for Mesh = [1,2,3]
             ylabel('Error norm', 'interpreter', 'latex');
             set(gca, 'FontSize', 14)
             drawnow
+            print(['ExampleOneUgly-RK-', ElementType, '-MESH-', num2str(Mesh)], '-dpdf')
             
         end
         figure(20+3*j)

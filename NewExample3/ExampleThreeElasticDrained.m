@@ -11,7 +11,7 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-2;
+CP.k = 2E-4;
 CP.Elastic = true;
 CP.MCC = true;
 
@@ -60,10 +60,22 @@ for Elem = [1:2]
         
         % Estimate the element size
         
+        % Estimate the mean critical time-step
+        
+        [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
+        [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
+        dtC = zeros(size(GPInfo,1),1);
+        for el = 1:size(GPInfo,1)
+            he = sqrt( sum([GPInfo(el,:).Weight]));
+            dtC(el) = he^2/CP.k/GPInfo(el,1).ConstrainedModulus/6;
+        end
+        dtCIni = mean(dtC)
+
+        
         
         Nadim = 20;
         
-        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = 2.^[2:10];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
@@ -94,6 +106,14 @@ for Elem = [1:2]
                     end
                 end
                 
+        
+        dtC = zeros(size(GPInfo,1),1);
+        for el = 1:size(GPInfo,1)
+            he = sqrt( sum([GPInfo(el,:).Weight]));
+            dtC(el) = he^2/CP.k/GPInfo(el,1).ConstrainedModulus/6;
+        end
+        dtCIni
+        dtCEND = mean(dtC)
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];

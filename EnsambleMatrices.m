@@ -42,6 +42,16 @@ for el = 1:nElements
         kke = GPInfo(el,ngp).B'*GPInfo(el,ngp).D*GPInfo(el,ngp).B;
         Q = -GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;
         H = GPInfo(el,ngp).dN_dX'*perme*GPInfo(el,ngp).dN_dX;
+        
+        M = -GPInfo(el, ngp).N'*GPInfo(el,ngp).N;
+        if ( isfield( CP, 'Compressibility') )
+            M = M*CP.Compressibility;
+        else
+            M = M*0;
+        end
+           
+        
+            
     
         
         he = sqrt( sum([GPInfo(el,:).Weight]));
@@ -79,23 +89,8 @@ for el = 1:nElements
         end
         
         
-% %         
-% %         if ( length(AlphaStabM) == 1 && AlphaStabM(1) < 0)
-% %             if (all(ElementType == 'T3T3'))
-% %                 term = exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod);
-% %                 AlphaStab = abs(AlphaStabM)*8*dt*perme/he^2 + ConstModulus/1000000*term;
-% %             elseif ( all(ElementType == 'T6T6'))
-% %                 term = exp(- (2000*dt*perme*ConstModulus/he^2/0.25)^(RKMethod) );
-% %                 AlphaStab = abs(AlphaStabM)*80*dt*perme/he^2 +ConstModulus/1000000*term;
-% %             elseif ( all(ElementType == 'T6T3'))
-% %                 AlphaStab = abs(AlphaStabM)*8*dt*perme/he^2;
-% %             end
-% %             AlphaStab = -AlphaStab;
-% %         end
-     
-        
         Ms = GPInfo(el,ngp).Ms * AlphaStab;
-        
+        Ms = Ms + M;
         
         if ( all(ElementType=='T6T3') )
             Q2 = [Q'; zeros(3,12)];
