@@ -5,9 +5,12 @@
  [license-image]: https://img.shields.io/badge/license-BSD-green.svg?style=flat
 [license]: https://github.com/lluis-mv/Shallow-StrainPathMethod/blob/master/LICENSE
 
-Implementation of explicit Runge-Kutta time-marching schemes for the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) 
+Matlab codes to simulate the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) using the Finite Element method. 
 
-Three types of triangular elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants.
+In addition to a fully implicit time integration approach, explicit Runge-Kutta time-marching schemes are also considered.
+
+
+Several types of elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants. Q4Q4 employs bilinear shape functions for both nodal variables whereas Q8Q4 uses biquadratic shape functions for displacements and bilinar interpolants for displacements. 
 
 Constitutive models: linear elasticity, non-linear elasticity (pressure-dependent hypo-elastic law) and Subloading Modified Cam Clay [(Hashiguchi, 2017)](https://doi.org/10.1007/978-3-319-48821-9)
 
