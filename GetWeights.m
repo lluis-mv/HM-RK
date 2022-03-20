@@ -7,7 +7,7 @@ else
         if ( all( element == 'T3T3') )
             [al, be, w] = GetTheseWeights(1);
         elseif (element(1)=='T')
-            [al, be, w] = GetTheseWeights(6);
+            [al, be, w] = GetTheseWeights(3);
         elseif (all( element == 'Q8Q8'))
             [al, be, w] = GetTheseWeights(4);
         end
