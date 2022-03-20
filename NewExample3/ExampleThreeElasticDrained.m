@@ -42,13 +42,13 @@ for Elem = [1:2]
     for eSize = ESIZE
         
         if (Elem == 1)
-            ElementType = 'Q8Q4';
-            Elements = ElementsQ;
-            Nodes = NodesQ;
-        elseif (Elem == 2)
             ElementType = 'T6T3';
             Elements = ElementsT;
             Nodes = NodesT;
+        elseif (Elem == 2)
+            ElementType = 'Q8Q4';
+            Elements = ElementsQ;
+            Nodes = NodesQ;
         end
         
         figure(1);
@@ -182,8 +182,11 @@ for Elem = [1:2]
                 ylabel('Footing load', 'interpreter', 'latex')
                 
                 figure(2107); clf
+                figure(2108); clf
                 ind = find(N == 0);
                 N(ind) = nan;
+                ind = find(Time == 0);
+                Time(ind) = nan;
                 for jj = 1:size(RES,1)
                     merda = '*-.';
                     if ( jj == 8)
@@ -192,14 +195,21 @@ for Elem = [1:2]
                         merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
-                    if ( jj ~= RKReference)
                         index = find( plotThis == 0);
                         plotThis(index) = 1E-14*(1+rand(size(index)));
-                    end
+
+		    figure(2107)
                     loglog(ddtt(jj,:), plotThis, [merda])
                     hold on
-                end
+		    drawnow
                 
+                    figure(2108)
+                    loglog(Time(jj,:), plotThis, [merda])
+		    hold on
+		    drawnow
+
+                end
+                figure(2107) 
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
@@ -213,25 +223,7 @@ for Elem = [1:2]
                 hold off
                 
                 
-                figure(2108); clf
-                ind = find(Time == 0);
-                Time(ind) = nan;
-                for jj = 1:size(RES,1)
-                    merda = '*-.';
-                    if ( jj == 8)
-                        merda = 'k*-.';
-                    elseif (jj == 9)
-                        merda = 'rs-.';
-                    end
-                    plotThis = abs(N(jj,:)-Nadim);
-                    if ( jj ~= RKReference)
-                        index = find( plotThis == 0);
-                        plotThis(index) = 1E-14*(1+rand(size(index)));
-                    end
-                    loglog(Time(jj,:), plotThis, [merda])
-                    hold on
-                end
-                
+                figure(2108)
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
