@@ -3,7 +3,7 @@
  [![License][license-image]][license]
  
  [license-image]: https://img.shields.io/badge/license-BSD-green.svg?style=flat
-[license]: https://github.com/lluis-mv/Shallow-StrainPathMethod/blob/master/LICENSE
+[license]: https://github.com/lluis-mv/HM-RK/blob/master/LICENSE
 
 Matlab codes to simulate the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) using the Finite Element method. 
 
