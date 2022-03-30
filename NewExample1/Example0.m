@@ -114,10 +114,10 @@ for elem = [2, 1]
         thisColor = 'k';
         NAME = 'Implicit';
         if ( color == 2)
-            NAME = 'Explicit. Primal';
+            NAME = 'Explicit. Unstabilized';
             thisColor = 'r';
         elseif ( color == 3)
-            NAME = 'Explicit. Stab';
+            NAME = 'Explicit. Stabilized';
             thisColor = 'b';
         end
         color = color + 1;
@@ -140,7 +140,7 @@ for elem = [2, 1]
             loglog( ddtt, maxval, [thisColor, 'v-.'], 'MarkerIndices', 1:3:length(ddtt))
             hold on
             ylabel('$\| \lambda \|$', 'interpreter', 'latex')
-            xlabel('t (s)', 'interpreter', 'latex')
+            xlabel('\Delta t (s)', 'interpreter', 'latex')
             set(gca, 'FontSize', 13)
             drawnow
         end
@@ -164,8 +164,8 @@ for elem = [2, 1]
     end
     ylim(yy);
     
-    ll = legend('max$(|\lambda|)$. Primal', ...
-        'max$(|\lambda|)$. Stab', 'location', 'best');
+    ll = legend('max$(|\lambda|)$. Unstabilized', ...
+        'max$(|\lambda|)$. Stabilized', 'location', 'best');
     set(ll, 'interpreter', 'latex')
     drawnow
     yy = ylim();
@@ -268,7 +268,7 @@ for elem = [2, 1]
 end
 
 
-
+return;
 
 
 
