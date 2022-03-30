@@ -167,8 +167,11 @@ for Elem = [1:2]
                         merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
-                    index = find( plotThis == 0);
-                    plotThis(index) = 1E-14*(1+rand(size(index)));
+                    
+                    if ( jj ~= RKReference)
+                        index = find( plotThis == 0);
+                        plotThis(index) = 1E-14*(1+rand(size(index)));
+                    end
                     
                     figure(2107)
                     loglog(ddtt(jj,:), plotThis, [merda])

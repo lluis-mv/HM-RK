@@ -33,9 +33,9 @@ end
 
 
 for Elem = [1:2]
-
-   RKMethods = [8,1:7, 9];
-
+    
+    RKMethods = [8,1:7, 9];
+    
     
     esizeAxis = ESIZE;
     i = 1;
@@ -70,7 +70,7 @@ for Elem = [1:2]
             dtC(el) = he^2/CP.k/GPInfo(el,1).ConstrainedModulus/6;
         end
         dtCIni = mean(dtC)
-
+        
         
         
         Nadim = 20;
@@ -100,20 +100,20 @@ for Elem = [1:2]
                         timing = nan;
                         for mnm = 1:length(information)
                             for nmn = 1:length(information(mnm).F)
-                            information(mnm).F(nmn)= nan;
-                            end     
+                                information(mnm).F(nmn)= nan;
+                            end
                         end
                     end
                 end
                 
-        
-        dtC = zeros(size(GPInfo,1),1);
-        for el = 1:size(GPInfo,1)
-            he = sqrt( sum([GPInfo(el,:).Weight]));
-            dtC(el) = he^2/CP.k/GPInfo(el,1).ConstrainedModulus/6;
-        end
-        dtCIni
-        dtCEND = mean(dtC)
+                
+                dtC = zeros(size(GPInfo,1),1);
+                for el = 1:size(GPInfo,1)
+                    he = sqrt( sum([GPInfo(el,:).Weight]));
+                    dtC(el) = he^2/CP.k/GPInfo(el,1).ConstrainedModulus/6;
+                end
+                dtCIni
+                dtCEND = mean(dtC)
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
@@ -195,21 +195,24 @@ for Elem = [1:2]
                         merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
+                    if ( jj ~= RKReference)
                         index = find( plotThis == 0);
                         plotThis(index) = 1E-14*(1+rand(size(index)));
-
-		    figure(2107)
+                    end
+                    
+                    
+                    figure(2107)
                     loglog(ddtt(jj,:), plotThis, [merda])
                     hold on
-		    drawnow
-                
+                    drawnow
+                    
                     figure(2108)
                     loglog(Time(jj,:), plotThis, [merda])
-		    hold on
-		    drawnow
-
+                    hold on
+                    drawnow
+                    
                 end
-                figure(2107) 
+                figure(2107)
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
@@ -237,20 +240,20 @@ for Elem = [1:2]
                 hold off
                 
                 
-            % Printing....
-            figure(2105)
-            pause(1)
-            my_Print(['ExampleThreeDRAINED-Elastic-Residual-', ElementType], '-dpdf')
-            figure(2106)
-            pause(1)
-            my_Print(['ExampleThreeDRAINED-Elastic-Bearing-', ElementType], '-dpdf')
-            figure(2107)
-            pause(1)
-            my_Print(['ExampleThreeDRAINED-Elastic-Error-', ElementType], '-dpdf')
-            figure(2108)
-            pause(1)
-            my_Print(['ExampleThreeDRAINED-Elastic-TimeError-', ElementType], '-dpdf')
-       	     end
+                % Printing....
+                figure(2105)
+                pause(1)
+                my_Print(['ExampleThreeDRAINED-Elastic-Residual-', ElementType], '-dpdf')
+                figure(2106)
+                pause(1)
+                my_Print(['ExampleThreeDRAINED-Elastic-Bearing-', ElementType], '-dpdf')
+                figure(2107)
+                pause(1)
+                my_Print(['ExampleThreeDRAINED-Elastic-Error-', ElementType], '-dpdf')
+                figure(2108)
+                pause(1)
+                my_Print(['ExampleThreeDRAINED-Elastic-TimeError-', ElementType], '-dpdf')
+            end
         end
         clear Time;
         clear RES;
