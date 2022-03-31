@@ -7,10 +7,10 @@ end
 if ( size(C, 2) == 8)
     [s,t]=meshgrid(-1:0.1:1,-1:0.1:1);
     [s,t]=meshgrid([-1,1],[-1,1]);
-    
+
     nElem = size(C, 1);
-    
-    
+
+
     for elem = 1:nElem
         res = 0*t;
         for i = 1:size(s,1)
@@ -31,11 +31,11 @@ if ( size(C, 2) == 8)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-%         surf(xx, yy, res ,'FaceColor', 'interp' ,'EdgeColor', 'interp')
+        %         surf(xx, yy, res ,'FaceColor', 'interp' ,'EdgeColor', 'interp')
         for iii = 1:2
             surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+            hold on;
         end
-        hold on;
     end
 elseif ( size(C, 2) == 6)
     [s,t]=meshgrid(0:0.05:1,0:0.05:1);
@@ -43,9 +43,9 @@ elseif ( size(C, 2) == 6)
     for ii = 1:size(t,2)
         t(:,ii) = t(:,ii) * (1- s(end,ii));
     end
-    
+
     nElem = size(C, 1);
-    
+
     for elem = 1:nElem
         res = 0*t;
         for i = 1:size(s,1)
@@ -61,12 +61,14 @@ elseif ( size(C, 2) == 6)
                 xx(i,j) = N'*X(C(elem,:), 1);
                 yy(i,j) = N'*X(C(elem,:), 2);
                 res(i,j) = N'*U(C(elem,:));
-                
+
             end
         end
         %surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-         surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
-        hold on;
+    	for iii = 1:2
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
+            hold on;
+   	 end
     end
 elseif ( size(C,2) == 3)
     [s,t]=meshgrid(0:0.05:1,0:0.05:1);
@@ -74,9 +76,9 @@ elseif ( size(C,2) == 3)
     for ii = 1:size(t,2)
         t(:,ii) = t(:,ii) * (1- s(end,ii));
     end
-    
+
     nElem = size(C, 1);
-    
+
     for elem = 1:nElem
         res = 0*t;
         for i = 1:size(s,1)
@@ -87,13 +89,13 @@ elseif ( size(C,2) == 3)
                 xx(i,j) = N'*X(C(elem,:), 1);
                 yy(i,j) = N'*X(C(elem,:), 2);
                 res(i,j) = N'*U(C(elem,:));
-                
+
             end
         end
         surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
         hold on;
     end
-    
+
 end
 
 view(0,90)
@@ -101,5 +103,5 @@ colormap jet
 drawnow
 
 if ( showMesh)
-   PlotMesh(X, C);
+    PlotMesh(X, C);
 end
