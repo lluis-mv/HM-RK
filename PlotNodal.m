@@ -64,7 +64,8 @@ elseif ( size(C, 2) == 6)
                 
             end
         end
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        %surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+         surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
         hold on;
     end
 elseif ( size(C,2) == 3)

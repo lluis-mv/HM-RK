@@ -126,7 +126,7 @@ for elem = [2, 1]
         loglog( ddtt, L2U, [thisColor, 'v-.'], 'MarkerIndices', 1:3:length(ddtt), 'DisplayName', ['$\| \mathbf{u}-\mathbf{u}_h\|_{L2}$. ', NAME] )
         hold on
         loglog( ddtt, L2, [thisColor, '*-.'],   'MarkerIndices', 1:3:length(ddtt), 'DisplayName', ['$\| p_w-p_w^h\|_{L2}$. ', NAME] )
-        xlabel('t (s)', 'interpreter', 'latex')
+        xlabel('$t$ (s)', 'interpreter', 'latex')
         ylabel('Error norm', 'interpreter', 'latex');
         set(gca, 'FontSize', 13)
         drawnow
@@ -140,7 +140,7 @@ for elem = [2, 1]
             loglog( ddtt, maxval, [thisColor, 'v-.'], 'MarkerIndices', 1:3:length(ddtt))
             hold on
             ylabel('$\| \lambda \|$', 'interpreter', 'latex')
-            xlabel('\Delta t (s)', 'interpreter', 'latex')
+            xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
             set(gca, 'FontSize', 13)
             drawnow
         end
@@ -182,7 +182,7 @@ end
 
 
 
-
+return;
 
 
 % Now the same to compute norms...

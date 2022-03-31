@@ -1,15 +1,27 @@
 syms alfa real
 syms beta real
 
+syms E real
+syms nu real
 
 N =  [ 1 - alfa - beta; alfa;  beta];
 
-% N =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
-%     alfa*(2*alfa-1);
-%     beta*(2*beta-1);
-%     4*alfa*(1-alfa-beta);
-%     4*alfa*beta;
-%     4*beta*(1-alfa-beta)];
+for i = 1:3
+    for j = 1:3
+        if ( i==j)
+            De(i,j) = (1-nu);
+        else
+            De(i,j) = nu;
+        end
+    end
+    De(i+3, i+3) = (1-2*nu)/2;
+end
+
+De = E/(1+nu)/(1-2*nu) * De;
+
+
+D = De([1,2,4], [1,2,4]);
+
 
 Proj = int( N, beta, 0, 1-alfa);
 Proj = int( Proj, alfa, 0, 1);
@@ -36,8 +48,31 @@ Area = int( Area, alfa, -1, 1);
 Proj = Proj/Area;
 
 
-Ms = int( (Proj-N)*(Proj-N)', beta, -1, 1)
+Ms = int( (Proj-N)*(Proj-N)', beta, -1, 1);
 Ms = int( Ms, alfa, -1, 1)
+
+M = int(N*N', beta, -1, 1);
+M = int(M, alfa, -1,1)
+
+
+gradN = [diff(N, alfa), diff(N, beta)];
+dN_dX = gradN';
+
+
+H = int( gradN*gradN',  beta, -1, 1);
+H = int( H, alfa, -1, 1)
+
+
+    B = [];
+        for i = 1:4
+            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+            B = [B, b];
+        end
+
+
+
+
+return;
 
 % Now check this stupid integration
 for nn = [4, 9]
