@@ -104,8 +104,6 @@ axis equal
 axis off
 
 
-
-print('Sketch1', '-dpng')
 print('Sketch1', '-dpdf')
 
 
