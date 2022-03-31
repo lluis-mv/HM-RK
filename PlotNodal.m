@@ -38,7 +38,7 @@ if ( size(C, 2) == 8)
     end
 elseif ( size(C, 2) == 6)
     [s,t]=meshgrid(0:0.05:1,0:0.05:1);
-    [s,t]=meshgrid([-1E-6,1+1E-6], [-1E-6,1+1E-6]);
+    [s,t]=meshgrid([0,1], [0,1]);
     for ii = 1:size(t,2)
         t(:,ii) = t(:,ii) * (1- s(end,ii));
     end
@@ -65,7 +65,7 @@ elseif ( size(C, 2) == 6)
         end
 
         for iii = 1:2
-            surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
             hold on;
       	 end
     end
