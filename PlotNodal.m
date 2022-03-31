@@ -31,7 +31,8 @@ if ( size(C, 2) == 8)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'none')
+        surf(xx, yy, res ,'FaceColor', 'interp' ,'EdgeColor', 'interp')
+%         surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
         hold on;
     end
 elseif ( size(C, 2) == 6)
@@ -61,9 +62,7 @@ elseif ( size(C, 2) == 6)
                 
             end
         end
-%         [a] = find( t > 1-s);
-%         res(a) = nan;
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'none')
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
         hold on;
     end
 elseif ( size(C,2) == 3)
@@ -88,9 +87,7 @@ elseif ( size(C,2) == 3)
                 
             end
         end
-%         [a] = find( t > 1-s);
-%         res(a) = nan;
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'none')
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
         hold on;
     end
     

@@ -30,7 +30,7 @@ end
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
-RK = 2;
+RK = 1;
 
 
 nSteps = 100;
@@ -148,16 +148,19 @@ end
 
 for i = [1:4]
     new_figure(i)
+    drawnow
     caxis([0, maxx/4])
     axis equal
     xlim([0,4])
     ylim([-4,0])
     axis off
     pbaspect([1 1 10])
+drawnow
     MyPrint(['WaterPressureElastic-', num2str(i)], '-dpdf')
 end
 
 new_figure(212)
+drawnow
 
 xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Footing pressure (kN)', 'interpreter', 'latex')
@@ -166,6 +169,7 @@ legend('location', 'best', 'interpreter', 'latex')
 MyPrint('Elastic-RR', '-dpdf')
 
 new_figure(214)
+drawnow
 xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Water pressure (kPa)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
@@ -178,4 +182,4 @@ drawnow;
 print(NAME, FORMAT)
 function [] = new_figure(fig)
 fig = figure(fig);
-% fig.Renderer='Painters';
+fig.Renderer='Painters';

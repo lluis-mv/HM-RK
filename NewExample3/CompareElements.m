@@ -111,7 +111,7 @@ print('Sketch1', '-dpdf')
 
 
 
-RK = 2;
+RK = 1;
 
 
 nSteps = 100;
