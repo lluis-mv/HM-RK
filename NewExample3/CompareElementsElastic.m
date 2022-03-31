@@ -34,7 +34,7 @@ RK = 1;
 
 
 nSteps = 100;
-dt = 0.15/nSteps;
+dt = 1/nSteps;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% T6T3 
@@ -53,12 +53,12 @@ colorbar;
 
 FF = [information1.F];
 new_figure(212)
-plot( [information1.t], FF(1:2:end), 'r', 'linewidth', 2 , 'DisplayName', ['T6T3'])
+plot( FF(3:3:end), FF(1:3:end), 'r', 'linewidth', 2 , 'DisplayName', ['T6T3'])
 hold on
 drawnow
 
 new_figure(214)
-plot( [information1.t], FF(2:2:end), 'r', 'linewidth', 2, 'DisplayName', ['T6T3'])
+plot( FF(3:3:end), FF(2:3:end), 'r', 'linewidth', 2, 'DisplayName', ['T6T3'])
 hold on
 drawnow
 
@@ -78,12 +78,12 @@ colorbar;
 
 FF = [information2.F];
 new_figure(212)
-plot( [information2.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
+plot( FF(3:3:end), FF(1:3:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
 hold on
 drawnow
 
 new_figure(214)
-plot( [information2.t], FF(2:2:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
+plot( FF(3:3:end), FF(2:3:end), 'g', 'linewidth', 2,'DisplayName', ['Q8Q4'])
 hold on
 drawnow
 
@@ -101,12 +101,12 @@ colorbar;
 
 FF = [informationI.F];
 new_figure(212)
-plot( [informationI.t], FF(1:2:end), 'k:', 'linewidth', 2, 'DisplayName',  ['T6T3 Implicit'])
+plot( FF(3:3:end), FF(1:3:end), 'k:', 'linewidth', 2, 'DisplayName',  ['T6T3 Implicit'])
 hold on
 drawnow
 
 new_figure(214)
-plot( [informationI.t], FF(2:2:end), 'k:', 'linewidth', 2, 'DisplayName', ['T6T3 Implicit'])
+plot( FF(3:3:end), FF(2:3:end), 'k:', 'linewidth', 2, 'DisplayName', ['T6T3 Implicit'])
 hold on
 drawnow
 
@@ -123,12 +123,12 @@ colorbar;
 
 FF = [informationI.F];
 new_figure(212)
-plot( [informationI.t], FF(1:2:end), 'b:', 'linewidth', 2, 'DisplayName',  ['Q8Q4 Implicit'])
+plot( FF(3:3:end), FF(1:3:end), 'b:', 'linewidth', 2, 'DisplayName',  ['Q8Q4 Implicit'])
 hold on
 drawnow
 
 new_figure(214)
-plot( [informationI.t], FF(2:2:end), 'b:', 'linewidth', 2, 'DisplayName', ['Q8Q4 Implicit'])
+plot( FF(3:3:end), FF(2:3:end), 'b:', 'linewidth', 2, 'DisplayName', ['Q8Q4 Implicit'])
 hold on
 drawnow
 
@@ -166,6 +166,8 @@ xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Footing pressure (kN)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
+xlim([0, 0.05])
+drawnow
 MyPrint('Elastic-RR', '-dpdf')
 
 new_figure(214)
@@ -174,6 +176,8 @@ xlabel('Footing indentation (m)', 'interpreter', 'latex')
 ylabel('Water pressure (kPa)', 'interpreter', 'latex')
 set(gca, 'FontSize', 13)
 legend('location', 'best', 'interpreter', 'latex')
+xlim([0, 0.05])
+drawnow
 MyPrint('Elastic-WP', '-dpdf')
 
 function [] = MyPrint( NAME, FORMAT)

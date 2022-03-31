@@ -67,7 +67,7 @@ for Elem = [1:2]
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.15/nSteps;
+                dt = 1.0/nSteps;
                 
                 disp(RK)
                 if ( RK < 9)
@@ -97,7 +97,7 @@ for Elem = [1:2]
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
-                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:3:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
@@ -220,15 +220,19 @@ for Elem = [1:2]
                 % Printing....
                 figure(2105)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Elastic-Residual-', ElementType], '-dpdf')
                 figure(2106)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Elastic-Bearing-', ElementType], '-dpdf')
                 figure(2107)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Elastic-Error-', ElementType], '-dpdf')
                 figure(2108)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Elastic-TimeError-', ElementType], '-dpdf')
             end
         end
