@@ -25,7 +25,7 @@ RKMethods = [8, 2, 12, 4,14, 6, 16];
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
-for Elem = [1,2,3]
+for Elem = [1,2]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -56,7 +56,7 @@ for Elem = [1,2,3]
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.15/nSteps;
+                dt = 1.0/nSteps;
                 
                 if ( RK > 10)
                     RK = RK-10;
@@ -77,7 +77,7 @@ for Elem = [1,2,3]
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
-                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:3:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
