@@ -31,8 +31,10 @@ if ( size(C, 2) == 8)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-        surf(xx, yy, res ,'FaceColor', 'interp' ,'EdgeColor', 'interp')
-%         surf(xx, yy, res ,'FaceColor', 'interp' , 'LineStyle', 'none')
+%         surf(xx, yy, res ,'FaceColor', 'interp' ,'EdgeColor', 'interp')
+        for iii = 1:2
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        end
         hold on;
     end
 elseif ( size(C, 2) == 6)

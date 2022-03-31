@@ -33,8 +33,8 @@ end
 RK = 1;
 
 
-nSteps = 100;
-dt = 1/nSteps;
+nSteps = 1;
+dt = 0.01/nSteps;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% T6T3 
