@@ -25,7 +25,7 @@ RKMethods = [8, 2, 12, 4,14, 6, 16];
 [NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
-for Elem = [1,2]
+for Elem = [2,1]
     
     esizeAxis = ESIZE;
     i = 1;
@@ -52,7 +52,7 @@ for Elem = [1,2]
         
         Nadim = 20;
         
-        NSteps = [2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [10, 2^4, 2^5, 2^6, 2^7, 2^8];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);

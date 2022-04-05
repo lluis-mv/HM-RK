@@ -11,7 +11,7 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 2E-4;
+CP.k = 2E-5;
 CP.Elastic = true;
 CP.MCC = true;
 
