@@ -259,7 +259,7 @@ for this = [-0.25, -0.15, 0, 0.25]
         set(gca, 'FontSize', 15)
         xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
         ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
-        exportgraphics(fig, ['F2-Reaction-', num2str(i), '.dpdf'], 'BackgroundColor', 'none','ContentType','vector');
+        exportgraphics(fig, ['F2-Reaction-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
         
         
         fig = figure(214+i)
@@ -268,7 +268,7 @@ for this = [-0.25, -0.15, 0, 0.25]
         set(gca, 'FontSize', 15)
         xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
         ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
-        exportgraphics(fig, ['F2-Water-', num2str(i), '.dpdf'], 'BackgroundColor', 'none','ContentType','vector');
+        exportgraphics(fig, ['F2-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     end
 end
 
