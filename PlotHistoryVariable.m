@@ -44,11 +44,8 @@ else
         
         Celem = C(elem,1:3);
         
-        xP = [xP, x(Celem)];
-        yP = [yP, y(Celem)];
-        c = [c, v2];
-        
+        patch( x(Celem), y(Celem), v2, 'edgecolor', 'none')
     end
-    surf(xP, yP, c, 'edgecolor', 'none')
+    
     
 end
