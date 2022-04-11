@@ -7,12 +7,12 @@ tolerance = 5E-13;
 [Xnew, Dc, plastic] = ReturnMapping(X, DeltaStrain);
 Dc = Dc(1:6,1:6);
 
-% D2 = CheckDerivative(X, DeltaStrain)
 
-[D, De, H] = ComputeContinuousMatrix(Xnew(1:6), Xnew(7), plastic);
-if ( plastic)
-hola = 1;
-end
+% % return;
+% % [D, De, H] = ComputeContinuousMatrix(Xnew(1:6), Xnew(7), plastic);
+% % if ( plastic)
+% % hola = 1;
+% % end
 
 
 function [XNew, D, plastic] = ReturnMapping( X, DeltaStrain)
@@ -64,12 +64,12 @@ yield = EvaluateYieldSurface(p, pc, J2sqrt, M, n, r);
 if (  yield < tolerance)
     XNew = [p*mIdentity+s; pc];
     
-    dPdeVol = -p0 * exp( DeltaStrainVol/kappa)/kappa;
+    dPdeVol = -p0 * exp( -DeltaStrainVol/kappa)/kappa;
     D = zeros(6,6);
     D(1:3,1:3) = dPdeVol;
     D = D + 2*G*[eye(3,3)-1/3*ones(3,3), zeros(3,3); zeros(3,3), 0.5*eye(3,3)];
     
-    dGdEvol = 3*(1-2*nu)/2/(1+nu)*p0*exp(DeltaStrainVol/kappa)/kappa^2;
+    dGdEvol = 3*(1-2*nu)/2/(1+nu)*p0*exp(-DeltaStrainVol/kappa)/kappa^2;
     
     D(:,1:3) = D(:,1:3)  + 2*ThisDev*DeltaStrainDev*dGdEvol;
     D = [D; zeros(1,6)];
@@ -142,6 +142,17 @@ dXdV(1:3,1) = 1;
 dXdV(7,2) = 1;
 dXdV(1:6,4:9) = eye(6);
 
+
+J2sqrt = 0;
+for i = 1:6
+    number = 1;
+    if i > 3
+        number = 2;
+    end
+    J2sqrt = J2sqrt + number*s(i)^2;
+end
+J2sqrt = sqrt(0.5*J2sqrt);
+
 dRdE = (zeros(9,6));
 dummy = (-p)/(m-1)*( m -1 + ( sqrt(3)*J2sqrt/M/(-p))^m);
 C1PlasticP  = m * (sqrt(3)*J2sqrt/M/(-p))^(m-1) * sqrt(3)*J2sqrt/M/(-p)^2 - dummy*(m-1)/p^2;
@@ -211,9 +222,7 @@ function  [residual] = ComputeResidual(p, pc, gamma, s, p0, pc0, s0, DeltaStrain
 
 
 residual = zeros(9,1);
-% mIdentity = [ones(3,1); zeros(3,1)];
-% Idev = mIdentity*mIdentity' + eye(6);
-% Idev(4:6,4:6) = 2*Idev(4:6,4:6);
+
 ThisDev = eye(6); ThisDev(4:6,4:6) = ThisDev(4:6,4:6)/2;
 
 
