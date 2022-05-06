@@ -3,7 +3,7 @@ figure(30); clf;
 figure(50); clf;
 figure(900); clf;
 
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 T = 1;

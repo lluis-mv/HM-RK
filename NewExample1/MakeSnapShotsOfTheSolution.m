@@ -1,6 +1,6 @@
 function [] = MakeSnapShotsOfTheSolution()
 
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 

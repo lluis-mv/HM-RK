@@ -2,7 +2,7 @@ function [] = CompareElements()
 
 new_figure(212); hold off; clf;
 new_figure(214); hold off; clf;
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 

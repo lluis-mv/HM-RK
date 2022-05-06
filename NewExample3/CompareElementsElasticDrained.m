@@ -2,7 +2,7 @@ function [] = CompareElementsElasticDrained()
 
 figure(212); hold off; clf;
 figure(214); hold off; clf;
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 
