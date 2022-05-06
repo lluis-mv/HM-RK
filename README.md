@@ -5,7 +5,7 @@
  [license-image]: https://img.shields.io/badge/license-BSD-green.svg?style=flat
 [license]: https://github.com/lluis-mv/HM-RK/blob/main/LICENSE
 
-Matlab codes to simulate the coupled hydro-mechanical problem at pseudostationary conditions (**u**-p<sub>w</sub> formulation) using the Finite Element method. 
+Matlab codes to simulate the coupled hydro-mechanical problem at pseudo-static conditions (**u**-p<sub>w</sub> formulation) using the Finite Element method. 
 
 In addition to a fully implicit time integration approach, explicit Runge-Kutta time-marching schemes are also considered.
 
