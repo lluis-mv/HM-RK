@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-alias matlab='/usr/local/MATLAB/R2020a/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
+alias matlab='/home/lluis/Matlab/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
 
 cd NewExample1/
 
@@ -19,7 +19,7 @@ cd ..
 
 cd NewExample3/
 
-matlab "CompareElements; quit" > output 2>&1
+matlab "CompareElements; quit" > output 2>&1 &
 
 matlab "CompareElementsElastic; quit" > output1 2>&1 &
 
