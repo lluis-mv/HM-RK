@@ -23,13 +23,10 @@ plastic = false;
 
 [kappa, lambda, M, nu, n, r, m] = GetConstitutiveParametersCASM();
 
+mIdentity = reshape([1.0,1.0,1.0,0.0,0.0, 0.0], [6,1]);
 
+ThisDev = reshape([1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0],[6,6]);
 
-
-mIdentity = [ones(3,1); zeros(3,1)];
-
-
-ThisDev = eye(6); ThisDev(4:6,4:6) = ThisDev(4:6,4:6)/2;
 
 DeltaStrainVol = sum(DeltaStrain(1:3));
 DeltaStrainDev = DeltaStrain - DeltaStrainVol/3*mIdentity;
@@ -223,7 +220,9 @@ function  [residual] = ComputeResidual(p, pc, gamma, s, p0, pc0, s0, DeltaStrain
 
 residual = zeros(9,1);
 
-ThisDev = eye(6); ThisDev(4:6,4:6) = ThisDev(4:6,4:6)/2;
+
+
+ThisDev = reshape([1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0./2.0],[6,6]);
 
 
 
