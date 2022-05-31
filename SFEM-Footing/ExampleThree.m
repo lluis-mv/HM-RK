@@ -8,8 +8,8 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-12;
-CP.k = 1E-12;
+CP.k = 1E-3;
+CP.k = 1E-3;
 CP.Elastic = false;
 CP.MCC = 2;
 
@@ -38,7 +38,7 @@ Elements1 = mesh1.Elements';
 
 
 nSteps = 100;
-dt = 0.15/nSteps;
+dt = 1.0/nSteps;
 
 
 
@@ -84,7 +84,7 @@ drawnow
 tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-FF = [information.F];
+FF = [information.F]/l;
 FF(1:2:end) = FF(1:2:end)/l;
 figure(212)
 plot( [information.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
@@ -119,7 +119,7 @@ tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
 toc
 
-FF = [information.F];
+FF = [information.F]/l2;
 FF(1:2:end) = FF(1:2:end)/l2;
 figure(212)
 plot( [information.t], FF(1:2:end), 'b-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])

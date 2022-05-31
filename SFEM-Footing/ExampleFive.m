@@ -1,4 +1,4 @@
-function [] = ExampleThree()
+function [] = ExampleFive()
 addpath('../')
 % 1. Define the problem
 
@@ -46,7 +46,7 @@ triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'b')
 
 
 nSteps = 100;
-dt = 0.15/nSteps;
+dt = 1.0/nSteps;
 
 
 for i = 1:6

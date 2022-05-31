@@ -155,7 +155,7 @@ for Stab = [0,1]
         hold on;
         ylim([0, 0.25])
         xlabel('$\Delta t \, c_v / h_e^2$', 'interpreter', 'latex')
-        ylabel('$L_2 p_w$ (kPa)', 'interpreter', 'latex')
+        ylabel('$L_2 u$ (m)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15);
         print(['Oed-L2', num2str(Stab)], '-dpdf')
     end

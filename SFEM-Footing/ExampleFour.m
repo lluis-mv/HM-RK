@@ -26,7 +26,7 @@ ESIZE = 1./[1:5];
 
 
 nSteps = 100;
-dt = 0.15/nSteps;
+dt = 1.0/nSteps;
 
 
 i = 1;
@@ -184,7 +184,7 @@ i = 1;
 for nSteps = NSTEPS
     
     
-    dt = 0.15/nSteps; 
+    dt = 1.0/nSteps; 
     dtAxis(i) = dt;
     
     
