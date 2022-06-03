@@ -16,11 +16,14 @@ CP.MCC = 20;
 figure(212); clf;
 figure(214); clf;
 
-for eSize= [ 0.15, 0.25]
+for eSize= [0.25, 0.15, 0.10]
     
-    if ( eSize == 0.15)
+    if ( eSize == 0.10)
         XNAME = 'Fine';
         SPEC = '-.';
+    elseif ( eSize == 0.15)
+        XNAME = 'Int';
+        SPEC = ':';
     else 
         XNAME = 'Coarse';
         SPEC = '-';
@@ -54,7 +57,6 @@ for eSize= [ 0.15, 0.25]
     
     
     
-    
     tic
     [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
     toc
@@ -63,10 +65,15 @@ for eSize= [ 0.15, 0.25]
     figure(212); 
     plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. ' XNAME])
     hold on
+    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+
     figure(214); 
     plot( [information2.t], FF(2:2:end), ['r', SPEC] , 'linewidth', 2, 'DisplayName', ['NS-T3T3. ' XNAME])
     hold on
-    
+    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
+
+
     
     figure(557); clf
     pdeplot(model1,'XYData',U(3:3:end),'ColorMap','jet');
@@ -103,9 +110,10 @@ for eSize= [ 0.15, 0.25]
     FF(1:2:end) = FF(1:2:end);
     figure(212)
     plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName',['T3T3. ' XNAME])
+    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
     figure(214)
     plot( [information.t], FF(2:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. ' XNAME])
-    
+    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
     
     figure(556); clf
     pdeplot(model1,'XYData',U(3:3:end),'ColorMap','jet');
@@ -145,11 +153,12 @@ for eSize= [ 0.15, 0.25]
     figure(212)
     plot( [information.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName',  ['T6T3. ' XNAME])
     hold on
-    
+    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
     
     figure(214)
     plot( [information.t], FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. ' XNAME])
     hold on
+    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
     
     figure(559); clf
     pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
@@ -258,7 +267,7 @@ for eSize= [ 0.15, 0.25]
     xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
     ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
     fig = figure(212);
-    exportgraphics(fig,['Biaxial-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
     
     figure(214)
     legend('location', 'best', 'interpreter', 'latex')
@@ -266,7 +275,7 @@ for eSize= [ 0.15, 0.25]
     xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
     ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
     fig = figure(214);
-    exportgraphics(fig,['Biaxial-Water.pdf'], 'BackgroundColor', 'none', 'ContentType', 'vector');
+    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
     
 end
 
