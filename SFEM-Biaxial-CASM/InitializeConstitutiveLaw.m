@@ -27,8 +27,8 @@ for el = 1:nElements
         GPInfo(el, gp).StrainNew = zeros(6,1);
         GPInfo(el, gp).StrainPrev = zeros(6,1);
 
-        GPInfo(el, gp).HistoryNew = -[15.0];
-        GPInfo(el, gp).HistoryPrev = -[15.0];
+        GPInfo(el, gp).HistoryNew = -11.0;
+        GPInfo(el, gp).HistoryPrev = -11.0;
         
         p = -mean(GPInfo(el, gp).StressNew(1:3));
         if ( Elastic)

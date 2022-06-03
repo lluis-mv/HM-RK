@@ -4,7 +4,7 @@ load('UndrainedData.mat')
 
 eSizeAxis = ESIZE(1:i);
 figure(99); clf
-plot(eSizeAxis, Qnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
+semilogx(eSizeAxis, Qnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(eSizeAxis, Qlinear, 'g*-.', 'DisplayName', 'T3T3')
 plot(eSizeAxis, Qquad, 'b*-.', 'DisplayName', 'T6T3')
@@ -13,7 +13,7 @@ xlabel('$h_e$ (m)', 'interpreter', 'latex')
 ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
 
 figure(100); clf
-plot(eSizeAxis, PWnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
+semilogx(eSizeAxis, PWnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(eSizeAxis, PWlinear, 'g*-.', 'DisplayName', 'T3T3')
 plot(eSizeAxis, PWquad, 'b*-.', 'DisplayName', 'T6T3')
