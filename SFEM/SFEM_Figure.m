@@ -1,5 +1,5 @@
 function SFEM_Figure()
-addpath('../')
+addpath('../Sources')
 n = 5;
 
 x = meshgrid(linspace(0,1,n));

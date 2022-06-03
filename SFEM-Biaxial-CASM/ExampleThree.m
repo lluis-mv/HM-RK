@@ -1,5 +1,5 @@
 function [] = ExampleThree()
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 
