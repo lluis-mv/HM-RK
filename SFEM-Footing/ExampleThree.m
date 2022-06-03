@@ -8,8 +8,8 @@ CP.E = 1000;
 CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-3;
-CP.k = 1E-3;
+CP.k = 1E-12;
+CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
