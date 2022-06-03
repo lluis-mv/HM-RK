@@ -34,7 +34,7 @@ set(gca, 'YScale', 'log')
 
 
 figure(102); clf
-plot(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
+loglog(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
 plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
