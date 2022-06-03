@@ -52,7 +52,7 @@ l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
 tic
 [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-FF = [information2.F]/l;
+FF = [information2.F];
 FF(1:2:end) = FF(1:2:end)/l;
 figure(212); clf
 plot( [information2.t], FF(1:2:end), 'r', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
@@ -84,7 +84,7 @@ drawnow
 tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
 toc
-FF = [information.F]/l;
+FF = [information.F];
 FF(1:2:end) = FF(1:2:end)/l;
 figure(212)
 plot( [information.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
@@ -119,7 +119,7 @@ tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
 toc
 
-FF = [information.F]/l2;
+FF = [information.F];
 FF(1:2:end) = FF(1:2:end)/l2;
 figure(212)
 plot( [information.t], FF(1:2:end), 'b-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])
@@ -220,5 +220,5 @@ legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
-fig = figure(212);
+fig = figure(214);
 exportgraphics(fig,['F1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
