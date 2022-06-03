@@ -2,7 +2,7 @@ function [] = ExampleThree()
 
 
 
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 
@@ -28,7 +28,7 @@ RKMethods = [8,1:7];
 [NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
 
 
-for Elem = [1,2]
+for Elem = [1:2]
     
     RKMethods = [8,1:7, 9];
     
@@ -63,13 +63,13 @@ for Elem = [1,2]
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 0.15/nSteps;
+                dt = 1.0/nSteps;
                 
                 disp(RK)
                 if ( RK < 9)
-                	tic;
-	                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-        	        timing = toc;
+                    tic;
+                    [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+                    timing = toc;
                 elseif ( RK == 9)
                     tic;
                     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
@@ -78,8 +78,8 @@ for Elem = [1,2]
                         timing = nan;
                         for mnm = 1:length(information)
                             for nmn = 1:length(information(mnm).F)
-                            information(mnm).F(nmn)= nan;
-                            end     
+                                information(mnm).F(nmn)= nan;
+                            end
                         end
                     end
                 end
@@ -87,7 +87,7 @@ for Elem = [1,2]
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
-                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:3:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
@@ -146,7 +146,7 @@ for Elem = [1,2]
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xticks([4E-4, 1E-3, 4E-3])
@@ -154,39 +154,9 @@ for Elem = [1,2]
                 ylabel('Footing load', 'interpreter', 'latex')
                 
                 figure(2107); clf
+                figure(2108); clf
                 ind = find(N == 0);
                 N(ind) = nan;
-                for jj = 1:size(RES,1)
-                    merda = '*-.';
-                    if ( jj == 8)
-                        merda = 'k*-.';
-                    elseif (jj == 9)
-                        merda = 'rs-.';
-                    end
-                    plotThis = abs(N(jj,:)-Nadim);
-                    if ( jj ~= RKReference)
-                        index = find( plotThis == 0);
-                        plotThis(index) = 1E-14*(1+rand(size(index)));
-                    end
-                    loglog(ddtt(jj,:), plotThis, [merda])
-                    hold on
-                end
-                
-                if (length(RKMethods) ==9)
-                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
-                else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
-                end
-                set(ll, 'interpreter', 'latex')
-                xticks([4E-4, 1E-3, 4E-3])
-                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
-                ylabel('Error norm', 'interpreter', 'latex')
-                grid minor
-                drawnow
-                hold off
-                
-                
-                figure(2108); clf
                 ind = find(Time == 0);
                 Time(ind) = nan;
                 for jj = 1:size(RES,1)
@@ -197,18 +167,43 @@ for Elem = [1,2]
                         merda = 'rs-.';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
+                    
                     if ( jj ~= RKReference)
                         index = find( plotThis == 0);
                         plotThis(index) = 1E-14*(1+rand(size(index)));
                     end
+                    
+                    figure(2107)
+                    loglog(ddtt(jj,:), plotThis, [merda])
+                    hold on
+                    drawnow
+                    
+                    figure(2108)
                     loglog(Time(jj,:), plotThis, [merda])
                     hold on
+                    drawnow
+                    
                 end
-                
+                figure(2107)
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                end
+                set(ll, 'interpreter', 'latex')
+                xticks([4E-4, 1E-3, 4E-3])
+                xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
+                ylabel('Error norm', 'interpreter', 'latex')
+                grid minor
+                drawnow
+                hold off
+                
+                
+                figure(2108)
+                if (length(RKMethods) ==9)
+                    ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
+                else
+                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -221,20 +216,21 @@ for Elem = [1,2]
                 % Printing....
                 figure(2105)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Plastic-Residual-', ElementType], '-dpdf')
                 figure(2106)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Plastic-Bearing-', ElementType], '-dpdf')
                 figure(2107)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Plastic-Error-', ElementType], '-dpdf')
                 figure(2108)
                 pause(1)
+                drawnow
                 my_Print(['ExampleThree-Plastic-TimeError-', ElementType], '-dpdf')
             end
-            
-            
-            
         end
         clear Time;
         clear RES;

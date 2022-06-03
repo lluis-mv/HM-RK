@@ -1,6 +1,6 @@
 function [] = ExampleOne()
 close all
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 T = 0.05;
@@ -14,9 +14,6 @@ nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 t = T/CP.M/CP.k;
-
-model = createpde(1);
-
 
 
 
@@ -97,9 +94,10 @@ for Mesh = [2,3]
             if (RK == 1)
                 clf;
             end
-            loglog( ddtt, L2, [color, '*-.'], 'DisplayName',  ['$L_2 p_w$ RK-', num2str(RK)]);
+
+            loglog( ddtt, L2, [color, '*-.'], 'DisplayName',  ['$\| p_w-p_w^h\|_{L2}$ RK-', num2str(RK)]);
             hold on
-            loglog( ddtt, L2U, [color, 'v-.'], 'DisplayName',  ['$L_2 u$ RK-', num2str(RK)]);
+            loglog( ddtt, L2U, [color, 'v-.'], 'DisplayName',  ['$\| \mathbf{u}-\mathbf{u}_h\|_{L2}$ RK-', num2str(RK)]);
             hold on
             xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
             ylabel('Error norm', 'interpreter', 'latex');

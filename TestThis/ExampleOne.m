@@ -71,7 +71,7 @@ ticks = unique(ticks);
 
 for Stab = [1, 0]
     firstTime = true;
-    for j = 4:-1:1
+    for j = 3:-1:1
         
         if ( j == 1)
             ElementType = 'T3T3';
@@ -81,14 +81,10 @@ for Stab = [1, 0]
             ElementType = 'T6T3';
             Nodes = Nodes2;
             Elements = Elements2;
-        elseif ( j == 3)
+        else
             ElementType = 'T6T6';
             Nodes = Nodes2;
             Elements = Elements2;
-        elseif ( j == 4)
-            ElementType = 'Q8Q4';
-            NodesQ; 
-            ElementsQ;
         end
         
         
@@ -139,14 +135,6 @@ for Stab = [1, 0]
         set(gca, 'FontSize', 14)
         print(['ExampleOne-Solution-', num2str(Stab)], '-dpdf')
         
-        if (all('Q8Q4' == ElementType))
-            figure(45)
-            PlotQ8Nodal(Nodes, Elements, U(3:3:end) );
-            colorbar
-            axis off
-            
-        end
-        
     end
 end
 
@@ -158,7 +146,7 @@ end
 if (true)
     
     % First part. Spectral radii
-    for j = 4:-1:1
+    for j = 1:3
         
         if ( j == 1)
             ElementType = 'T3T3';
@@ -170,19 +158,12 @@ if (true)
             Nodes = Nodes2;
             Elements = Elements2;
             ThisNumber = 6;
-        elseif ( j == 3)
+        else
             ElementType = 'T6T6';
             Nodes = Nodes2;
             Elements = Elements2;
             ThisNumber = 2000;
-        elseif ( j == 4)
-            ElementType = 'Q8Q4';
-            NodesQ; 
-            ElementsQ;
-            ThisNumber = 1;
         end
-        
-        
         
         
         minval = nan*ddtt;
@@ -228,13 +209,11 @@ if (true)
         figure(j+1);
         clf;
         
-        %loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
-        loglog(ddtt, maxval2, 'r*-.')
+        loglog(ddtt, minval2, 'm*-.', ddtt, maxval2, 'c*-.')
         
         drawnow;
         hold on
-        %loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
-        loglog(ddtt, maxval, 'b*-.')
+        loglog(ddtt, minval, 'r*-.', ddtt, maxval, 'b*-.')
         drawnow
         
         xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
@@ -242,19 +221,18 @@ if (true)
         set(gca, 'FontSize', 14)
         drawnow
         yy = ylim();
-        yy(1) = 0.1;
         xx = (he)^2/(CP.k*CP.M*ThisNumber)*[1,1];
         plot(xx, yy, 'k-.')
         ylim(yy);
-        %ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
-        %    'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
-        ll = legend('max$(|\lambda|)$ Primal', ...
-           'max$(|\lambda|)$ Stab', 'location', 'NorthWest');
+        ll = legend('min$(|\lambda|)$ Primal', 'max$(|\lambda|)$ Primal', ...
+            'min$(|\lambda|)$ Stab', 'max$(|\lambda|)$ Stab', 'location', 'best');
         set(ll, 'interpreter', 'latex')
         xlim([0.9999*min(ddtt), 1.0001*max(ddtt)])
         xticks(ticks);
         print(['ExampleOne-Radii-', ElementType], '-dpdf')
     end
+    
+    
     
     
     

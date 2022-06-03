@@ -1,8 +1,8 @@
-function [] = ExampleThreeElastic()
+function [] = ExampleThree()
 
 
 
-addpath('../Sources')
+addpath('../')
 % 1. Define the problem
 
 
@@ -12,7 +12,7 @@ CP.nu = 0.3;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-8;
-CP.Elastic = true;
+CP.Elastic = false;
 CP.MCC = true;
 
 ESIZE = 0.35;
@@ -20,66 +20,74 @@ ESIZE = 0.35;
 RKReference = 8;
 RKMethods = [8,1:7];
 
+RKReference = 8;
 
-
-LinearElastic = false;
-if ( LinearElastic)
-    CP.Elastic = true;
-    CP.MCC = false;
-end
-
-[NodesQ, ElementsQ] = ReadTheMesh('ThisMesh.msh');
-[NodesT, ElementsT] = ConvertToTriangles(NodesQ, ElementsQ);
-
-
-for Elem = [1:2]
-    
-    RKMethods = [8,1:7, 9];
-    
+for Elem = [1,2,3]
+    RKMethods = [8,1:7];
+    if ( Elem == 2)
+        RKMethods = [8,1:7, 9];
+    end
     
     esizeAxis = ESIZE;
     i = 1;
     for eSize = ESIZE
         
         if (Elem == 1)
-            ElementType = 'T6T3';
-            Elements = ElementsT;
-            Nodes = NodesT;
+            ElementType = 'T3T3';
         elseif (Elem == 2)
-            ElementType = 'Q8Q4';
-            Elements = ElementsQ;
-            Nodes = NodesQ;
+            ElementType = 'T6T3';
+        else
+            ElementType = 'T6T6';
         end
         
+        model = createpde(1);
+        
+        
+        R1 = [3,5, 0, 1, 3, 3, 0, 0, 0, 0, -3, -3]';
+        
+        g = decsg(R1);
+        geometryFromEdges(model, g);
+        
+        if ( Elem == 1)
+            mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+        else
+            mesh = generateMesh(model, 'Hmax', eSize);
+        end
+        
+        Nodes = mesh.Nodes';
+        Elements = mesh.Elements';
+        
         figure(1);
-        PlotMesh(Nodes, Elements)
+        clf;
+        if ( Elem == 1)
+            triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+        end
         drawnow
         axis equal
         axis off
-        my_Print(['ExampleThree-Elastic-FemMesh-', ElementType], '-dpdf')
+        print('ExampleThree-Plastic-FemMesh', '-dpdf')
         
         % Estimate the element size
         
+        mesha = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
+        Nodesa = mesha.Nodes';
+        Elementsa = mesha.Elements';
+        [GPInfo] = ComputeElementalMatrices(Nodesa, Elementsa, CP, 'T3T3');
+        he = mean(sqrt( mean([GPInfo(:,:).Weight])));
         
         Nadim = 20;
         
-        NSteps = [4, 2^3, 2^4, 2^5, 2^6, 2^7, 2^8];
+        NSteps = [2^5, 2^6, 2^7, 2^8, 2^9];
         for j = 1:length(NSteps)
             for RK = RKMethods
                 nSteps = NSteps(j);
-                dt = 1.0/nSteps;
+                dt = 0.15/nSteps;
                 
                 disp(RK)
                 if ( RK < 9)
-                    tic;
-                    
-                    if ( LinearElastic)
-                        [U, GPInfo,  information] = ComputeLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
-                        rrr = 10E-14*rand();
-                    else
-                        [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1, false);
-                    end
-                    timing = toc;
+                	tic;
+	                [U,GPInfo, rrr, information] = ComputeNLProblem(Nodes, Elements, CP, dt, nSteps, ElementType, RK, 1);
+        	        timing = toc;
                 elseif ( RK == 9)
                     tic;
                     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType);
@@ -88,8 +96,8 @@ for Elem = [1:2]
                         timing = nan;
                         for mnm = 1:length(information)
                             for nmn = 1:length(information(mnm).F)
-                                information(mnm).F(nmn)= nan;
-                            end
+                            information(mnm).F(nmn)= nan;
+                            end     
                         end
                     end
                 end
@@ -97,7 +105,7 @@ for Elem = [1:2]
                 
                 ThisInfo(RK,j).t = [information.t];
                 ThisInfo(RK,j).F = [information.F];
-                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:3:end);
+                ThisInfo(RK,j).F = ThisInfo(RK,j).F(1:2:end);
                 
                 if ( RK == RKReference)
                     Nadim = ThisInfo(RK,j).F(end);
@@ -116,13 +124,13 @@ for Elem = [1:2]
                 
                 figure(2105); clf
                 for jj = 1:size(RES,1)
-                    merda = '*-.';
+                    merda = '';
                     if ( jj == 8)
-                        merda = 'k*-.';
+                        merda = 'k';
                     elseif (jj == 9)
-                        merda = 'rs-.';
+                        merda = 'r';
                     end
-                    loglog(ddtt(jj,:), RES(jj,:), [merda])
+                    loglog(ddtt(jj,:), RES(jj,:), [merda, '*-.'])
                     hold on
                     
                 end
@@ -140,13 +148,13 @@ for Elem = [1:2]
                 
                 figure(2106); clf
                 for jj = 1:size(RES,1)
-                    merda = '*-.';
+                    merda = '';
                     if ( jj == 8)
-                        merda = 'k*-.';
+                        merda = 'k';
                     elseif (jj == 9)
-                        merda = 'rs-.';
+                        merda = 'r';
                     end
-                    loglog(ddtt(jj,:), N(jj,:), [merda])
+                    loglog(ddtt(jj,:), N(jj,:), [merda, '*-.'])
                     hold on
                 end
                 grid minor
@@ -155,45 +163,35 @@ for Elem = [1:2]
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
                 ylabel('Footing load', 'interpreter', 'latex')
                 
                 figure(2107); clf
-                figure(2108); clf
                 ind = find(N == 0);
                 N(ind) = nan;
-                ind = find(Time == 0);
-                Time(ind) = nan;
                 for jj = 1:size(RES,1)
-                    merda = '*-.';
+                    merda = '';
                     if ( jj == 8)
-                        merda = 'k*-.';
+                        merda = 'k';
                     elseif (jj == 9)
-                        merda = 'rs-.';
+                        merda = 'r';
                     end
                     plotThis = abs(N(jj,:)-Nadim);
-                    index = find( plotThis == 0);
-                    plotThis(index) = 1E-14*(1+rand(size(index)));
-                    
-                    figure(2107)
-                    loglog(ddtt(jj,:), plotThis, [merda])
+                    if ( jj ~= RKReference)
+                        index = find( plotThis == 0);
+                        plotThis(index) = 1E-14*(1+rand(size(index)));
+                    end
+                    loglog(ddtt(jj,:), plotThis, [merda, '*-.'])
                     hold on
-                    drawnow
-                    
-                    figure(2108)
-                    loglog(Time(jj,:), plotThis, [merda])
-                    hold on
-                    drawnow
-                    
                 end
-                figure(2107)
+                
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xlabel('$\Delta t$ (s)', 'interpreter', 'latex')
@@ -203,11 +201,29 @@ for Elem = [1:2]
                 hold off
                 
                 
-                figure(2108)
+                figure(2108); clf
+                ind = find(Time == 0);
+                Time(ind) = nan;
+                for jj = 1:size(RES,1)
+                    merda = '';
+                    if ( jj == 8)
+                        merda = 'k';
+                    elseif (jj == 9)
+                        merda = 'r';
+                    end
+                    plotThis = abs(N(jj,:)-Nadim);
+                    if ( jj ~= RKReference)
+                        index = find( plotThis == 0);
+                        plotThis(index) = 1E-14*(1+rand(size(index)));
+                    end
+                    loglog(Time(jj,:), plotThis, [merda, '*-.'])
+                    hold on
+                end
+                
                 if (length(RKMethods) ==9)
                     ll = legend('1','2','3','4','5','6','7','8', 'I', 'location','bestoutside');
                 else
-                    ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
+                ll = legend('1','2','3','4','5','6','7','8', 'location','bestoutside');
                 end
                 set(ll, 'interpreter', 'latex')
                 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -220,21 +236,20 @@ for Elem = [1:2]
                 % Printing....
                 figure(2105)
                 pause(1)
-                drawnow
-                my_Print(['ExampleThree-Elastic-Residual-', ElementType], '-dpdf')
+                print(['ExampleThree-Plastic-Residual-', num2str(Elem)], '-dpdf')
                 figure(2106)
                 pause(1)
-                drawnow
-                my_Print(['ExampleThree-Elastic-Bearing-', ElementType], '-dpdf')
+                print(['ExampleThree-Plastic-Bearing-', num2str(Elem)], '-dpdf')
                 figure(2107)
                 pause(1)
-                drawnow
-                my_Print(['ExampleThree-Elastic-Error-', ElementType], '-dpdf')
+                print(['ExampleThree-Plastic-Error-', num2str(Elem)], '-dpdf')
                 figure(2108)
                 pause(1)
-                drawnow
-                my_Print(['ExampleThree-Elastic-TimeError-', ElementType], '-dpdf')
+                print(['ExampleThree-Plastic-TimeError-', num2str(Elem)], '-dpdf')
             end
+            
+            
+            
         end
         clear Time;
         clear RES;
@@ -245,6 +260,4 @@ for Elem = [1:2]
 end
 
 
-function [] = my_Print(XNAME, FORMAT)
-print(XNAME, FORMAT)
-savefig([XNAME, '.fig'])
+

@@ -1,6 +1,6 @@
 function [] = ExampleOne()
 close all
-addpath('../')
+addpath('../Sources')
 % 1. Define the problem
 
 T = 0.05;

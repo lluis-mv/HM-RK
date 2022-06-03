@@ -1,5 +1,5 @@
 close all
-addpath('../')
+addpath('../Sources')
 
 [Nodes, Elements] = ReadTheMesh('ThisMesh.msh');
 [Nodes, Elements] = ConvertToTriangles(Nodes, Elements);
