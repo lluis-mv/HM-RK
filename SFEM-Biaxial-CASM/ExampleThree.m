@@ -65,13 +65,13 @@ for eSize= [0.25, 0.15, 0.10]
     figure(212); 
     plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. ' XNAME])
     hold on
-    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    print('Biaxial-Reaction', '-dpdf')
 
 
     figure(214); 
     plot( [information2.t], FF(2:2:end), ['r', SPEC] , 'linewidth', 2, 'DisplayName', ['NS-T3T3. ' XNAME])
     hold on
-    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
+    print('Biaxial-Water', '-dpdf');
 
 
     
@@ -110,10 +110,10 @@ for eSize= [0.25, 0.15, 0.10]
     FF(1:2:end) = FF(1:2:end);
     figure(212)
     plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName',['T3T3. ' XNAME])
-    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    print('Biaxial-Reaction', '-dpdf')
     figure(214)
     plot( [information.t], FF(2:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. ' XNAME])
-    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
+    print('Biaxial-Water', '-dpdf');
     
     figure(556); clf
     pdeplot(model1,'XYData',U(3:3:end),'ColorMap','jet');
@@ -153,12 +153,12 @@ for eSize= [0.25, 0.15, 0.10]
     figure(212)
     plot( [information.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName',  ['T6T3. ' XNAME])
     hold on
-    exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    print('Biaxial-Reaction', '-dpdf')
     
     figure(214)
     plot( [information.t], FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. ' XNAME])
     hold on
-    exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
+    print('Biaxial-Water', '-dpdf');
     
     figure(559); clf
     pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
