@@ -16,9 +16,9 @@ CP.MCC = 20;
 figure(212); clf;
 figure(214); clf;
 
-for eSize= [0.25, 0.15, 0.10]
+for eSize= [0.25, 0.15, 0.08]
     
-    if ( eSize == 0.10)
+    if ( eSize == 0.08)
         XNAME = 'Fine';
         SPEC = '-.';
     elseif ( eSize == 0.15)
@@ -189,7 +189,7 @@ for eSize= [0.25, 0.15, 0.10]
     drawnow
     
     figure(957)
-    cc = caxis;
+    cc = [-17, -3];
     i = 1;
     pause(1)
     for iii = [956, 957, 959]
@@ -208,7 +208,7 @@ for eSize= [0.25, 0.15, 0.10]
     
     
     figure(357)
-    cc = caxis;
+    cc = [-12,0];
     i = 1;
     pause(1)
     for iii = [356, 357, 359]
@@ -226,7 +226,7 @@ for eSize= [0.25, 0.15, 0.10]
     
     
     figure(557)
-    cc = caxis;
+    cc =  [0,12];
     i = 1;
     pause(1)
     for iii = [556, 557, 559]
@@ -245,7 +245,7 @@ for eSize= [0.25, 0.15, 0.10]
     
     
     figure(457)
-    cc = caxis;
+    cc = [0, 0.22];
     i = 1;
     pause(1)
     for iii = [456, 457, 459]
@@ -264,7 +264,7 @@ for eSize= [0.25, 0.15, 0.10]
     figure(212)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
     ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
     fig = figure(212);
     exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
@@ -272,7 +272,7 @@ for eSize= [0.25, 0.15, 0.10]
     figure(214)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
     ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
     fig = figure(214);
     exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');

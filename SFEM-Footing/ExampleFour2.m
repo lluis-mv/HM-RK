@@ -27,7 +27,7 @@ hold on
 plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'T3T3')
 plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'T6T3')
 drawnow
-xlabel('Number of dofs', 'interpreter', 'latex')
+xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('Computational cost (s)', 'interpreter', 'latex')
 set(gca, 'XScale', 'log')
 set(gca, 'YScale', 'log')
