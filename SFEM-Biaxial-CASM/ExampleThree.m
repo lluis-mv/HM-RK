@@ -16,6 +16,10 @@ CP.MCC = 20;
 figure(212); clf;
 figure(214); clf;
 
+figure(312); clf;
+figure(412); clf;
+figure(512); clf;
+
 for eSize= [0.25, 0.15, 0.08]
     
     if ( eSize == 0.08)
@@ -50,6 +54,13 @@ for eSize= [0.25, 0.15, 0.08]
     Elements1 = mesh1.Elements';
     
     
+            figure(1)
+        triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
+        axis equal;
+        axis off;
+        print(['BiaxialMesh-', XNAME], '-dpdf');
+    
+    
     
     nSteps = 5000;
     dt = 0.03/nSteps;
@@ -62,10 +73,17 @@ for eSize= [0.25, 0.15, 0.08]
     toc
     FF = [information2.F];
     FF(1:2:end) = FF(1:2:end);
+    
+    
     figure(212); 
     plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. ' XNAME])
     hold on
     print('Biaxial-Reaction', '-dpdf')
+
+    figure(312); 
+    plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2, 'DisplayName', [XNAME])
+    hold on
+    print('Biaxial-Reaction-NST3T3', '-dpdf')
 
 
     figure(214); 
@@ -108,9 +126,15 @@ for eSize= [0.25, 0.15, 0.08]
     toc
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end);
+   
     figure(212)
     plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName',['T3T3. ' XNAME])
     print('Biaxial-Reaction', '-dpdf')
+    
+    figure(412)
+    plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName',[XNAME])
+    print('Biaxial-Reaction-T3T3', '-dpdf')
+    
     figure(214)
     plot( [information.t], FF(2:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. ' XNAME])
     print('Biaxial-Water', '-dpdf');
@@ -154,6 +178,11 @@ for eSize= [0.25, 0.15, 0.08]
     plot( [information.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName',  ['T6T3. ' XNAME])
     hold on
     print('Biaxial-Reaction', '-dpdf')
+    
+    figure(512)
+    plot( [information.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName',  [XNAME])
+    hold on
+    print('Biaxial-Reaction-T6T3', '-dpdf')
     
     figure(214)
     plot( [information.t], FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. ' XNAME])
@@ -266,14 +295,43 @@ for eSize= [0.25, 0.15, 0.08]
     set(gca, 'FontSize', 15)
     xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
     ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    drawnow
     fig = figure(212);
     exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    
+    figure(312)
+    legend('location', 'best', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
+    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    drawnow
+    fig = figure(312);
+    exportgraphics(fig,'Biaxial-Reaction-NST3T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    
+    figure(412)
+    legend('location', 'best', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
+    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    drawnow
+    fig = figure(412);
+    exportgraphics(fig,'Biaxial-Reaction-T3T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
+    
+    figure(512)
+    legend('location', 'best', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
+    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    drawnow
+    fig = figure(512);
+    exportgraphics(fig,'Biaxial-Reaction-T6T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
     
     figure(214)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
     ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
+    drawnow
     fig = figure(214);
     exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');
     
