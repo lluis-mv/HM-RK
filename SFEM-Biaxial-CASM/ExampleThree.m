@@ -65,7 +65,7 @@ for eSize= [0.25, 0.15, 0.08]
     nSteps = 5000;
     dt = 0.03/nSteps;
     
-    
+
     
     
     tic
@@ -133,6 +133,7 @@ for eSize= [0.25, 0.15, 0.08]
     
     figure(412)
     plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName',[XNAME])
+    hold on
     print('Biaxial-Reaction-T3T3', '-dpdf')
     
     figure(214)
