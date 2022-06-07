@@ -22,9 +22,6 @@ dofs = 3*(nodesLeft-1)+3;
 nDirichlet = [nDirichlet; dofs];
 % dofs = 3*([1:nNodes]'-1)+3;
 % nDirichlet = [nDirichlet; dofs];
-
-
-
 C(dofs,:) = 0;
 K(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
@@ -98,7 +95,6 @@ if (size(Elements,2) == 3)
             
             index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
             f(index) = f(index) + fe;
-            fe
         end
     end
 elseif (size(Elements,2) == 6)
@@ -135,5 +131,5 @@ elseif (size(Elements,2) == 6)
     
 end
 
-fini = f;
+fini = -f;
 f = 0*f;

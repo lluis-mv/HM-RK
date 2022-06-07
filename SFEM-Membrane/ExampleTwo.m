@@ -18,10 +18,11 @@ model = createpde(1);
 
 
 R1 = [3,4,0, 48, 48, 0, 0, 44, 44+16, 44]';
+R1 = [3,4,0, 1, 1, 0, 0, 0, 1, 1]';
 
 
 
-ESIZE = 10./[1:4];
+ESIZE = 1./[2:2:10];
 
 
 
@@ -44,15 +45,17 @@ if (true)
         mesh = generateMesh(model, 'Hmax', eSize);
         Nodes = mesh.Nodes';
         Elements = mesh.Elements';
-        
+        Nodes = CreateMapping(Nodes);
         
         
         mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
         Nodes1 = mesh1.Nodes';
         Elements1 = mesh1.Elements';
-        
+        Nodes1 = CreateMapping(Nodes1);
+
         figure(1)
         triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
+        
         axis equal;
         axis off;
         print(['Mesh-', num2str(i)], '-dpdf');
@@ -166,96 +169,19 @@ end
 
 
 
-eSize = 1/4;
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
 
+function Xn = CreateMapping(X)
 
+Xn = 0*X;
 
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
+Xn(:,1) = 48*X(:,1);
 
-NSTEPS = 10.^linspace(1,log10(500),10); NSTEPS(end) = 500;
-NSTEPS = floor(NSTEPS);
-i = 1;
-for nSteps = NSTEPS
-    
-    
-    dt = 1.0/nSteps; 
-    dtAxis(i) = dt;
-    
-    
-    
-    tic
-    [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-    TIMEnodal(i)= toc;
-    nDofs(i) = size(Nodes1,1)*3;
-    ind = find(Nodes(:,2) == max( Nodes(:,2)));
-    xx = sort(Nodes(ind,1));
-    ind = find(xx == 1);
-    l = 0.5*(xx(ind)+xx(ind+1));
-    l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
-    
-    
-    FF = [information2.F];
-    PWnodal(i) = FF(end);
-    Qnodal(i) = FF(end-1)/l;
-    
-    
-    tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-    TIMElinear(i)= toc;
-    TIMEnodal./TIMElinear
-    FF = [information.F];
-    PWlinear(i) = FF(end);
-    Qlinear(i) = FF(end-1)/l;
-    
-    tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
-    TIMEquad(i) = toc;
-    FF = [information.F];
-    PWquad(i) = FF(end);
-    Qquad(i) = FF(end-1)/l2;
-    nDofsquad(i) = size(Nodes,1)*3;
-    
-    
-    
-    figure(99); clf
-    plot(NSTEPS(1:i), Qnodal(1:i), 'r*-.', 'DisplayName', 'NS-T3T3')
-    hold on
-    plot(NSTEPS(1:i), Qlinear(1:i), 'g*-.', 'DisplayName', 'T3T3')
-    plot(NSTEPS(1:i), Qquad(1:i), 'b*-.', 'DisplayName', 'T6T3')
-    drawnow
-    xlabel('$n_{steps}$', 'interpreter', 'latex')
-    ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
-    set(gca, 'XScale', 'log')
-    
-    figure(100); clf
-    plot(NSTEPS(1:i), PWnodal(1:i), 'r*-.', 'DisplayName', 'NS-T3T3')
-    hold on
-    plot(NSTEPS(1:i), PWlinear(1:i), 'g*-.', 'DisplayName', 'T3T3')
-    plot(NSTEPS(1:i), PWquad(1:i), 'b*-.', 'DisplayName', 'T6T3')
-    xlabel('$n_{steps}$', 'interpreter', 'latex')
-    ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
-    drawnow
-    set(gca, 'XScale', 'log')
-    
-    save('TimeUndrainedData.mat', ...
-        'i', 'dtAxis', 'NSTEPS', ...
-        'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
-        'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
-        'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad');
-    
-    for jj = [99, 100]
-        figure(jj)
-        set(gca, 'FontSize', 15)
-        ll = legend();
-        set(ll, 'location', 'best', 'interpreter', 'latex')
-    end
-    
-    figure(99); drawnow; pause(1); print('Footing-Load-2', '-dpdf')
-    figure(100); drawnow; pause(1); print('Footing-WP-2', '-dpdf')
-    i = i+1;
+for i = 1:size(X,1)
+    x = X(i,1);
+    y = X(i,2);
+    c0 = 44*x;
+    slope = 44*(1-x)+16*x;
+    y = c0+slope*y;
+    Xn(i,2) = y;
 end
+

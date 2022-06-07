@@ -8,14 +8,14 @@ addpath('../Sources')
 CP.HydroMechanical = true;
 CP.E = 1000;
 CP.nu = 0.0;
-CP.k = 1E-8;
+CP.k = 1E-16;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 
 
 
 
-eSize = 10;
+eSize = 0.06;
 
 model = createpde(1);
 
@@ -25,12 +25,17 @@ R1 = [3,4,0, 48, 48, 0, 0, 44, 44+16, 44]';
 % R1 = [3,4,0, 48, 48, 0, 0, 0, 20, 20]';
 
 
+R1 = [3,4,0, 1, 1, 0, 0, 0, 1, 1]';
+
 
 g = decsg(R1);
 geometryFromEdges(model, g);
 mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
+Nodes = CreateMapping(Nodes);
+model.Geometry = [];
+newMesh = geometryFromMesh(model, Nodes', Elements');
 
 
 model1 = createpde(1);
@@ -39,6 +44,9 @@ mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes1 = mesh1.Nodes';
 Elements1 = mesh1.Elements';
 
+Nodes1 = CreateMapping(Nodes1);
+model1.Geometry = [];
+newMesh = geometryFromMesh(model1, Nodes1', Elements1');
 
 % First part. compute the eigenvalues
 figure(1);
@@ -317,4 +325,19 @@ for nod = 1:nNodes
     Xa(3*(nod-1)+3) = pw;
 end
 
+
+function Xn = CreateMapping(X)
+
+Xn = 0*X;
+
+Xn(:,1) = 48*X(:,1);
+
+for i = 1:size(X,1)
+    x = X(i,1);
+    y = X(i,2);
+    c0 = 44*x;
+    slope = 44*(1-x)+16*x;
+    y = c0+slope*y;
+    Xn(i,2) = y;
+end
 
