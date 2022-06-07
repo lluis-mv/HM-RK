@@ -102,17 +102,19 @@ for loadStep = 1:nSteps
         if ( iter > 10)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         end
-        if ( normRes < 1E-12 && iter > 0)
+        if ( normRes < 1E-11 && iter > 0)
 %             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             
             break;
         end
-        if ( iter == 30)
+        if ( iter == 30 && normRes > 1E-8)
             X = nan*X; 
             Xn = nan*X;
             normRes = nan;
             nZero = nnz(A);
             return;
+        elseif (iter == 30)
+            break;
         end
         if ( iter > 25)
             hola = 1;
