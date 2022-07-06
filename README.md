@@ -32,4 +32,4 @@ This code is distributed under BSD 3-Clause License.
 
 
 If you find these codes useful for your work, please cite as follows:
-- Monforte, L., Carbonell, J.M., Arroyo, M. and Gens, A (2022) An unconditionally stable explicit stabilized finite element for the coupled hydromechanical formulation in soil mechanics in pseudo-stationary conditions [https://doi.org/10.1002/nme.7064](https://doi.org/10.1680/jgeot.19.p.354)
+- Monforte, L., Carbonell, J.M., Arroyo, M. and Gens, A (2022) An unconditionally stable explicit stabilized finite element for the coupled hydromechanical formulation in soil mechanics in pseudo-stationary conditions. International Journal for Numerical Methods in Engineering [https://doi.org/10.1002/nme.7064](https://doi.org/10.1680/jgeot.19.p.354)
