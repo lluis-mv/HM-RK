@@ -20,6 +20,8 @@ figure(312); clf;
 figure(412); clf;
 figure(512); clf;
 
+
+
 for eSize= [0.25, 0.15, 0.08]
     
     if ( eSize == 0.08)
@@ -35,7 +37,7 @@ for eSize= [0.25, 0.15, 0.08]
     
     model = createpde(1);
     
-    H = -2;
+    H = -1.5;
     R1 = [3,4, 0, 1, 1, 0, H, H, 0, 0]';
     
     

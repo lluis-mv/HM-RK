@@ -11,7 +11,7 @@ CP.nu = 0.0;
 CP.k = 1E-16;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-
+CP.Elastic = true;
 
 
 
@@ -212,7 +212,7 @@ for iii = [956, 957, 959]
     pause(1)
     
     fig = figure(iii);
-    exportgraphics(fig,['F1-SV-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['M1-SV-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -230,7 +230,7 @@ for iii = [356, 357, 359]
     drawnow
     pause(1)
     fig = figure(iii);
-    exportgraphics(fig,['F1-pEff-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['M1-pEff-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -248,7 +248,7 @@ for iii = [556, 557, 559]
     drawnow
     pause(1)
     fig = figure(iii);
-    exportgraphics(fig,['F1-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['M1-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -266,7 +266,7 @@ for iii = [856, 857, 859]
     drawnow
     pause(1)
     fig = figure(iii);
-    exportgraphics(fig,['F1-UY-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['M1-UY-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -276,7 +276,7 @@ set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
 ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
 fig = figure(212);
-exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+exportgraphics(fig,['M1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
 
 figure(214)
 legend('location', 'best', 'interpreter', 'latex')
@@ -284,7 +284,7 @@ set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
 fig = figure(214);
-exportgraphics(fig,['F1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+exportgraphics(fig,['M1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
 
 
 

@@ -4,14 +4,12 @@ addpath('../Sources')
 
 
 CP.HydroMechanical = true;
-CP.E = 100;
-CP.nu = 0.3;
+CP.E = 1000;
+CP.nu = 0.0;
+CP.k = 1E-16;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
-CP.k = 1E-12;
-CP.k = 1E-12;
-CP.Elastic = false;
-CP.MCC = 2;
+CP.Elastic = true;
 
 
 model = createpde(1);
@@ -22,7 +20,7 @@ R1 = [3,4,0, 1, 1, 0, 0, 0, 1, 1]';
 
 
 
-ESIZE = 1./[2:2:10];
+ESIZE = 1./[5:3:26];
 
 
 
@@ -58,7 +56,7 @@ if (true)
         
         axis equal;
         axis off;
-        print(['Mesh-', num2str(i)], '-dpdf');
+        print(['Mesh-Membrane-', num2str(i)], '-dpdf');
         
         [GPInfo] = ComputeElementalMatrices(Nodes1, Elements1, CP, 'T3T3');
         he = mean(sqrt([GPInfo(:,:).Weight]));
@@ -104,7 +102,7 @@ if (true)
         
         
         save('UndrainedData.mat', ...
-            'ESIZE', 'i', ...
+            'ESIZE', 'i', 'eSizeAxis', ...
             'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
             'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
             'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad');
@@ -158,10 +156,10 @@ if (true)
             set(ll, 'location', 'best', 'interpreter', 'latex')
         end
         
-        figure(99); drawnow; pause(1); print('Footing-Load-1', '-dpdf')
-        figure(100); drawnow; pause(1); print('Footing-WP-1', '-dpdf')
-        figure(101); drawnow; pause(1); print('Footing-Cost-1', '-dpdf')
-        figure(102); drawnow; pause(1); print('Footing-Velocity-1', '-dpdf')
+        figure(99);  drawnow; pause(1); print('Membrane-Load-1', '-dpdf')
+        figure(100); drawnow; pause(1); print('Membrane-WP-1', '-dpdf')
+        figure(101); drawnow; pause(1); print('Membrane-Cost-1', '-dpdf')
+        figure(102); drawnow; pause(1); print('Membrane-Velocity-1', '-dpdf')
         i = i+1;
     end
     

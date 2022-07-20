@@ -14,7 +14,6 @@ CP.Elastic = false;
 CP.MCC = 2;
 
 eSize= 1/4;
-
 model = createpde(1);
 
 
@@ -38,7 +37,7 @@ Elements1 = mesh1.Elements';
 
 
 figure(1); clf;
-[Elements1, Nodes1] = CreateMesh(0,4, -4, 0, 0.25, 0.25);
+[Elements1, Nodes1] = CreateMesh(0,4, -4, 0, eSize, eSize);
 
 triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'b')
 [Nodes2] = AntiLaplacianSmoothing(Elements1, Nodes1);
@@ -55,7 +54,20 @@ end
 
 
 
-for this = [-0.25, -0.15, 0, 0.25]
+%for this = [-0.25, -0.15, 0, 0.25]
+
+figure(1000); clf;
+figure(1001); clf;
+
+for this = [-0.25,  0.25]
+
+    if ( this< 0)
+        MeshName = 'L';
+        SPEC = '';
+    else
+        MeshName = 'M';
+        SPEC = '-.s';
+    end
     
     Nodes1 = Nodes2;
     
@@ -91,6 +103,21 @@ for this = [-0.25, -0.15, 0, 0.25]
     hold on
     drawnow
     
+    figure(1000)
+    if ( this < 0)
+        plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information2.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+    drawnow
+    figure(1001)
+    if (this < 0)
+        plot( [information2.t], FF(2:2:end), ['r', SPEC], 'linewidth', 2, 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information2.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
     
     figure(557); clf
     pdeplot(Nodes1', Elements1', 'XYData', U(3:3:end), 'ColorMap', 'jet')
@@ -125,6 +152,23 @@ for this = [-0.25, -0.15, 0, 0.25]
     hold on
     drawnow
     
+
+    figure(1000)
+    if ( this < 0)
+        plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+    drawnow
+    figure(1001)
+    if ( this < 0)
+        plot( [information.t], FF(2:2:end), ['g', SPEC], 'linewidth', 2, 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+
     
     figure(556); clf
     pdeplot(Nodes1', Elements1', 'XYData', U(3:3:end), 'ColorMap', 'jet')
@@ -167,6 +211,36 @@ for this = [-0.25, -0.15, 0, 0.25]
     pdeplot(NodesX', ElementsX','XYData',U(3:3:end),'ColorMap','jet');
     drawnow
     
+    fig = figure(1000);
+    if ( this < 0)
+        plot( [information2.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2,'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information2.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b','DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    %ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
+    legend('location', 'best', 'interpreter', 'latex')
+    set(gca, 'FontSize', 14);
+    drawnow
+    exportgraphics(fig, 'F2-New-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+    fig = figure(1001);
+    if ( this < 0)
+        plot( [information2.t], FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information2.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b', 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
+    legend('location', 'best', 'interpreter', 'latex')
+    set(gca, 'FontSize', 14);
+    drawnow
+    exportgraphics(fig, 'F2-New-WP.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+
     figure(959); clf
     SV = [];
     pEff = [];
@@ -193,7 +267,7 @@ for this = [-0.25, -0.15, 0, 0.25]
     pause(1)
     
     thisN = num2str(this);
-    index = find(thisN == '.')
+    index = find(thisN == '.');
     thisN(index) = '_';
     for iii = [956, 957, 959]
         figure(iii)

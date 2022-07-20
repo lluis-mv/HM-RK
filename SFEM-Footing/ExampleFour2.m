@@ -2,27 +2,32 @@
 
 load('UndrainedData.mat')
 
-eSizeAxis = ESIZE(1:i);
+% eSizeAxis = ESIZE(1:i);
 figure(99); clf
-semilogx(eSizeAxis, Qnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
+semilogx(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
-plot(eSizeAxis, Qlinear, 'g*-.', 'DisplayName', 'T3T3')
-plot(eSizeAxis, Qquad, 'b*-.', 'DisplayName', 'T6T3')
+plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'T6T3')
+plot(eSizeAxis(NStabilizedNodal), Qnodal(NStabilizedNodal), 'rs','MarkerFaceColor', 'r', 'HandleVisibility', 'off')
+plot(eSizeAxis(NStabilizedT3T3), Qlinear(NStabilizedT3T3), 'gs','MarkerFaceColor', 'g', 'HandleVisibility', 'off')
 drawnow
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
 ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
 
 figure(100); clf
-semilogx(eSizeAxis, PWnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
+semilogx(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
-plot(eSizeAxis, PWlinear, 'g*-.', 'DisplayName', 'T3T3')
-plot(eSizeAxis, PWquad, 'b*-.', 'DisplayName', 'T6T3')
+plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'T6T3')
+
+plot(eSizeAxis(NStabilizedNodal), PWnodal(NStabilizedNodal), 'rs','MarkerFaceColor', 'r', 'HandleVisibility', 'off')
+plot(eSizeAxis(NStabilizedT3T3), PWlinear(NStabilizedT3T3), 'gs','MarkerFaceColor', 'g', 'HandleVisibility', 'off')
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
 ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
 drawnow
 
 figure(101); clf
-plot(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
+loglog(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'T3T3')
 plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'T6T3')
