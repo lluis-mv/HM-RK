@@ -30,8 +30,6 @@ one = [1,1,0]';
 perme = CP.k;
 
 
-
-
 for el = 1:nElements
     
     for ngp = 1:size(GPInfo,2)
