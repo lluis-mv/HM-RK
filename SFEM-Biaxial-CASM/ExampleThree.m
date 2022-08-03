@@ -296,8 +296,8 @@ for eSize= [0.25, 0.14, 0.07]
     figure(212)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
-    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    xlabel('Vertical deformation, $u_z/H$', 'interpreter', 'latex')
+    ylabel('Vertical Pressure (kPa)', 'interpreter', 'latex')
     drawnow
     fig = figure(212);
     exportgraphics(fig,'Biaxial-Reaction.pdf', 'BackgroundColor', 'none','ContentType','vector');
@@ -305,8 +305,8 @@ for eSize= [0.25, 0.14, 0.07]
     figure(312)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
-    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    xlabel('Vertical deformation, $u_z/H$', 'interpreter', 'latex')
+    ylabel('Vertical Pressure (kPa)', 'interpreter', 'latex')
     drawnow
     fig = figure(312);
     exportgraphics(fig,'Biaxial-Reaction-NST3T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
@@ -314,8 +314,8 @@ for eSize= [0.25, 0.14, 0.07]
     figure(412)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
-    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    xlabel('Vertical deformation, $u_z/H$', 'interpreter', 'latex')
+    ylabel('Vertical Pressure (kPa)', 'interpreter', 'latex')
     drawnow
     fig = figure(412);
     exportgraphics(fig,'Biaxial-Reaction-T3T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
@@ -323,8 +323,8 @@ for eSize= [0.25, 0.14, 0.07]
     figure(512)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
-    ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+    xlabel('Vertical deformation, $u_z/H$', 'interpreter', 'latex')
+    ylabel('Vertical Pressure (kPa)', 'interpreter', 'latex')
     drawnow
     fig = figure(512);
     exportgraphics(fig,'Biaxial-Reaction-T6T3.pdf', 'BackgroundColor', 'none','ContentType','vector');
@@ -332,8 +332,8 @@ for eSize= [0.25, 0.14, 0.07]
     figure(214)
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
-    xlabel('Vertical displacement, $u_z$', 'interpreter', 'latex')
-    ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
+    xlabel('Vertical deformation, $u_z/H$', 'interpreter', 'latex')
+    ylabel('Vertical Pressure (kPa)', 'interpreter', 'latex')
     drawnow
     fig = figure(214);
     exportgraphics(fig,'Biaxial-Water.pdf', 'BackgroundColor', 'none', 'ContentType', 'vector');

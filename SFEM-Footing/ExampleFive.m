@@ -2,7 +2,7 @@ function [] = ExampleFive()
 addpath('../Sources')
 % 1. Define the problem
 
-
+indentation = 0.05;
 CP.HydroMechanical = true;
 CP.E = 1000;
 CP.nu = 0.3;
@@ -95,27 +95,27 @@ for this = [-0.25,  0.25]
     FF = [information2.F];
     FF(1:2:end) = FF(1:2:end)/l;
     figure(212)
-    plot( [information2.t], FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
+    plot( [information2.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
     hold on
     drawnow
     figure(215)
-    plot( [information2.t], FF(2:2:end), '', 'linewidth', 2, 'DisplayName', ['NS-T3T3'])
+    plot( [information2.t]*indentation, FF(2:2:end), '', 'linewidth', 2, 'DisplayName', ['NS-T3T3'])
     hold on
     drawnow
     
     figure(1000)
     if ( this < 0)
-        plot( [information2.t], FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information2.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
     drawnow
     figure(1001)
     if (this < 0)
-        plot( [information2.t], FF(2:2:end), ['r', SPEC], 'linewidth', 2, 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(2:2:end), ['r', SPEC], 'linewidth', 2, 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information2.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
     
@@ -144,28 +144,28 @@ for this = [-0.25,  0.25]
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l;
     figure(213)
-    plot( [information.t], FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
     hold on
     drawnow
     figure(216)
-    plot( [information.t], FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
     hold on
     drawnow
     
 
     figure(1000)
     if ( this < 0)
-        plot( [information.t], FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information.t]*indentation, FF(1:2:end), ['g', SPEC], 'linewidth', 2,'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information.t]*indentation, FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
     drawnow
     figure(1001)
     if ( this < 0)
-        plot( [information.t], FF(2:2:end), ['g', SPEC], 'linewidth', 2, 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information.t]*indentation, FF(2:2:end), ['g', SPEC], 'linewidth', 2, 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information.t]*indentation, FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'g', 'DisplayName', ['T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
 
@@ -199,11 +199,11 @@ for this = [-0.25,  0.25]
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l2;
     figure(214)
-    plot( [information.t], FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
     hold on
     drawnow
     figure(217)
-    plot( [information.t], FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
     hold on
     drawnow
     
@@ -213,12 +213,12 @@ for this = [-0.25,  0.25]
     
     fig = figure(1000);
     if ( this < 0)
-        plot( [information2.t], FF(1:2:end), ['b', SPEC], 'linewidth', 2,'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(1:2:end), ['b', SPEC], 'linewidth', 2,'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information2.t], FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b','DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b','DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
-    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
     ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
     %ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
     legend('location', 'best', 'interpreter', 'latex')
@@ -233,7 +233,7 @@ for this = [-0.25,  0.25]
         plot( [information2.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b', 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
-    xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+    xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
     ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
     legend('location', 'best', 'interpreter', 'latex')
     set(gca, 'FontSize', 14);
@@ -331,7 +331,7 @@ for this = [-0.25,  0.25]
         ll = legend('Mesh A', 'Mesh B', 'Mesh C', 'Mesh D');
         set(ll, 'location', 'best', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
-        xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+        xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
         ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
         exportgraphics(fig, ['F2-Reaction-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
         
@@ -340,7 +340,7 @@ for this = [-0.25,  0.25]
         ll = legend('Mesh A', 'Mesh B', 'Mesh C', 'Mesh D');
         set(ll, 'location', 'best', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
-        xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+        xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
         ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
         exportgraphics(fig, ['F2-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     end

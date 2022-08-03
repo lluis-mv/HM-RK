@@ -1,7 +1,7 @@
 function [] = ExampleThree()
 addpath('../Sources')
 % 1. Define the problem
-
+indentation = 0.05;
 
 CP.HydroMechanical = true;
 CP.E = 1000;
@@ -55,10 +55,10 @@ toc
 FF = [information2.F];
 FF(1:2:end) = FF(1:2:end)/l;
 figure(212); clf
-plot( [information2.t], FF(1:2:end), 'r', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
+plot( [information2.t]*indentation, FF(1:2:end), 'r', 'linewidth', 2,'DisplayName', ['NS-T3T3'])
 hold on
 figure(214); clf
-plot( [information2.t], FF(2:2:end), 'r', 'linewidth', 2, 'DisplayName', ['NS-T3T3'])
+plot( [information2.t]*indentation, FF(2:2:end), 'r', 'linewidth', 2, 'DisplayName', ['NS-T3T3'])
 hold on
 
 
@@ -87,9 +87,9 @@ toc
 FF = [information.F];
 FF(1:2:end) = FF(1:2:end)/l;
 figure(212)
-plot( [information.t], FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
+plot( [information.t]*indentation, FF(1:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
 figure(214)
-plot( [information.t], FF(2:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
+plot( [information.t]*indentation, FF(2:2:end), 'g', 'linewidth', 2,'DisplayName', ['T3T3'])
 
 
 figure(556); clf
@@ -122,12 +122,12 @@ toc
 FF = [information.F];
 FF(1:2:end) = FF(1:2:end)/l2;
 figure(212)
-plot( [information.t], FF(1:2:end), 'b-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])
+plot( [information.t]*indentation, FF(1:2:end), 'b-.', 'linewidth', 2, 'DisplayName',  ['T6T3'])
 hold on
 
 
 figure(214)
-plot( [information.t], FF(2:2:end), 'b-.', 'linewidth', 2, 'DisplayName', ['T6T3'])
+plot( [information.t]*indentation, FF(2:2:end), 'b-.', 'linewidth', 2, 'DisplayName', ['T6T3'])
 hold on
 
 figure(559); clf
@@ -210,7 +210,7 @@ end
 figure(212)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
-xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
 ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
 fig = figure(212);
 exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
@@ -218,7 +218,7 @@ exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType',
 figure(214)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
-xlabel('Footing indentation, $u_z/R$', 'interpreter', 'latex')
+xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
 fig = figure(214);
 exportgraphics(fig,['F1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
