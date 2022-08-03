@@ -22,12 +22,12 @@ figure(512); clf;
 
 
 
-for eSize= [0.25, 0.15, 0.08]
+for eSize= [0.25, 0.14, 0.07]
     
-    if ( eSize == 0.08)
+    if ( eSize == 0.07)
         XNAME = 'Fine';
         SPEC = '-.';
-    elseif ( eSize == 0.15)
+    elseif ( eSize == 0.14)
         XNAME = 'Int';
         SPEC = ':';
     else 
