@@ -228,9 +228,9 @@ for this = [-0.25,  0.25]
 
     fig = figure(1001);
     if ( this < 0)
-        plot( [information2.t], FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(2:2:end), ['b', SPEC], 'linewidth', 2, 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     else
-        plot( [information2.t], FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b', 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+        plot( [information2.t]*indentation, FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'b', 'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
     xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
