@@ -43,10 +43,16 @@ geometryFromEdges(model1, g);
 mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes1 = mesh1.Nodes';
 Elements1 = mesh1.Elements';
-
+[Elements1, Nodes1] = AntiLaplacianSmoothing(Elements1, Nodes1, -20);
 Nodes1 = CreateMapping(Nodes1);
 model1.Geometry = [];
 newMesh = geometryFromMesh(model1, Nodes1', Elements1');
+Nodes1 = model1.Mesh.Nodes';
+Elements1 = model1.Mesh.Elements';
+
+
+
+
 
 % First part. compute the eigenvalues
 figure(1);
@@ -341,3 +347,47 @@ for i = 1:size(X,1)
     Xn(i,2) = y;
 end
 
+
+
+
+function [C, X ] = AntiLaplacianSmoothing(C, X, this)
+nNodes = size(X,1);
+IsNeig = zeros(nNodes,1);
+
+ind = find(X(:,1) == min(X(:,1)));
+IsNeig(ind) = 1;
+
+ind = find(X(:,1) == max(X(:,1)));
+IsNeig(ind) = 1;
+ind = find(X(:,2) == min(X(:,2)));
+IsNeig(ind) = 1;
+ind = find(X(:,2) == max(X(:,2)));
+IsNeig(ind) = 1;
+xL = X;
+if (nargout == 1)
+    for i = 1:nNodes
+        if ( IsNeig(i) ==0)
+            X(i,:) =  X(i,:) + 0.05*(rand(1,2)-0.5);
+        end
+    end
+    C = X;
+    return;
+end
+
+for i = 1:nNodes
+    if ( IsNeig(i) ==0)
+        [a,b] = find(C == i);
+        %         NeigNodes = unique(C(a,:));
+        NeigNodes = sort(C(a,:));
+        [index] = find( NeigNodes~=i);
+        NeigNodes = NeigNodes(index);
+        xL(i,:) = mean(X(NeigNodes,:));
+    end
+end
+displ = xL -X;
+for i = 1:nNodes
+    if ( norm(displ(i,:) )> 0)
+        X(i,:) = X(i,:) +this *displ(i,:); %/norm(displ(i,:));
+    end
+end
+C = delaunay(X(:,1), X(:,2));

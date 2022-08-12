@@ -73,13 +73,14 @@ if (size(Elements,2) == 3)
     for el = 1:nElements
         Cel = Elements(el,:);
         found = false;
-        for i = 1:3
+        for i = 1:2
             for j = i+1:3
                 if ( any(Cel(i) == nodesRight))
                     if ( any(Cel(j) == nodesRight))
                         found = true;
                         ii = i;
                         jj = j;
+                        break
                     end
                 end
             end
@@ -91,6 +92,7 @@ if (size(Elements,2) == 3)
             
             normal = [XX(1), XX(2)];
             normal = normal/norm(normal);
+            normal = [0,-1];
             fe = 0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
             
             index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
@@ -116,6 +118,7 @@ elseif (size(Elements,2) == 6)
             
             normal = [XX(1), XX(2)];
             normal = normal/norm(normal);
+            normal = [0,-1];
             ff = [ 1/6,   0, 1/6,   0, 2/3,   0;
                     0, 1/6,   0, 1/6,   0, 2/3]';
             fe = 1*ff*normal'*norm(XX);

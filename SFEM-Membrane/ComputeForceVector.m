@@ -35,6 +35,7 @@ if (size(Elements,2) == 3)
             
             normal = [XX(1), XX(2)];
             normal = normal/norm(normal);
+            normal = [0, -1];
             fe = 0.5*[1,0;0,1;1,0;0,1]*normal'*norm(XX);
             
             index = [ 3*(nodi-1)+[1,2], 3*(nodj-1)+[1,2]];
