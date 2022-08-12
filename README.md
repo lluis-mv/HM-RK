@@ -10,7 +10,7 @@ Matlab codes to simulate the coupled hydro-mechanical problem at pseudo-static c
 In addition to a fully implicit time integration approach, explicit Runge-Kutta time-marching schemes are also considered.
 
 
-Several types of elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants. Q4Q4 employs bilinear shape functions for both nodal variables whereas Q8Q4 uses biquadratic shape functions for displacements and bilinar interpolants for displacements. 
+Several types of elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants. Q4Q4 employs bilinear shape functions for both nodal variables whereas Q8Q4 uses quadratic shape functions for displacements and bilinar interpolants for water pressure. 
 
 Constitutive models: linear elasticity, non-linear elasticity (pressure-dependent hypo-elastic law) and Subloading Modified Cam Clay [(Hashiguchi, 2017)](https://doi.org/10.1007/978-3-319-48821-9)
 
@@ -32,4 +32,4 @@ This code is distributed under BSD 3-Clause License.
 
 
 If you find these codes useful for your work, please cite as follows:
-- Monforte, L., Carbonell, J.M., Arroyo, M. and Gens, A (2022) An unconditionally stable explicit stabilized finite element for the coupled hydromechanical formulation in soil mechanics in pseudo-stationary conditions [https://doi.org/10.1680/jgeot.19.p.354](https://doi.org/10.1680/jgeot.19.p.354)
+- Monforte, L., Carbonell, J.M., Arroyo, M. and Gens, A (2022) An unconditionally stable explicit stabilized finite element for the coupled hydromechanical formulation in soil mechanics in pseudo-stationary conditions. International Journal for Numerical Methods in Engineering [https://doi.org/10.1002/nme.7064](https://doi.org/10.1002/nme.7064)
