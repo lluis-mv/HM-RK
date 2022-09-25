@@ -12,7 +12,7 @@ In addition to a fully implicit time integration approach, explicit Runge-Kutta 
 
 Several types of elements are considered: T3T3 employs linear interpolants for both displacement and water pressure, T6T3 uses a quadratic shape functions for displacements whereas water pressure is discretized with linear functions and T6T6 describes both field with quadratic interpolants. Q4Q4 employs bilinear shape functions for both nodal variables whereas Q8Q4 uses quadratic shape functions for displacements and bilinar interpolants for water pressure. 
 
-Additionally, Node-based smoothed finite elements are considered. This implementation is only valid for linear triangular elements. 
+Additionally, node-based smoothed finite elements are considered. This implementation is only valid for linear triangular elements. 
 
 
 
