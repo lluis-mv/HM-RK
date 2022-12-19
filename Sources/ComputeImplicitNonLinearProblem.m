@@ -21,7 +21,13 @@ nNodes = size(Nodes, 1);
 
 
 [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
-[~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+
+dofsPerNode = 3;
+if ( ElementType(1) == 'M')
+    dofsPerNode = 4;
+end
+
+[~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, dofsPerNode);
 
 if ( any([GPInfo.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
@@ -39,7 +45,7 @@ fext_n = 0*fini;
 
 t = 0;
 
-[~, uDirichlet] = ComputeForceVector(0, Nodes, Elements, GPInfo, CP);
+[~, uDirichlet] = ComputeForceVector(0, Nodes, Elements, GPInfo, CP, dofsPerNode);
 uDirichlet = 0*uDirichlet;
 
 
@@ -47,7 +53,7 @@ if ( ElementType(1) == 'T')
     PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, 0, true, ['ImplicitProblem-', ElementType]);
 end
 if ( DoSomePostProcess ) 
-    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP);
+    ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP, [], [], dofsPerNode);
 end
 
 
@@ -57,7 +63,7 @@ for loadStep = 1:nSteps
     iter = 0;
     
     t = t + dt;
-    [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP);
+    [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP, dofsPerNode);
     fext_n1 = fext_n + dt*df;
     if ( loadStep == 1)
         fext_n1 = fext_n1+fini;
@@ -74,7 +80,7 @@ for loadStep = 1:nSteps
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
         [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
-        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
+        [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, dofsPerNode);
         
         
         % mechanical part
@@ -85,9 +91,14 @@ for loadStep = 1:nSteps
         if ( CP.HydroMechanical)
             
             res2 = C*(Xn-X)-dt*K*Xn;
-        
+            res3 = C*Xn;
             for jj = 1:nNodes
-                residual(3*jj) = -res2(3*jj);
+                if ( dofsPerNode == 3)
+                    residual(3*jj) = -res2(3*jj);
+                elseif (dofsPerNode == 4)
+                    residual(4*jj) = -res2(4*jj);
+                    residual(4*jj-1) = -res3(4*jj-1);
+                end
             end
         end
         
@@ -148,7 +159,7 @@ for loadStep = 1:nSteps
     
     %PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*loadStep, false, ['ImplicitProblem-', ElementType]);
     if ( DoSomePostProcess ) 
-        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
+        ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo, [], dofsPerNode);
     end
 end
 

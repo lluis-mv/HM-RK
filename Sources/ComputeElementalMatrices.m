@@ -14,6 +14,8 @@ elseif ( all(ElementType == 'Q4Q4') )
     [GPInfo] = ComputeElementalMatricesQ4Q4(Nodes, Elements, CP);
 elseif ( all(ElementType == 'Q8Q8') )
     [GPInfo] = ComputeElementalMatricesQ8Q8(Nodes, Elements, CP);
+elseif ( all(ElementType == 'M3T3') )
+    [GPInfo] = ComputeElementalMatricesT3T3Mixed(Nodes, Elements, CP);
 end
 
 
@@ -32,8 +34,6 @@ end
 
 
 function [GPInfo] = ComputeElementalMatricesT3T3(Nodes, Elements, CP)
-
-
 
 
 nNodes = size(Nodes, 1);
@@ -149,6 +149,129 @@ for el = 1:nElements
         GPInfo(el,gp).dofsWP = dofsWP;
         GPInfo(el,gp).dofsWPreal = dofsWP;
         GPInfo(el,gp).IndexReorder = [1,2,7,3,4,8,5,6,9];
+    end
+end
+
+function [GPInfo] = ComputeElementalMatricesT3T3Mixed(Nodes, Elements, CP)
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+ndim = 2;
+
+De = zeros(6,6);
+
+E = CP.E;
+nu = CP.nu;
+
+for i = 1:3
+    for j = 1:3
+        if ( i==j)
+            De(i,j) = (1-nu);
+        else
+            De(i,j) = nu;
+        end
+    end
+    De(i+3, i+3) = (1-2*nu)/2;
+end
+
+De = E/(1+nu)/(1-2*nu) * De;
+
+
+D = De([1,2,4], [1,2,4]);
+
+[al, be, w] = GetWeights(CP.HydroMechanical, 'T3T3');
+
+for el = 1:nElements
+    for gp = [1:length(w)]
+        Cel = Elements(el,:);
+        X = Nodes(Cel,:);
+        
+        
+        dofs = [];
+        dofsU = [];
+        dofsVol = [];
+        dofsWP = [];
+        for ii = 1:length(Cel)
+            dofs = [ dofs, (Cel(ii)-1)*4 + [1,2,3,4] ];
+            dofsU = [ dofsU, (Cel(ii)-1)*4 + [1,2] ];
+            dofsVol = [ dofsVol, ((Cel(ii)-1)*4 + 3)];
+            dofsWP = [ dofsWP, ((Cel(ii)-1)*4 +4 )];
+        end
+        
+        
+        % Linear triangles
+        alfa = al(gp);
+        beta = be(gp);
+        
+        Nsmall =  [ 1 - alfa - beta; alfa;  beta];
+        Nsmall_chi = [-1 -1; 1 0; 0 1];
+        Nu = (zeros(ndim, 3*ndim));
+        for i = 1:3
+            for dd = 1:2
+                Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
+            end
+        end
+        J = Nsmall_chi'*X;
+        dN_dX = inv(J)*Nsmall_chi';
+        
+        B = [];
+        for i = 1:3
+            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+            B = [B, b];
+        end
+        
+        Area = [1 1 1;
+            X(1,1) X(2,1) X(3,1);
+            X(1,2) X(2,2) X(3,2)];
+        Area = det(Area)/2;
+        
+        he = 0;
+        for i = 1:3
+            aux = 0;
+            for j = 1:2
+                aux = aux + dN_dX(j,i);
+            end
+            he = he + abs(aux);
+        end
+        he = sqrt(2)*he;
+        he = 4/he;
+        
+        Ms = 1/18*[2,-1,-1;-1,2,-1;-1,-1,2];
+        
+        GPInfo(el,gp).Weight = Area*w(gp);
+        GPInfo(el,gp).B =B;
+        GPInfo(el,gp).dN_dX = dN_dX;
+        GPInfo(el,gp).N = Nsmall';
+        GPInfo(el,gp).Nu = Nu;
+        GPInfo(el,gp).he = he;
+        GPInfo(el,gp).Ms = Ms;
+        GPInfo(el,gp).D = D;
+        GPInfo(el,gp).D6 = De;
+        
+        
+        
+        GPInfo(el,gp).StressNew = zeros(6,1);
+        GPInfo(el,gp).StressPrev = zeros(6,1);
+        
+        GPInfo(el,gp).StrainNew = zeros(6,1);
+        GPInfo(el,gp).StrainPrev = zeros(6,1);
+
+        GPInfo(el,gp).AssumedStrainNew = zeros(6,1);
+        GPInfo(el,gp).AssumedStrainPrev = zeros(6,1);
+        
+        GPInfo(el,gp).HistoryNew = 0;
+        GPInfo(el,gp).HistoryPrev = 0;
+        
+        GPInfo(el,gp).MCC = false;
+        GPInfo(el,gp).VonMises = false;
+        
+        GPInfo(el,gp).dofs = dofs;
+        GPInfo(el,gp).dofsU = dofsU;
+        GPInfo(el,gp).dofsVol = dofsVol;
+        GPInfo(el,gp).dofsWP = dofsWP;
+        GPInfo(el,gp).dofsWPreal = dofsWP;
+        
+        GPInfo(el,gp).IndexReorder = [1,2,7,10, 3,4,8,11    5,6,9,12];
     end
 end
 

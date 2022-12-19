@@ -122,6 +122,9 @@ for Stab = [1, 0]
             if ( j == 1)
                 ElementType = ['NS-', ElementType];
             end
+            if ( Stab > 0.5)
+                ElementType = [ElementType, '. Stab'];
+            end
             plot(WP, y, [Color, '-.'] ,'DisplayName', ElementType, 'linewidth', 1.5)
             
         else

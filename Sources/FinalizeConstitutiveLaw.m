@@ -10,6 +10,16 @@ for i = 1:size(GP,1)
 end
 
 
+if ( isfield( GP(1,1), 'AssumedStrainNew') )
+    for i = 1:size(GP,1)
+        for gp = 1:size(GP,2)
+            GP(i,gp).AssumedStrainPrev  = GP(i,gp).AssumedStrainNew;
+        end
+    end
+end
+
+
+
 if ( GP(1,1).MCC )
     [kappa, lambda, M, nu] = GetConstitutiveParameters();
     

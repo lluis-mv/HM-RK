@@ -114,6 +114,36 @@ drawnow
 
 
 
+tic
+[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+toc
+FF = [information.F];
+FF(1:2:end) = FF(1:2:end)/l;
+figure(212)
+plot( [information.t]*indentation, FF(1:2:end), 'k', 'linewidth', 2,'DisplayName', ['M-T3T3'])
+figure(214)
+plot( [information.t]*indentation, FF(2:2:end), 'k', 'linewidth', 2,'DisplayName', ['M-T3T3'])
+
+% 
+figure(558); clf
+pdeplot(model1,'XYData',U(4:4:end),'ColorMap','jet');
+drawnow
+
+
+figure(958); clf
+SV = [GPInfo.StressNew];
+SV = SV(2,:)';
+PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
+drawnow
+
+
+
+figure(358); clf
+SV = [GPInfo.StressNew];
+pEff = mean(SV(1:3,:))';
+PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
+drawnow
+
 
 tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
@@ -156,7 +186,7 @@ figure(957)
 cc = caxis;
 i = 1;
 pause(1)
-for iii = [956, 957, 959]
+for iii = [956:959]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
@@ -175,7 +205,7 @@ figure(357)
 cc = caxis;
 i = 1;
 pause(1)
-for iii = [356, 357, 359]
+for iii = [356:359]
     fig = figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
@@ -193,7 +223,7 @@ figure(557)
 cc = caxis;
 i = 1;
 pause(1)
-for iii = [556, 557, 559]
+for iii = [556:559]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
