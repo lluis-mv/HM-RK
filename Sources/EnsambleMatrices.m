@@ -8,7 +8,11 @@ if (nargin == 8)
 end
 
 if ( CP.HydroMechanical)
-    [C, K] = EnsambleHydroMechanicalProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+    if ( ElementType(1) == 'M')
+        [C, K] = EnsambleHydroMechanicalProblemMixed(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+    else
+        [C, K] = EnsambleHydroMechanicalProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
+    end
 else
     [C, K] = EnsambleUPProblem(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM);
 end
@@ -115,6 +119,105 @@ for el = 1:nElements
             Ce = [kke, Q; Q', Ms];
             Ke = [0*kke, 0*Q; 0*Q', H];
         end
+
+        aux = GPInfo(el,ngp).IndexReorder;
+
+        Ke = Ke(aux,aux);
+        Ce = Ce(aux,aux);
+
+        index = GPInfo(el,ngp).dofs;
+        K(index,index) =  K(index,index) + Ke*GPInfo(el,ngp).Weight;
+        C(index,index) =  C(index,index) + Ce*GPInfo(el,ngp).Weight;
+    end
+end
+
+
+
+
+
+function [C, K] = EnsambleHydroMechanicalProblemMixed(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, implicit, AlphaStabM)
+
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+nSystem = 4*nNodes;
+
+C = sparse(nSystem, nSystem);
+K = C;
+
+
+one = [1,1,0]';
+perme = CP.k;
+
+
+Idev = eye(6,6)-1/3*[ones(3,3), zeros(3,3); zeros(3,6)];
+II = 1/3*[ones(3,1); zeros(3,1)];
+
+
+
+for el = 1:nElements    
+    for ngp = 1:size(GPInfo,2)
+        
+        ConstModulus=  GPInfo(el,ngp).ConstrainedModulus;
+        
+        D6 = GPInfo(el,ngp).D6*Idev;
+        D3 = D6([1,2,4],[1,2,4]);
+        kke = GPInfo(el,ngp).B'*D3*GPInfo(el,ngp).B;
+        
+        DVol = GPInfo(el,ngp).D6*II;
+        D2 = DVol([1,2,4]);
+        kkeVol = GPInfo(el,ngp).B'*D2*GPInfo(el,ngp).N;
+
+
+%         kke = GPInfo(el,ngp).B'*GPInfo(el,ngp).D*GPInfo(el,ngp).B;
+%         kkeVol = 0*kkeVol;
+
+        Q = -GPInfo(el,ngp).B'*one * GPInfo(el,ngp).N;
+        H = GPInfo(el,ngp).dN_dX'*perme*GPInfo(el,ngp).dN_dX;
+        
+        M = -GPInfo(el, ngp).N'*GPInfo(el,ngp).N;
+        Mtheta = -GPInfo(el, ngp).N'*GPInfo(el,ngp).N;
+        if ( isfield( CP, 'Compressibility') )
+            M = M*CP.Compressibility;
+        else
+            M = M*0;
+        end
+        
+        he = sqrt( sum([GPInfo(el,:).Weight]));
+   
+        if (all(ElementType == 'T3T3') || all(ElementType == 'M3T3'))
+            term = exp(- (200*dt*perme*ConstModulus/he^2/0.25)^RKMethod);
+            AlphaStab = 8*dt*perme/he^2*(1-term) + ConstModulus/1000000*term;
+        else
+            AlphaStab = 0;
+        end
+        
+       
+
+        if ( implicit)
+            if ( all(ElementType == 'T3T3') || all(ElementType == 'M3T3') )
+                AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
+                AlphaStab = max(0, AlphaStab);
+            else
+                AlphaStab = 0;
+            end
+        end
+        
+        if ( length(AlphaStabM) == 1)
+            AlphaStab = -AlphaStab*AlphaStabM;
+        end
+        
+
+        Ms = GPInfo(el,ngp).Ms * AlphaStab;
+        Ms = Ms + M;
+        
+        Ce = [kke, kkeVol, Q; 
+             Q', -Mtheta-0.0000001*eye(3), 0*H;
+            Q', 0*H, Ms];
+        Ke = [0*kke, 0*Q, 0*Q;
+            0*Q', 0*H, 0*H
+            0*Q', 0*H, H];
+
 
         aux = GPInfo(el,ngp).IndexReorder;
 
