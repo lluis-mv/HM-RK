@@ -18,7 +18,7 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
-eSize= 0.50;
+eSize= 0.20;
 
 model = createpde(1);
 
@@ -42,7 +42,7 @@ Elements1 = mesh1.Elements';
 
 
 
-nSteps = 100;
+nSteps = 200;
 dt = 1.0/nSteps;
 
 
@@ -55,7 +55,6 @@ l = 0.5*(xx(ind)+xx(ind+1));
 l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
 
 
-if ( false)
 
 tic
 [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
@@ -87,7 +86,7 @@ pEff = mean(SV(1:3,:));
 PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, pEff);
 drawnow
 
-end
+
 
 tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
@@ -121,9 +120,8 @@ drawnow
 
 
 
-
 tic
-[U, GPInfo1, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
 toc
 FF = [information.F];
 FF(1:2:end) = FF(1:2:end)/l;
