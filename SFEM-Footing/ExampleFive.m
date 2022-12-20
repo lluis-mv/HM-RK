@@ -1,8 +1,8 @@
 function [] = ExampleFive()
 addpath('../Sources')
 % 1. Define the problem
-
 indentation = 0.05;
+
 CP.HydroMechanical = true;
 CP.E = 1000;
 CP.nu = 0.3;
@@ -13,7 +13,8 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
-eSize= 1/4;
+eSize= 0.30;
+
 model = createpde(1);
 
 
@@ -68,22 +69,22 @@ for this = [-0.25,  0.25]
         MeshName = 'M';
         SPEC = '-.s';
     end
-    
+
     Nodes1 = Nodes2;
-    
+
     for i = 1:10
         [Elements1, Nodes1] = AntiLaplacianSmoothing(Elements1, Nodes1, this);
         figure(2); clf;
         triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'r')
     end
-    
+
     figure(21); clf;
     triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
     axis equal;
     axis off;
     drawnow
-    
-    
+
+
     tic
     [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
     toc
@@ -102,7 +103,7 @@ for this = [-0.25,  0.25]
     plot( [information2.t]*indentation, FF(2:2:end), '', 'linewidth', 2, 'DisplayName', ['NS-T3T3'])
     hold on
     drawnow
-    
+
     figure(1000)
     if ( this < 0)
         plot( [information2.t]*indentation, FF(1:2:end), ['r', SPEC], 'linewidth', 2,'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
@@ -118,26 +119,26 @@ for this = [-0.25,  0.25]
         plot( [information2.t]*indentation, FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'r', 'DisplayName', ['NS-T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
     end
     hold on
-    
+
     figure(557); clf
     pdeplot(Nodes1', Elements1', 'XYData', U(3:3:end), 'ColorMap', 'jet')
     drawnow
-    
+
     figure(957); clf
     SV = [GPNodes.StressNew];
     SV = SV(2,:);
     PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, SV);
     drawnow
-    
-    
+
+
     figure(357); clf
     SV = [GPNodes.StressNew];
     pEff = mean(SV(1:3,:));
     PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, pEff);
     drawnow
-    
-    
-    
+
+
+
     tic
     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
     toc
@@ -151,7 +152,7 @@ for this = [-0.25,  0.25]
     plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
     hold on
     drawnow
-    
+
 
     figure(1000)
     if ( this < 0)
@@ -169,48 +170,105 @@ for this = [-0.25,  0.25]
     end
     hold on
 
-    
+
     figure(556); clf
     pdeplot(Nodes1', Elements1', 'XYData', U(3:3:end), 'ColorMap', 'jet')
     drawnow
-    
-    
+
+
     figure(956); clf
     SV = [GPInfo.StressNew];
     SV = SV(2,:)';
     PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
     drawnow
-    
-    
-    
+
+
+
     figure(356); clf
     SV = [GPInfo.StressNew];
     pEff = mean(SV(1:3,:))';
     PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
     drawnow
-    
-    
-    
+
+
+
+    tic
+    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+    toc
+    FF = [information.F];
+    FF(1:2:end) = FF(1:2:end)/l;
+    figure(213)
+    plot( [information.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3T3'])
+    hold on
+    drawnow
+    figure(216)
+    plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3T3'])
+    hold on
+    drawnow
+
+
+    figure(1000)
+    if ( this < 0)
+        plot( [information.t]*indentation, FF(1:2:end), ['c', SPEC], 'linewidth', 2,'DisplayName', ['T3T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information.t]*indentation, FF(1:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'c', 'DisplayName', ['T3T3T3. Mesh ', MeshName],  'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+    drawnow
+    figure(1001)
+    if ( this < 0)
+        plot( [information.t]*indentation, FF(2:2:end), ['c', SPEC], 'linewidth', 2, 'DisplayName', ['T3T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    else
+        plot( [information.t]*indentation, FF(2:2:end), ['k', SPEC], 'linewidth', 1, 'MarkerEdgeColor', 'c', 'DisplayName', ['T3T3T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
+    end
+    hold on
+
+
+    figure(558); clf
+    min(U(4:4:end))
+    max(U(4:4:end))
+    disp(U(4:4:end))
+    disp(U)
+    pdeplot(Nodes1', Elements1', 'XYData', U(4:4:end), 'ColorMap', 'jet')
+    drawnow
+
+
+    figure(958); clf
+    SV = [GPInfo.StressNew];
+    SV = SV(2,:)';
+    PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
+    drawnow
+
+
+
+    figure(358); clf
+    SV = [GPInfo.StressNew];
+    pEff = mean(SV(1:3,:))';
+    PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
+    drawnow
+
+
+
     [NodesX, ElementsX] = ConvertQuadratic(Nodes1, Elements1);
-    
+
     tic
     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(NodesX, ElementsX, CP, dt, nSteps, 'T6T3');
     toc
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l2;
     figure(214)
-    plot( [information.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(1:2:end), '', 'linewidth', 2,'DisplayName', ['T6T3'])
     hold on
     drawnow
     figure(217)
-    plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T3T3'])
+    plot( [information.t]*indentation, FF(2:2:end), '', 'linewidth', 2,'DisplayName', ['T6T3'])
     hold on
     drawnow
-    
+
     figure(559); clf
     pdeplot(NodesX', ElementsX','XYData',U(3:3:end),'ColorMap','jet');
     drawnow
-    
+
     fig = figure(1000);
     if ( this < 0)
         plot( [information2.t]*indentation, FF(1:2:end), ['b', SPEC], 'linewidth', 2,'DisplayName', ['T6T3. Mesh ', MeshName], 'MarkerIndices', 1:10:length(FF(1:2:end)) )
@@ -252,24 +310,24 @@ for this = [-0.25,  0.25]
     end
     PlotHistoryVariable( NodesX, ElementsX, GPInfo, SV);
     drawnow
-    
-    
+
+
     figure(359); clf
     PlotHistoryVariable( NodesX, ElementsX, GPInfo, pEff);
     drawnow
-    
-    
-    
-    
+
+
+
+
     figure(957)
     cc = caxis;
     i = 1;
     pause(1)
-    
+
     thisN = num2str(this);
     index = find(thisN == '.');
     thisN(index) = '_';
-    for iii = [956, 957, 959]
+    for iii = [956:959]
         figure(iii)
         axis equal; xlim([0,4]); ylim([-4, 0]); axis off
         colormap jet
@@ -277,18 +335,18 @@ for this = [-0.25,  0.25]
         colorbar
         drawnow
         pause(1)
-        
+
         fig = figure(iii);
         exportgraphics(fig,['F2-SV-', num2str(i), '-', thisN,'.pdf'], 'BackgroundColor', 'none','ContentType','vector');
-        
+
         i = i+1;
     end
-    
-    
+
+
     figure(357)
     i = 1;
     pause(1)
-    for iii = [356, 357, 359]
+    for iii = [356:359]
         figure(iii)
         axis equal; xlim([0,4]); ylim([-4, 0]); axis off
         colormap jet
@@ -296,17 +354,17 @@ for this = [-0.25,  0.25]
         colorbar
         drawnow
         pause(1)
-       
+
         fig = figure(iii);
         exportgraphics(fig,['F2-pEff-', num2str(i), '-', thisN, '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
         i = i+1;
     end
-    
-    
+
+
     figure(557)
     i = 1;
     pause(1)
-    for iii = [556, 557, 559]
+    for iii = [556:559]
         figure(iii)
         axis equal; xlim([0,4]); ylim([-4, 0]); axis off
         colormap jet
@@ -319,13 +377,13 @@ for this = [-0.25,  0.25]
         exportgraphics(fig,['F2-SV-', num2str(i), '-', thisN, '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
         i = i+1;
     end
-    
-    
+
+
     figure(21)
     pause(1)
     print(['F2-Mesh-', thisN], '-dpdf');
-    
-    
+
+
     for i = 1:3
         fig = figure(211+i)
         ll = legend('Mesh A', 'Mesh B', 'Mesh C', 'Mesh D');
@@ -334,8 +392,8 @@ for this = [-0.25,  0.25]
         xlabel('Footing indentation, $u_z$', 'interpreter', 'latex')
         ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
         exportgraphics(fig, ['F2-Reaction-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
-        
-        
+
+
         fig = figure(214+i)
         ll = legend('Mesh A', 'Mesh B', 'Mesh C', 'Mesh D');
         set(ll, 'location', 'best', 'interpreter', 'latex')
@@ -344,6 +402,7 @@ for this = [-0.25,  0.25]
         ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
         exportgraphics(fig, ['F2-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
     end
+
 end
 
 function [C, X ] = AntiLaplacianSmoothing(C, X, this)

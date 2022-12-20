@@ -1,9 +1,15 @@
 
-function [C, K, X0, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K)
+function [C, K, X0, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, dofsPerNode)
 
-if (nargin ~= 5)
-    error('it should be five!!!!')
+if ( nargin == 5)
+    dofsPerNode = 3;
 end
+
+if ( dofsPerNode ~= 3)
+    error('please modify the code')
+end
+
+
 
 penalty = 1;
 

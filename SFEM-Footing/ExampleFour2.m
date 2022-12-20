@@ -1,4 +1,4 @@
-
+function [] = ExampleFour2()
 
 load('UndrainedData.mat')
 
@@ -7,25 +7,33 @@ figure(99); clf
 semilogx(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(eSizeAxis, Qmixed, 'cs-.', 'DisplayName', 'T3T3T3')
 plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'T6T3')
 drawnow
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
 ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
+ylim([32,37])
+
 
 figure(100); clf
 semilogx(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(eSizeAxis, PWmixed, 'cs-.', 'DisplayName', 'T3T3T3')
 plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'T6T3')
 
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
 ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
 drawnow
+ylim([18,23])
+
+
 
 figure(101); clf
 loglog(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'T3T3')
+plot(nDofsmixed, TIMEmixed, 'c*-.', 'DisplayName', 'T3T3T3')
 plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'T6T3')
 drawnow
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
@@ -38,6 +46,7 @@ figure(102); clf
 semilogx(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
+plot(nDofsmixed, TIMEmixed./nDofsmixed, 'c*-.', 'DisplayName', 'T3T3T3')
 plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
 drawnow
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
@@ -50,6 +59,7 @@ figure(103); clf
 semilogx(nDofs, nZeronodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(nDofs, nZerolinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
+plot(nDofsmixed, nZeromixed./nDofsmixed, 'c*-.', 'DisplayName', 'T3T3T3')
 plot(nDofsquad, nZeroquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
 
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
@@ -82,19 +92,24 @@ figure(99); clf
 plot(NSTEPS, Qnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(NSTEPS, Qlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(NSTEPS, Qmixed, 'cs-.', 'DisplayName', 'T3T3T3')
 plot(NSTEPS, Qquad, 'bs-.', 'DisplayName', 'T6T3')
 drawnow
 xlabel('$n_{steps}$', 'interpreter', 'latex')
 ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
+ylim([32,37])
 set(gca, 'XScale', 'log')
+
 
 figure(100); clf
 plot(NSTEPS, PWnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
 hold on
 plot(NSTEPS, PWlinear, 'gs-.', 'DisplayName', 'T3T3')
+plot(NSTEPS, PWmixed, 'cs-.', 'DisplayName', 'T3T3T3')
 plot(NSTEPS, PWquad, 'bs-.', 'DisplayName', 'T6T3')
 xlabel('$n_{steps}$', 'interpreter', 'latex')
 ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
+ylim([18,23])
 drawnow
 set(gca, 'XScale', 'log')
 

@@ -91,6 +91,17 @@ if (true)
         PWlinear(i) = FF(end);
         Qlinear(i) = FF(end-1)/l;
 
+
+        tic
+        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+        TIMEmixed(i)= toc;
+        nDofsmixed(i) = size(Nodes1,1)*4;
+        nZeromixed(i) = nZero;
+        FF = [information.F];
+        PWmixed(i) = FF(end);
+        Qmixed(i) = FF(end-1)/l;
+
+
         tic
         [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
         TIMEquad(i) = toc;
@@ -105,31 +116,39 @@ if (true)
             'ESIZE', 'i', 'eSizeAxis', ...
             'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
             'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
-            'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad');
+            'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad', ...
+            'TIMEmixed', 'nDofsmixed', 'PWmixed', 'Qmixed', 'nZeromixed');
 
 
         figure(99); clf
         plot(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
         hold on
         plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'T3T3')
+        plot(eSizeAxis, Qmixed, 'cs-.', 'DisplayName', 'T3T3T3')
         plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'T6T3')
         drawnow
         xlabel('$h_e$ (m)', 'interpreter', 'latex')
         ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
+        ylim([32,37])
+        drawnow
 
         figure(100); clf
         plot(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
         hold on
         plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'T3T3')
+        plot(eSizeAxis, PWmixed, 'cs-.', 'DisplayName', 'T3T3T3')
         plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'T6T3')
         xlabel('$h_e$ (m)', 'interpreter', 'latex')
         ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
         drawnow
+        ylim([18,23])
 
+        drawnow
         figure(101); clf
         plot(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
         hold on
         plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'T3T3')
+        plot(nDofsmixed, TIMEmixed, 'c*-.', 'DisplayName', 'T3T3T3')
         plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'T6T3')
         drawnow
         xlabel('Number of dofs', 'interpreter', 'latex')
@@ -142,6 +161,7 @@ if (true)
         plot(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
         hold on
         plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
+        plot(nDofsmixed, TIMEmixed./nDofsmixed, 'c*-.', 'DisplayName', 'T3T3T3')
         plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
         drawnow
         xlabel('Number of dofs', 'interpreter', 'latex')
@@ -161,6 +181,9 @@ if (true)
         figure(101); drawnow; pause(1); print('Footing-Cost-1', '-dpdf')
         figure(102); drawnow; pause(1); print('Footing-Velocity-1', '-dpdf')
         i = i+1;
+        close all;
+        ExampleFour2
+        close all;
     end
 
 end
@@ -216,6 +239,15 @@ for nSteps = NSTEPS
     PWlinear(i) = FF(end);
     Qlinear(i) = FF(end-1)/l;
 
+
+    tic
+    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+    TIMEmixed(i)= toc;
+
+    FF = [information.F];
+    PWmixed(i) = FF(end);
+    Qmixed(i) = FF(end-1)/l;
+
     tic
     [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
     TIMEquad(i) = toc;
@@ -230,27 +262,32 @@ for nSteps = NSTEPS
     plot(NSTEPS(1:i), Qnodal(1:i), 'rs-.', 'DisplayName', 'NS-T3T3')
     hold on
     plot(NSTEPS(1:i), Qlinear(1:i), 'gs-.', 'DisplayName', 'T3T3')
+    plot(NSTEPS(1:i), Qlinear(1:i), 'cs-.', 'DisplayName', 'T3T3T3')
     plot(NSTEPS(1:i), Qquad(1:i), 'bs-.', 'DisplayName', 'T6T3')
     drawnow
     xlabel('$n_{steps}$', 'interpreter', 'latex')
     ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
     set(gca, 'XScale', 'log')
+    ylim([32,37])
 
     figure(100); clf
     plot(NSTEPS(1:i), PWnodal(1:i), 'rs-.', 'DisplayName', 'NS-T3T3')
     hold on
     plot(NSTEPS(1:i), PWlinear(1:i), 'gs-.', 'DisplayName', 'T3T3')
+    plot(NSTEPS(1:i), PWlinear(1:i), 'cs-.', 'DisplayName', 'T3T3T3')
     plot(NSTEPS(1:i), PWquad(1:i), 'bs-.', 'DisplayName', 'T6T3')
     xlabel('$n_{steps}$', 'interpreter', 'latex')
     ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
     drawnow
+    ylim([18,23])
     set(gca, 'XScale', 'log')
 
     save('TimeUndrainedData.mat', ...
         'i', 'dtAxis', 'NSTEPS', ...
         'PWnodal', 'Qnodal',  ...
         'PWlinear', 'Qlinear', ...
-        'PWquad', 'Qquad');
+        'PWquad', 'Qquad', ...
+        'PWmixed', 'Qmixed');
 
     for jj = [99, 100]
         figure(jj)
@@ -262,4 +299,7 @@ for nSteps = NSTEPS
     figure(99); drawnow; pause(1); print('Footing-Load-2', '-dpdf')
     figure(100); drawnow; pause(1); print('Footing-WP-2', '-dpdf')
     i = i+1;
+    close all;
+    ExampleFour2
+    close all;
 end
