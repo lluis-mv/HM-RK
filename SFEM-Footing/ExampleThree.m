@@ -42,7 +42,7 @@ Elements1 = mesh1.Elements';
 
 
 
-nSteps = 200;
+nSteps = 100;
 dt = 1.0/nSteps;
 
 

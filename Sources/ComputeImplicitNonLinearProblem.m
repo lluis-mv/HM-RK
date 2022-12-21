@@ -57,9 +57,11 @@ if ( DoSomePostProcess )
 end
 
 reduce = false;
+normRes0 = nan;
+proposal = 0*X;
 for loadStep = 1:nSteps
     
-    Xn = X;
+    Xn = X+ proposal;
     iter = 0;
     
     t = t + dt;
@@ -151,8 +153,12 @@ for loadStep = 1:nSteps
         end
         if ( reduce == true && iter < 10)
             dX = 0.01*dX;
-            
         end
+        if (iter > 10 && normRes > normRes0)
+            dX = 0.1*(rand()-0.5)*dX;
+        end
+        normRes0 = normRes;
+
 
         Xn = Xn + dX;
         
@@ -161,7 +167,7 @@ for loadStep = 1:nSteps
         
         %B = CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, dt, A, X, Xn, AlphaStab, dofsPerNode);
     end
-    
+    proposal = Xn-X;
     reduce = false;
     X = Xn;
     

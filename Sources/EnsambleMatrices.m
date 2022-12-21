@@ -154,21 +154,23 @@ Idev = eye(6,6)-1/3*[ones(3,3), zeros(3,3); zeros(3,6)];
 II = 1/3*[ones(3,1); zeros(3,1)];
 
 
-Idev = eye(3,3)-1/2*[ones(2,2), zeros(2,1); zeros(1,3)];
-II = 1/2*[ones(2,1); zeros(1,1)];
+% Idev = eye(3,3)-1/2*[ones(2,2), zeros(2,1); zeros(1,3)];
+% II = 1/2*[ones(2,1); zeros(1,1)];
+
+
 for el = 1:nElements    
     for ngp = 1:size(GPInfo,2)
         
         ConstModulus=  GPInfo(el,ngp).ConstrainedModulus;
         
-        D3 = GPInfo(el,ngp).D*Idev;
-%        D3 = D6([1,2,4],[1,2,4]);
+        D6 = GPInfo(el,ngp).D6*Idev;
+        D3 = D6([1,2,4],[1,2,4]);
 
         
         kke = GPInfo(el,ngp).B'*D3*GPInfo(el,ngp).B;
         
-%         DVol = GPInfo(el,ngp).D6*II;
-        D2 = GPInfo(el,ngp).D*II;
+        DVol = GPInfo(el,ngp).D6*II;
+        D2 = DVol([1,2,4]);
         kkeVol = GPInfo(el,ngp).B'*D2*GPInfo(el,ngp).N;
 
 
@@ -215,7 +217,7 @@ for el = 1:nElements
         Ms = Ms + M;
         
         Ce = [kke, kkeVol, Q; 
-             Q', -Mtheta+0.2*GPInfo(el,ngp).Ms , 0*H;
+             Q', -Mtheta+0.75*GPInfo(el,ngp).Ms , 0*H;
             0*Q', Mtheta, Ms];
         Ke = [0*kke, 0*Q, 0*Q;
             0*Q', 0*H, 0*H

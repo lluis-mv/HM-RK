@@ -13,7 +13,7 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
-eSize= 0.30;
+eSize= 0.20;
 
 model = createpde(1);
 
@@ -225,10 +225,6 @@ for this = [-0.25,  0.25]
 
 
     figure(558); clf
-    min(U(4:4:end))
-    max(U(4:4:end))
-    disp(U(4:4:end))
-    disp(U)
     pdeplot(Nodes1', Elements1', 'XYData', U(4:4:end), 'ColorMap', 'jet')
     drawnow
 

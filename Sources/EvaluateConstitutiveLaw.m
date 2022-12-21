@@ -25,8 +25,8 @@ if ( isfield(GPInfo(1,1), 'AssumedStrainNew') == false)
 
 else
 
-    Idev = eye(3,3)-1/2*[ones(2,2), zeros(2,1); zeros(1,3)];
-    II = 1/2*[ones(2,1); zeros(1,1)];
+    Idev = eye(6,6)-1/3*[ones(3,3), zeros(3,3); zeros(3,6)];
+    II = 1/3*[ones(3,1); zeros(3,1)];
     for el = 1:nElem
         for gp = 1:size(GPInfo,2)
 
@@ -38,7 +38,7 @@ else
             GPInfo(el,gp).StrainNew([1,2,4]) = GPInfo(el,gp).B*Uel;
             VolStrain = GPInfo(1,1).N*Vol;
 
-            GPInfo(el,gp).AssumedStrainNew([1,2,4]) = Idev*GPInfo(el,gp).StrainNew([1,2,4]) + II*VolStrain;
+            GPInfo(el,gp).AssumedStrainNew = Idev*GPInfo(el,gp).StrainNew + II*VolStrain;
 
             Aux1 = GPInfo(el,gp).StrainNew;
             Aux2 = GPInfo(el,gp).StrainPrev;
