@@ -123,6 +123,11 @@ for loadStep = 1:nSteps
             
             break;
         end
+           if ( normRes < 1E-9 && iter > 11)
+            %disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+            
+            break;
+        end
         if ( iter == 30 && normRes > 1E-8)
             X = nan*X; 
             Xn = nan*X;

@@ -182,7 +182,7 @@ if (true)
         figure(102); drawnow; pause(1); print('Footing-Velocity-1', '-dpdf')
         i = i+1;
         close all;
-        ExampleFour2
+%         ExampleFour2
         close all;
     end
 
@@ -300,6 +300,6 @@ for nSteps = NSTEPS
     figure(100); drawnow; pause(1); print('Footing-WP-2', '-dpdf')
     i = i+1;
     close all;
-    ExampleFour2
+%     ExampleFour2
     close all;
 end
