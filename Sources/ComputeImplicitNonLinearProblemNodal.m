@@ -45,10 +45,12 @@ if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPElements, X, CP);
 end
 
-
+reduce = false;
+normRes0 = nan;
+proposal = 0*X;
 for loadStep = 1:nSteps
 
-    Xn = X;
+    Xn = X+ proposal;
     iter = 0;
 
     t = t + dt;
@@ -94,18 +96,23 @@ for loadStep = 1:nSteps
 
 
         %         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
-        if ( iter > 10)
-            %             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+       if ( iter > 10 || reduce)
+            disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+            if ( reduce)
+                disp('In the line search, haha')
+            end
         end
         if ( normRes < 1E-12 && iter > 0)
             break;
         end
-        if ( iter == 30)
-            %             X = nan*X;
-            %             Xn = nan*X;
-            %             normRes = nan;
-            %             return;
-            break
+        if ( iter == 30 && normRes > 1E-8)
+            X = nan*X; 
+            Xn = nan*X;
+            normRes = nan;
+            nZero = nnz(A);
+            return;
+        elseif (iter == 30)
+            break;
         end
         if ( iter > 25)
             hola = 1;
@@ -121,7 +128,19 @@ for loadStep = 1:nSteps
         dX = A\residual;
         if ( any(isnan(dX)))
             hola = 1;
+            dX = 0*Xn;
+            Xn = X;
+            reduce = true;
+            iter = 0;
         end
+        if ( reduce == true && iter < 10)
+            dX = 0.01*dX;
+        end
+        if (iter > 10 && normRes > normRes0)
+            dX = 0.1*(rand()-0.5)*dX;
+        end
+        normRes0 = normRes;
+
 
         Xn = Xn + dX;
 
@@ -129,7 +148,8 @@ for loadStep = 1:nSteps
         iter = iter+1;
 
     end
-
+    proposal = Xn-X;
+    reduce = false;
     X = Xn;
 
     GPNodes = FinalizeConstitutiveLaw(CP, GPNodes);
