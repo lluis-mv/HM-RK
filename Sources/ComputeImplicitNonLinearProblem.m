@@ -110,8 +110,11 @@ for loadStep = 1:nSteps
         
         
         %disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
-        if ( iter > 10)
+        if ( iter > 10 || reduce)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+            if ( reduce)
+                disp('In the line search, haha')
+            end
         end
         if ( normRes < 1E-11 && iter > 0)
             %disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
@@ -147,6 +150,7 @@ for loadStep = 1:nSteps
         end
         if ( reduce == true && iter < 10)
             dX = 0.01*dX;
+            iter = 0;
         end
 
         Xn = Xn + dX;

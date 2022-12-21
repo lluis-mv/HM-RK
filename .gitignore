@@ -7,7 +7,7 @@ ImplicitProblem-T3T3.msh
 ImplicitProblem-T6T3.msh
 ImplicitProblem-Q8Q4.msh
 
-
+output*
 *.res
 
 *.pdf
