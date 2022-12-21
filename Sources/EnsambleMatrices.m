@@ -215,7 +215,7 @@ for el = 1:nElements
         Ms = Ms + M;
         
         Ce = [kke, kkeVol, Q; 
-             Q', -Mtheta+0.75*GPInfo(el,ngp).Ms , 0*H;
+             Q', -Mtheta+0.2*GPInfo(el,ngp).Ms , 0*H;
             0*Q', Mtheta, Ms];
         Ke = [0*kke, 0*Q, 0*Q;
             0*Q', 0*H, 0*H

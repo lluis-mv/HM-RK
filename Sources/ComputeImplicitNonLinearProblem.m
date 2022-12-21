@@ -56,7 +56,7 @@ if ( DoSomePostProcess )
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP, [], [], dofsPerNode);
 end
 
-
+reduce = false;
 for loadStep = 1:nSteps
     
     Xn = X;
@@ -141,8 +141,14 @@ for loadStep = 1:nSteps
         dX = A\residual;
         if ( any(isnan(dX)))
             hola = 1;
+            dX = 0*Xn;
+            Xn = X;
+            reduce = true;
         end
-        
+        if ( reduce == true && iter < 10)
+            dX = 0.01*dX;
+        end
+
         Xn = Xn + dX;
         
         
@@ -151,6 +157,7 @@ for loadStep = 1:nSteps
         %B = CheckNumericalDerivative( Nodes, Elements, GPInfo, CP, ElementType, dt, A, X, Xn, AlphaStab, dofsPerNode);
     end
     
+    reduce = false;
     X = Xn;
     
     GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
