@@ -147,10 +147,11 @@ for loadStep = 1:nSteps
             dX = 0*Xn;
             Xn = X;
             reduce = true;
+            iter = 0;
         end
         if ( reduce == true && iter < 10)
             dX = 0.01*dX;
-            iter = 0;
+            
         end
 
         Xn = Xn + dX;
