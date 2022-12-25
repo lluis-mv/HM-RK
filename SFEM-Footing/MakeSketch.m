@@ -69,7 +69,7 @@ tt = text(4.3, -1.75, 'Fixed $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$', 'i
 set(tt, 'rotation', 90)
 
 
-tt = text(2.5, -4.5, 'Fixed  $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$\fontsize{10}{0}\selectfont, $u$\fontsize{6}{0}\selectfont$_\textnormal{v}$ \fontsize{10}{0}\selectfont and $p$\fontsize{6}{0}\selectfont$_\textnormal{w}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
+tt = text(2.5, -4.5, 'Fixed  $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$\fontsize{10}{0}\selectfont  $\,$ and $u$\fontsize{6}{0}\selectfont$_\textnormal{v}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
 
 tt = text(2.7, 0.2, 'Fixed  $p$\fontsize{6}{0}\selectfont$_\textnormal{w}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
 
