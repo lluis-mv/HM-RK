@@ -21,7 +21,7 @@ R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
 
 
 
-ESIZE = 1./[2:9];
+ESIZE = 1./[2:11];
 
 
 
@@ -182,7 +182,7 @@ if (true)
         figure(102); drawnow; pause(1); print('Footing-Velocity-1', '-dpdf')
         i = i+1;
         close all;
-%         ExampleFour2
+        ExampleFour2()
         close all;
     end
 
