@@ -21,14 +21,14 @@ Constitutive models: linear elasticity, non-linear elasticity (pressure-dependen
 
 ### Matlab versions
 
-The code has been tested in Matlab R2019a and R2020a.
+The code has been tested in Matlab R2019a, R2020a and R2022b.
 
 ### Submodules
 
 Some of the constitutive models (elastoplastic) are available in another [repository](https://github.com/lluis-mv/ExplicitStressIntegration)
 
 ## Sign convention
-Computational geomechanics sign conventions is used in this implementation: in the water pressure field compression pressures are positive whereas negative values of the effective Cauchy stress tensor denote compression.
+Computational geomechanics sign conventions is used in this implementation: in the water pressure field compression pressures are positive values whereas negative values of the effective Cauchy stress tensor denote compression.
 
 
 ## License and citation
@@ -39,4 +39,4 @@ This code is distributed under BSD 3-Clause License.
 If you find these codes useful for your work, please cite as follows:
 - Monforte, L., Carbonell, J.M., Arroyo, M. and Gens, A (2022) An unconditionally stable explicit stabilized finite element for the coupled hydromechanical formulation in soil mechanics in pseudo-stationary conditions. International Journal for Numerical Methods in Engineering [https://doi.org/10.1002/nme.7064](https://doi.org/10.1002/nme.7064)
 
-- Monforte, L., Collico, S., Carbonell, J.M., Arroyo, M. and Gens, A (202X) Comparison of finite elements and node-based smoothed finite elements for the hydro-mechanical problem: stability, error behavior, mesh dependency and efficiency. Computers and Geotechnics [https://doi.org/10.1002/nme.7064](https://doi.org/10.1002/nme.7064)
+- Monforte, L., Collico, S., Carbonell, J.M., Arroyo, M. and Gens, A (202X) Exploring the numerical performance of node-based smoothed finite elements in coupled hydro-mechanical problems. Computers and Geotechnics [https://doi.org/10.1002/nme.7064](https://doi.org/10.1002/nme.7064)
