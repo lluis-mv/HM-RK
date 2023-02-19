@@ -1,6 +1,6 @@
 % Compute stress, stiffness....
 
-function GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, U, C, consistent, RKMethod)
+function GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, U, C, consistent, RKMethod, DT)
 
 if ( nargin == 5)
     RKMethod = 0;
@@ -18,7 +18,7 @@ if ( isfield(GPInfo(1,1), 'AssumedStrainNew') == false)
 
             GPInfo(el,gp).StrainNew([1,2,4]) = GPInfo(el,gp).B*Uel;
 
-            GPInfo(el,gp) = EvaluateLaw( CP, GPInfo(el,gp), consistent, RKMethod);
+            GPInfo(el,gp) = EvaluateLaw( CP, GPInfo(el,gp), consistent, RKMethod, DT);
         end
 
     end

@@ -24,8 +24,9 @@ nNodes = size(Nodes, 1);
 
 if ( any([GPElements.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
-elseif ( any([GPElements.MCC] == true) )
+elseif ( any([GPElements.MCC] > true) )
     addpath('../ModifiedCamClay/')
+    addpath('../ModifiedCamClay/VP/')
 end
 
 
@@ -66,7 +67,7 @@ for loadStep = 1:nSteps
     while( true )
 
         % Compute D, Sigma...
-        [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true);
+        [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true, dt);
 
         % Create again C with the appropriate ElastoPlastic stiffness matrix
         [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab, C, K);
@@ -95,7 +96,7 @@ for loadStep = 1:nSteps
         normRes = norm(residual);
 
 
-        %         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+       disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
        if ( iter > 10 || reduce)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             if ( reduce)
@@ -330,10 +331,10 @@ end
 
 
 
-function [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes,  U, consistent, RKMethod)
+function [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes,  U, consistent,  dt, RKMethod)
 
 nDofs = 3;
-if ( nargin == 5)
+if ( nargin == 6)
     RKMethod = 0;
 end
 
@@ -352,7 +353,7 @@ for nod = 1:nNodes
 
     GPNodes(nod).StrainNew([1,2,4]) = GPNodes(nod).B*Uel;
 
-    GPNodes(nod) = EvaluateLaw( CP, GPNodes(nod), consistent, RKMethod);
+    GPNodes(nod) = EvaluateLaw( CP, GPNodes(nod), consistent, RKMethod, dt);
 
 end
 
