@@ -31,8 +31,9 @@ end
 
 if ( any([GPInfo.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
-elseif ( any([GPInfo.MCC] == true) )
+elseif ( any([GPInfo.MCC] > 0) )
     addpath('../ModifiedCamClay/')
+    addpath('../ModifiedCamClay/VP/')
     addpath('../ModifiedCamClay/Hashiguchi/')
 end
 
@@ -77,7 +78,7 @@ for loadStep = 1:nSteps
     while( true )
         
         % Compute D, Sigma...
-        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true);
+        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, Xn, Elements, true, dt);
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix

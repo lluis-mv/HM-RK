@@ -46,14 +46,14 @@ for i = 2:nSteps
     
     X = B*(X +  (1/nSteps)*invC*f);
 	if ( DoSomePostProcess )
-        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false, dt);
         GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
         ThisInfo = DoThisPostProcess( i*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
 end
 
 
-GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false, dt);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 
 if ( ElementType(1) == 'T')

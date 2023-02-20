@@ -83,7 +83,7 @@ for loadStep = 1:nSteps
         return;
     end
     if ( DoSomePostProcess )
-        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+        GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false, dt);
         GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
         ThisInfo = DoThisPostProcess( loadStep*dt, Nodes, Elements, GPInfo, X, CP, ThisInfo);
     end
@@ -91,7 +91,7 @@ end
 
 
 
-GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false, dt);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 if ( ElementType(1) == 'T')
     PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);

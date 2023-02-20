@@ -1,8 +1,13 @@
 % Compute stress, stiffness....
 
-function GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, U, C, consistent, RKMethod, DT)
+function GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, U, C, consistent, DT, RKMethod)
 
 if ( nargin == 5)
+    error('No time suplied')
+    RKMethod = 0;
+end
+
+if ( nargin == 6)
     RKMethod = 0;
 end
 

@@ -72,7 +72,7 @@ end
 
 
 
-GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false);
+GPInfo = EvaluateConstitutiveLaw(CP, GPInfo, X, Elements, false, dt);
 GPInfo = FinalizeConstitutiveLaw(CP, GPInfo);
 PostProcessResults(CP.HydroMechanical, Nodes, Elements, X, GPInfo, dt*nSteps, false, ['ThisProblem-', ElementType]);
 
