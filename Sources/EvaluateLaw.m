@@ -14,7 +14,7 @@ if (GP.MCC)
         elseif ( GP.MCC == 1)
             [Xnew, D, ~] = Hashiguchi3(X, DeltaStrain, CP, CP.RK, true);
         elseif ( GP.MCC == 2)
-            [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
+            [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, CP, -1);
         elseif ( GP.MCC == 20)
             [Xnew, D] = ImplicitCASM(X, DeltaStrain);
         elseif ( GP.MCC == 3)

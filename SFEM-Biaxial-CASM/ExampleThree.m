@@ -13,6 +13,16 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 20;
 
+[kappa, lambda, M, nu, n, r, m] = GetConstitutiveParametersCASM();
+CP.kappa = kappa;
+CP.lambda = lambda;
+CP.M_MCC = M;
+CP.nu = nu;
+CP.n = n;
+CP.r = r;
+CP.m = m;
+
+
 figure(212); clf;
 figure(214); clf;
 

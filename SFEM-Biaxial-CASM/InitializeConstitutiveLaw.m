@@ -2,9 +2,8 @@ function [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo)
 
 nElements = size(GPInfo,1);
 
-addpath('../ModifiedCamClay');
-[kappa, lambda, M, nu] = GetConstitutiveParameters();
 
+[kappa, lambda, M, nu, n, r, m] = GetConstitutiveParametersCASM();
 
 Elastic = CP.Elastic;
 

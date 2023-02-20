@@ -20,12 +20,11 @@ end
 
 
 
-if ( GP(1,1).MCC )
-    kappa = CP.kappa;
-    lambda = CP.lambda;
-    M = CP.M_MCC;
-    nu = CP.nu;
 
+
+if ( GP(1,1).MCC )
+    [kappa, lambda, M, nu, n, r, m] = GetConstitutiveParametersCASM();
+    
     for i = 1:size(GP,1)
         for gp = 1:size(GP,2)
             p = -mean(GP(i, gp).StressNew(1:3));

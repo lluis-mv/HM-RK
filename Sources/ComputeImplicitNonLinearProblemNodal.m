@@ -366,7 +366,9 @@ function [GPElements] = ComputeConstrainedModulus(CP, Nodes, Elements, GPElement
 
 
 if ( GPElements(1,1).MCC )
-    [kappa, lambda, M, nu] = GetConstitutiveParameters();
+    kappa = CP.kappa;
+    lambda = CP.lambda;
+    nu = CP.nu;
 
     for el = 1:size(GPElements,1)
         Celem = Elements(el,:);
