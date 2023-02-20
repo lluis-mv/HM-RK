@@ -26,6 +26,6 @@ dofs = 3*([index]-1)+3;
 ThisInfo.F(2) = X(dofs);
 ThisInfo.F(3) = -X(dofs-1); 
 
-if (nargin == 7)
+if (nargin >= 7)
     ThisInfo = [PreviousInfo, ThisInfo];
 end

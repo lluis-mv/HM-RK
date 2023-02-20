@@ -13,7 +13,7 @@ if (nargin == 6)
 end
 
 kSigma = zeros( 7,nn);
-[kappa, lambda, M, nu] = GetConstitutiveParameters();
+
 
 
 
@@ -77,8 +77,14 @@ end
 function D = ComputeD(CP, X, DeltaStrain)
 X = X;
 p = 1/3*(X(1)+X(2)+X(3));
-[kappa, lambda, M, nu] = GetConstitutiveParameters();
+
+kappa = CP.kappa;
+lambda = CP.lambda;
+nu = CP.nu;
+M = CP.M_MCC;
+
 K = -p/kappa;
+
 
 G = 3*K*(1-2*nu)/2/(1+nu);
 
@@ -87,7 +93,7 @@ G = 3*K*(1-2*nu)/2/(1+nu);
 %    zeros(3,3), 0.5*eye(3,3)];
 De = reshape([G.*(4.0./3.0)+K,G.*(-2.0./3.0)+K,G.*(-2.0./3.0)+K,0.0,0.0,0.0,G.*(-2.0./3.0)+K,G.*(4.0./3.0)+K,G.*(-2.0./3.0)+K,0.0,0.0,0.0,G.*(-2.0./3.0)+K,G.*(-2.0./3.0)+K,G.*(4.0./3.0)+K,0.0,0.0,0.0,0.0,0.0,0.0,G,0.0,0.0,0.0,0.0,0.0,0.0,G,0.0,0.0,0.0,0.0,0.0,0.0,G],[6,6]);
 
-gradYield = GradYieldSurface(X);
+gradYield = GradYieldSurface(X, M);
 
 
 loadingCondition = gradYield'*De*DeltaStrain;
@@ -96,7 +102,7 @@ loadingCondition = gradYield'*De*DeltaStrain;
 if ( CP.Elastic == true)
     loadingCondition = -100;
 end
-% loadingCondition = 1;
+
 if ( loadingCondition <= 0)
     D = [De; zeros(1,6)];
     return;
@@ -107,8 +113,8 @@ end
 
 pc = X(7);
 
-[u] = GetConstitutiveParameterU();
-yield = YieldSurface(X);
+u = CP.u;
+yield = YieldSurface(X, M);
 
 R = yield/(-2*pc);
 
@@ -130,8 +136,8 @@ D = [D;
 
 
 
-function yield = YieldSurface(X)
-[~, ~, M, ~] = GetConstitutiveParameters();
+function yield = YieldSurface(X, M)
+
 jj22 = 0;
 sigma = X(1:6);
 
@@ -148,11 +154,11 @@ yield = p*((3*jj22^2)/(M^2*p^2) + 1);
 
 
 
-function dYield = GradYieldSurface(X)
-[~, ~, M, ~] = GetConstitutiveParameters();
+function dYield = GradYieldSurface(X, M)
+
 jj22 = 0;
 sigma = X(1:6);
-pc = X(7);
+
 m = [1;1;1;0;0;0];
 
 

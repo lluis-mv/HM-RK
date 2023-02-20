@@ -2,9 +2,10 @@ function [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo)
 
 nElements = size(GPInfo,1);
 
-addpath('../ModifiedCamClay');
-[kappa, lambda, M, nu] = GetConstitutiveParameters();
 
+kappa = CP.kappa;
+lambda = CP.lambda;
+nu = CP.nu;
 
 Elastic = CP.Elastic;
 

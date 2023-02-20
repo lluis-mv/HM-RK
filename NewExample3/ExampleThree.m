@@ -16,6 +16,14 @@ CP.Elastic = false;
 CP.MCC = true;
 CP.RK = 1;
 
+% Modified Cam clay parameters
+CP.kappa = 0.01;
+CP.lambda = 0.1;
+CP.M_MCC = 1;
+CP.nu = 0.3;
+CP.u = 20;
+
+
 ESIZE = 0.35;
 
 RKReference = 8;

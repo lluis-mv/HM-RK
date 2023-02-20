@@ -10,9 +10,9 @@ if (GP.MCC)
     
     if (consistent)
         if ( CP.Elastic)
-            [Xnew, D, ~] = ExplicitCamClayE(X, DeltaStrain, -1);
+            [Xnew, D, ~] = ExplicitCamClayElastic(X, DeltaStrain, CP, -1);
         elseif ( GP.MCC == 1)
-            [Xnew, D, ~] = Hashiguchi3(X, DeltaStrain, CP.RK, true);
+            [Xnew, D, ~] = Hashiguchi3(X, DeltaStrain, CP, CP.RK, true);
         elseif ( GP.MCC == 2)
             [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, -1);
         elseif ( GP.MCC == 20)

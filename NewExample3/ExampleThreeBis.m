@@ -11,9 +11,14 @@ T = 1E-1;
 
 CP.HydroMechanical = false;
 CP.E = 1;
-CP.nu = 0.49;
 
 
+% Modified Cam clay parameters
+CP.kappa = 0.01;
+CP.lambda = 0.1;
+CP.M_MCC = 1;
+CP.nu = 0.3;
+CP.u = 20;
 
 
 
