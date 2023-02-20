@@ -13,6 +13,13 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 2;
 
+
+CP.kappa = 0.01;
+CP.lambda = 0.1;
+CP.M_MCC = 1.0;
+CP.nu = 0.3;
+
+
 eSize= 0.20;
 
 model = createpde(1);
