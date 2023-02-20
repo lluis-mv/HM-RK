@@ -18,7 +18,7 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 3;
 
-eSize= 0.20;
+eSize= 0.40;
 
 model = createpde(1);
 
@@ -86,7 +86,7 @@ pEff = mean(SV(1:3,:));
 PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, pEff);
 drawnow
 
-return;
+
 
 tic
 [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
@@ -119,36 +119,36 @@ PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
 drawnow
 
 
-
-tic
-[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
-toc
-FF = [information.F];
-FF(1:2:end) = FF(1:2:end)/l;
-figure(212)
-plot( [information.t]*indentation, FF(1:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['T3T3T3'])
-figure(214)
-plot( [information.t]*indentation, FF(2:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['T3T3T3'])
-
 % 
-figure(558); clf
-pdeplot(model1,'XYData',U(4:4:end),'ColorMap','jet');
-drawnow
-
-
-figure(958); clf
-SV = [GPInfo.StressNew];
-SV = SV(2,:)';
-PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
-drawnow
-
-
-
-figure(358); clf
-SV = [GPInfo.StressNew];
-pEff = mean(SV(1:3,:))';
-PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
-drawnow
+% tic
+% [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
+% toc
+% FF = [information.F];
+% FF(1:2:end) = FF(1:2:end)/l;
+% figure(212)
+% plot( [information.t]*indentation, FF(1:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['T3T3T3'])
+% figure(214)
+% plot( [information.t]*indentation, FF(2:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['T3T3T3'])
+% 
+% % 
+% figure(558); clf
+% pdeplot(model1,'XYData',U(4:4:end),'ColorMap','jet');
+% drawnow
+% 
+% 
+% figure(958); clf
+% SV = [GPInfo.StressNew];
+% SV = SV(2,:)';
+% PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
+% drawnow
+% 
+% 
+% 
+% figure(358); clf
+% SV = [GPInfo.StressNew];
+% pEff = mean(SV(1:3,:))';
+% PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
+% drawnow
 
 
 tic
