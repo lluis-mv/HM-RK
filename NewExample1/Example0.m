@@ -182,7 +182,6 @@ end
 
 
 
-return;
 
 
 % Now the same to compute norms...
