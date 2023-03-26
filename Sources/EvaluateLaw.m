@@ -17,18 +17,26 @@ if (GP.MCC)
             [Xnew, D, ~] = ExplicitCamClay2(X, DeltaStrain, CP, -1);
         elseif ( GP.MCC == 20)
             [Xnew, D] = ImplicitCASM(X, DeltaStrain);
-        elseif ( GP.MCC == 3)
+        elseif ( GP.MCC == 3 )
             j = eye(7,7);
             j([1:3,7],[1:3,7]) = -j([1:3,7],[1:3,7]);
             j2 = eye(6,6);
-            j2([1:3],[1:3]) = -j2([1:3],[1:3]);
-
+            j2( 1:3, 1:3) = -j2( 1:3, 1:3);
             X = j*X;
             DeltaStrain = j2*DeltaStrain;
-            [Xnew, D] = ExplicitCasmVP(X, DeltaStrain, -1, DT);
+            [Xnew, D] = FourthExplicitCasmVP(X, DeltaStrain, CP, CP.RK, DT, true);
             D = j2*D*j2;
             Xnew = j*Xnew;
-            
+    elseif ( GP.MCC == 4)
+            j = eye(7,7);
+            j([1:3,7],[1:3,7]) = -j([1:3,7],[1:3,7]);
+            j2 = eye(6,6);
+            j2( 1:3, 1:3) = -j2( 1:3, 1:3);
+            X = j*X;
+            DeltaStrain = j2*DeltaStrain;
+            [Xnew, D] = ExplicitCasmEP(X, DeltaStrain, CP, abs(CP.RK), DT);
+            D = j2*D*j2;
+            Xnew = j*Xnew;
         end
     else
         if ( RKMethod == 1)
