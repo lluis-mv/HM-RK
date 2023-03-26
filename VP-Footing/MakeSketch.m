@@ -1,4 +1,4 @@
-
+function MakeSketch(eSize)
 
 
 
@@ -12,7 +12,7 @@ geometryFromEdges(model, g);
 model1 = createpde(1);
 geometryFromEdges(model1, g);
 
-eSize = 1/4;
+
 
 mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';

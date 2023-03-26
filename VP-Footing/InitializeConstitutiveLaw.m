@@ -3,8 +3,11 @@ function [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo)
 nElements = size(GPInfo,1);
 
 addpath('../ModifiedCamClay');
-[kappa, lambda, M, nu] = GetConstitutiveParameters();
 
+
+lambda = CP.lambda;
+kappa = CP.kappa;
+nu = CP.nu;
 
 Elastic = CP.Elastic;
 
@@ -27,8 +30,8 @@ for el = 1:nElements
         GPInfo(el, gp).StrainNew = zeros(6,1);
         GPInfo(el, gp).StrainPrev = zeros(6,1);
 
-        GPInfo(el, gp).HistoryNew = -[10.0];
-        GPInfo(el, gp).HistoryPrev = -[10.0];
+        GPInfo(el, gp).HistoryNew = -[10.1];
+        GPInfo(el, gp).HistoryPrev = -[10.1];
         
         p = -mean(GPInfo(el, gp).StressNew(1:3));
         if ( Elastic)

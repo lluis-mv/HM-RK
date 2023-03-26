@@ -14,7 +14,7 @@ f = zeros(dofsPerNode*nNodes, 1);
 
 index = find( (Nodes(:,1) <= 1) &  abs(Nodes(:,2)) < 1E-8);
 uDir = 0*f;
-uDir( dofsPerNode*(index-1)+2) = -0.05;
+uDir( dofsPerNode*(index-1)+2) = -0.10/3600.0;
 
 AllZero = false;
 
