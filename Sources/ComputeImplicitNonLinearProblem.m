@@ -112,7 +112,7 @@ for loadStep = 1:nSteps
         normRes = norm(residual);
         
         
-        %disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+        disp(['load Step :: ', num2str(loadStep), ' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10 || reduce)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             if ( reduce)
