@@ -18,6 +18,7 @@ CP.k = 1E-12;
 CP.Elastic = false;
 CP.MCC = 3;
 
+
 CP.kappa = 0.01;
 CP.lambda = 0.1;
 CP.M_MCC = 1;
@@ -32,10 +33,10 @@ CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
 CP.RK = -6;
 
-eSize= 0.15;
+eSize= 0.5;
 MakeSketch(eSize)
 model = createpde(1);
-
+CP.MCC = false;
 
 R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
 
@@ -56,7 +57,7 @@ Elements1 = mesh1.Elements';
 
 
 
-nSteps = 400;
+nSteps = 100;
 dt = 3600.0/nSteps;
 
 
@@ -82,17 +83,23 @@ for ETA = [0, 100, 500, 1000]
     if ( CP.PerzynaEta == 0)
         CP.MCC = 4;
     end
-
+    
+    
 
 
     tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
+    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblemContact(Nodes, Elements, CP, dt, nSteps, 'T6T3');
     toc
 
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l2;
     figure(212)
     plot( [information.t]*indentation, FF(1:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    hold on
+
+
+    figure(213)
+    plot( [information.t]*indentation, [information.u], color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
     hold on
 
 
