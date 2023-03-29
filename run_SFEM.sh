@@ -20,7 +20,7 @@ cd ..
 
 cd SFEM-Footing/
 
-matlab "ExampleThree; quit" > output1 2>&1  
+matlab "ExampleThree; quit" > output1 2>&1   &
 
 matlab "ExampleFour; ExampleFour2; quit" > output2 2>&1 &
 
@@ -31,6 +31,8 @@ cd ..
 cd SFEM-Biaxial-CASM/
 
 matlab "ExampleThree; quit" > output1 2>&1 &
+
+exit
 
 cd ..
 exit 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-alias matlab='/home/lluis/Matlab/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
+alias matlab='export MESA_LOADER_DRIVER_OVERRIDE=i965; /home/lmonforte/Matlab/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
 
 cd NewExample1/
 
@@ -12,7 +12,7 @@ matlab "PlotTheMeshes; quit" > output 2>&1 &
 
 matlab "Example0; quit" > output 2>&1 &
 
-matlab "ExampleOneUgly; quit" > output2 2>&1 &
+matlab "ExampleOneUgly; quit" > output2 2>&1 
 
 cd ..
 
