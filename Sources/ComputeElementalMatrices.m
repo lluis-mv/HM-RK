@@ -472,7 +472,7 @@ D = De([1,2,4], [1,2,4]);
 
 [al, be, w] = GetWeights(CP.HydroMechanical, 'Q8Q8');
 
-[al, be, w] = GetWeights(9);
+[al, be, w] = GetWeights(4);
 
 for el = 1:nElements
     for gp = 1:length(w)
