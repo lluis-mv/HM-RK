@@ -1,7 +1,7 @@
 function [] = ExampleThree()
 addpath('../Sources')
 
-MakeSketch
+
 clear all; clc; clf; close all; 
 
 
@@ -40,7 +40,7 @@ mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes1 = mesh1.Nodes';
 Elements1 = mesh1.Elements';
 
-
+MakeSketch(Nodes1, Elements1);
 
 nSteps = 100;
 dt = 1.0/nSteps;

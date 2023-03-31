@@ -17,7 +17,7 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.075;
+eSize = 0.05;
 
 model = createpde(1);
 
@@ -131,9 +131,10 @@ for Stab = [1, 0]
             plot(WP, y, Color, 'DisplayName', ElementType, 'linewidth', 1.5)
         end
         hold on
+       xlim([0,2])
         ll = legend('location', 'best');
         set(ll, 'interpreter', 'latex')
-        set(ll, 'location', 'best')
+        set(ll, 'location', 'southeast')
         xlabel('$p_w$ (kPa)', 'interpreter', 'latex')
         ylabel('$z$ (m)', 'interpreter', 'latex')
         set(gca, 'FontSize', 16)

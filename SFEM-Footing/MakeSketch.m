@@ -1,28 +1,6 @@
 
+function [] = MakeSketch(Nodes1, Elements1)
 
-
-
-
-model = createpde(1);
-R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
-
-g = decsg(R1);
-geometryFromEdges(model, g);
-
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-
-eSize = 1/4;
-
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-
-
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
 
 figure(1); clf;
 triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
