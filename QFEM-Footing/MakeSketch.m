@@ -1,0 +1,71 @@
+
+
+function MakeSketch(Nodes, Elements)
+
+figure(1); clf;
+
+
+
+
+ii = [1,2,3,4,1];
+for elem = 1:size(Elements,1)
+    Celem = Elements(elem,:);
+    Xe = Nodes(Celem,:);
+    plot(Xe(ii,1), Xe(ii,2), 'k')
+    hold on
+end
+
+
+
+axis off; axis equal
+hold on
+
+
+
+B = 2;
+x = [0, B/2, B/2, 0];
+y = [0,0,B/4,B/4];
+pp = polyshape(x, y);
+plot(pp, 'facecolor', [0.2, 0.2, 0.2], 'linewidth', 2)
+hold on
+
+
+plot( [0.05, 0.9], [0.7, 0.7], 'k')
+plot( 0.05, 0.7,  '<k')
+plot( 0.9, 0.7,  '>k')
+tt = text(0.5, 0.9, '$B/2$', 'interpreter', 'latex','fontsize', 12, 'HorizontalAlignment', 'Center');
+
+
+
+
+
+plot( [-0.1, -0.1], [-0.05 -3.9], 'k')
+plot( -0.1, -3.9,  'vk')
+plot(-0.1, -0.05,  '^k')
+tt = text(-0.3, -2.0, '$2 B$', 'interpreter', 'latex','fontsize', 12, 'HorizontalAlignment', 'Center');
+
+plot( [0.05, 3.95], [-4.2, -4.2], 'k')
+plot( 0.05, -4.2,  '<k')
+plot( 3.95, -4.2,  '>k')
+tt = text(0.5, -4.5, '$2\,B$', 'interpreter', 'latex','fontsize', 12, 'HorizontalAlignment', 'Center');
+
+
+tt = text(-0.5, -0.75, 'Fixed $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
+set(tt, 'rotation', -90)
+
+
+tt = text(4.3, -1.75, 'Fixed $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
+set(tt, 'rotation', 90)
+
+
+tt = text(2.5, -4.5, 'Fixed  $u$\fontsize{6}{0}\selectfont$_\textnormal{h}$\fontsize{10}{0}\selectfont  $\,$ and $u$\fontsize{6}{0}\selectfont$_\textnormal{v}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
+
+tt = text(2.7, 0.2, 'Fixed  $p$\fontsize{6}{0}\selectfont$_\textnormal{w}$', 'interpreter', 'latex','fontsize', 14, 'HorizontalAlignment', 'Center');
+
+
+plot(0,0, 'sr', 'linewidth', 1,'MarkerFaceColor', 'r')
+
+
+
+
+print('SketchFootingQ', '-dpdf')
