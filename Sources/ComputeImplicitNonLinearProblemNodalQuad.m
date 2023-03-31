@@ -1,5 +1,5 @@
 
-function [X, GPElements, GPNodes, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPElements, GPNodes, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemNodalQuad(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 if (nargout >= 5)
     DoSomePostProcess = true;
@@ -14,12 +14,12 @@ nNodes = size(Nodes, 1);
 
 [GPElements] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 [GPElements] = InitializeConstitutiveLaw(CP, GPElements);
-[GPNodes] = ConstructNodalIntegrationPoints(CP, Nodes, Elements, GPElements);
+GPElements = CalculateSmoothingPathAreas( Nodes, Elements, GPElements);
+[GPNodes] = ConstructNodalIntegrationPointsQuad(CP, Nodes, Elements, GPElements);
 
 
 
 [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
-
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
 
 if ( any([GPElements.VonMises] == true) )
@@ -96,7 +96,7 @@ for loadStep = 1:nSteps
 
 
         %         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
-       if ( iter > 10 || reduce)
+        if ( iter > 10 || reduce)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             if ( reduce)
                 disp('In the line search, haha')
@@ -106,7 +106,7 @@ for loadStep = 1:nSteps
             break;
         end
         if ( iter == 30 && normRes > 1E-8)
-            X = nan*X; 
+            X = nan*X;
             Xn = nan*X;
             normRes = nan;
             nZero = nnz(A);
@@ -175,33 +175,6 @@ nElements = size(Elements, 1);
 Cn = sparse(nDofs*nNodes, nDofs*nNodes);
 Kn = sparse(nDofs*nNodes, nDofs*nNodes);
 
-% if ( nargin == 10)
-%     Cn = sparse(nDofs*nNodes, nDofs*nNodes);
-%     Kn = sparse(nDofs*nNodes, nDofs*nNodes);
-% else
-%     Cn(1:3:end, 1:3:end) = 0;
-%     Cn(1:3:end, 2:3:end) = 0;
-%     Cn(2:3:end, 1:3:end) = 0;
-%     Cn(2:3:end, 2:3:end) = 0;
-%
-%     for nod = 1:nNodes
-%         CPatch = GPNodes(nod).NeigNodes;
-%
-%         dofsU = [];
-%         dofswP = [];
-%         for mm = 1:length(CPatch)
-%             dofsU = [dofsU, (CPatch(mm)-1)*nDofs+[1, 2]];
-%             dofswP = [dofswP, (CPatch(mm)-1)*nDofs+3];
-%         end
-%
-%         % Adding effective stresses Kuu
-%         Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
-%     end
-%     return;
-% end
-
-
-
 
 perme = CP.k;
 
@@ -221,38 +194,22 @@ for nod = 1:nNodes
 
     % Adding effective stresses Kuu
     Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
-
-
-
-    % Adding internal forces due to water phase Kuwp
-    for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight;
-        N = zeros(1, length(dofswP));
-        Cel = Elements(el,:);
-        for ind = 1:3
-            index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/108;
-        end
-        index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/54;
-
-        Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).B'*mIdentity* N*weight;
-        Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + N'*mIdentity'*GPNodes(nod).B*weight;
-    end
+    Cn(dofsU,dofswP) = Cn(dofsU,dofswP) - GPNodes(nod).Q*GPNodes(nod).Weight;
+    Cn(dofswP,dofsU) = Cn(dofswP,dofsU) + GPNodes(nod).Q'*GPNodes(nod).Weight;
 
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
 
 
 end
 
-global NumberStabilized
+
 
 
 ngp = 1;
 for el = 1:nElements
     ConstModulus=  GPElements(el,ngp).ConstrainedModulus;
     he = sqrt( sum([GPElements(el,:).Weight]));
-    AlphaStab = 2/ConstModulus - dt*perme/he^2/1200;
+    AlphaStab = 0.75/ConstModulus - dt*perme/he^2/12;
     AlphaStab = max(0.0, AlphaStab);
     if ( length(AlphaStabM) == 1)
         AlphaStab = -AlphaStab*AlphaStabM;
@@ -261,13 +218,10 @@ for el = 1:nElements
         AlphaStab = -max(0.0, AlphaStab);
     end
 
-    if ( AlphaStab~= 0)
-        NumberStabilized = NumberStabilized +1;
-    end
 
-    dofswP = GPElements(el).dofsWP;
+    dofswP = GPElements(el,1).dofsWP;
 
-    Cn(dofswP, dofswP) = Cn(dofswP, dofswP) - GPElements(el).Ms*AlphaStab * GPElements(el).Weight;
+    Cn(dofswP, dofswP) = Cn(dofswP, dofswP) - GPElements(el,1).Ms*AlphaStab * sum([GPElements(el,:).Weight]);
 end
 
 
@@ -299,30 +253,10 @@ for nod = 1:nNodes
 
     ThisStress = Idev*GPNodes(nod).StressNew;
     f(dofsU) = f(dofsU) + GPNodes(nod).B'*(  ThisStress([1,2,4]) ) * GPNodes(nod).Weight;
+    
 
     % Adding internal forces due to water phase Kuwp
-    for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight;
-        N = zeros(1, length(dofswP));
-        wPn = zeros(length(dofswP), 1);
-
-        Cel = Elements(el,:);
-        for ind = 1:3
-            index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/108;
-            wPn(index) = X( dofswP(index));
-        end
-        index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/54;
-        wPn(index) = X( dofswP(index));
-        wP = N*wPn;
-
-        f(dofsU) = f(dofsU) - GPNodes(nod).B'*mIdentity* wP*weight;
-    end
-
-
-
-
+    f(dofsU) = f(dofsU) - GPNodes(nod).Q * X(dofswP) * GPNodes(nod).Weight;
 end
 
 
@@ -384,5 +318,3 @@ if ( GPElements(1,1).MCC )
         end
     end
 end
-
-

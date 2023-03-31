@@ -4,9 +4,33 @@ if (nargin == 3)
     showMesh = false;
 end
 
-if ( size(C, 2) == 8)
+if ( size(C, 2) == 4)
     [s,t]=meshgrid(-1:0.1:1,-1:0.1:1);
     [s,t]=meshgrid([-1,1],[-1,1]);
+
+    nElem = size(C, 1);
+
+
+    for elem = 1:nElem
+        res = 0*t;
+        for i = 1:size(s,1)
+            for j = 1:size(t)
+                alfa = s(i,j);
+                beta = t(i,j);
+                N =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
+                xx(i,j) = N'*X(C(elem,:), 1);
+                yy(i,j) = N'*X(C(elem,:), 2);
+                res(i,j) = N'*U(C(elem,:));
+            end
+        end
+        for iii = 1:2
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+            hold on;
+        end
+    end
+elseif ( size(C, 2) == 8)
+    [s,t]=meshgrid(-1:1:1,-1:1:1);
+%     [s,t]=meshgrid([-1,1],[-1,1]);
 
     nElem = size(C, 1);
 

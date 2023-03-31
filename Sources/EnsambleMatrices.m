@@ -78,6 +78,9 @@ for el = 1:nElements
             if ( all(ElementType == 'T3T3'))
                 AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
+            elseif ( all(ElementType == 'Q4Q4'))
+                AlphaStab = 0.75/ConstModulus - 6*dt*perme/he^2;
+                AlphaStab = max(0, AlphaStab);
             else
                 AlphaStab = 0;
             end

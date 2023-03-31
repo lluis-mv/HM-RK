@@ -74,7 +74,8 @@ function [Nu, Np] = GetShapeFunctions( alfa, beta, nU, nP)
 ndim = 2;
 if (nU == 6)
     Nsmall =  [ 1 - alfa - beta; alfa;  beta];
- 
+elseif (nU == 8)
+    Nsmall =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
 elseif (nU == 12)
     Nsmall =  [ (1 - alfa - beta)*(1-2*alfa-2*beta);
         alfa*(2*alfa-1);

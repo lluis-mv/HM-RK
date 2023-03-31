@@ -12,7 +12,7 @@ xP = [];
 yP = [];
 c = [];
 
-if ( size(C,1) == 3)
+if ( size(C,2) == 3)
     for node = 1:nNodes
         value = values(node);
 
