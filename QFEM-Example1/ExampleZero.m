@@ -8,9 +8,9 @@ T = 1E-7;
 
 
 CP.HydroMechanical = true;
-CP.E = 10;
+CP.E = 1000;
 CP.nu = 0.3;
-CP.k = 0.000000000001;
+CP.k = 10000.0;
 nu = CP.nu;
 CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 

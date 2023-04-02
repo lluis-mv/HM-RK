@@ -248,12 +248,16 @@ legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z$ (m)', 'interpreter', 'latex')
 ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+ylim([10,40])
+drawnow
 fig = figure(212);
 exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
 
 figure(214)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
+ylim([0,25])
+drawnow
 xlabel('Footing indentation, $u_z$ (m)', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
 fig = figure(214);

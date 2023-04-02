@@ -43,6 +43,8 @@ hold on
 plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'Q4Q4')
 plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'Q8Q4')
 drawnow
+xlim([1E2, 3E4])
+ylim([5E0, 1E4])
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('Computational cost (s)', 'interpreter', 'latex')
 set(gca, 'XScale', 'log')
@@ -55,6 +57,8 @@ hold on
 plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'Q4Q4')
 plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'Q8Q4')
 drawnow
+xlim([1E2, 3E4])
+ylim([0, 0.6])
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('Computational cost / $n_{dofs}$ (s)', 'interpreter', 'latex')
 set(gca, 'XScale', 'log')
@@ -66,7 +70,8 @@ semilogx(nDofs, nZeronodal./nDofs, 'r*-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(nDofs, nZerolinear./nDofs, 'g*-.', 'DisplayName', 'Q4Q4')
 plot(nDofsquad, nZeroquad./nDofsquad, 'b*-.', 'DisplayName', 'Q8Q4')
-
+xlim([1E2, 3E4])
+ylim([10, 60])
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('$n_{nz}$/ $n_{dofs}$ (s)', 'interpreter', 'latex')
 drawnow
@@ -83,6 +88,9 @@ ylabel('Error (kPa)', 'interpreter', 'latex')
 drawnow
 % ylim([32,37])
 
+ylim([1E-2, 10])
+xlim([5E0, 1E4])
+
 figure(201); clf
 loglog(TIMEnodal, abs(Qnodal-0*Qquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
@@ -93,7 +101,7 @@ xlabel('Computational cost (s)', 'interpreter', 'latex')
 ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
 drawnow
 ylim([32,37])
-
+xlim([5E0, 1E4])
 
 figure(202); clf
 loglog(TIMEnodal, abs(PWnodal-PWquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
