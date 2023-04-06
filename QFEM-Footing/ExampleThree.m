@@ -37,6 +37,8 @@ ind = find(xx == 1);
 l = 0.5*(xx(ind)+xx(ind+1));
 l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
 
+
+if ( true)
 tic
 [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodalQuad(Nodes1, Elements1, CP, dt, nSteps, 'Q4Q4', 1);
 toc
@@ -102,6 +104,43 @@ drawnow
 figure(356); clf
 PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
 drawnow
+end
+
+tic
+[U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M4Q4', 1);
+toc
+FF = [information.F];
+FF(1:2:end) = FF(1:2:end)/l;
+figure(212)
+plot( [information.t]*indentation, FF(1:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['Q4Q4Q4'])
+figure(214)
+plot( [information.t]*indentation, FF(2:2:end), 'c-.', 'linewidth', 2,'DisplayName', ['Q4Q4Q4'])
+
+
+figure(558); clf
+PlotNodal(Nodes1, Elements1, U(4:4:end) )
+drawnow
+
+
+figure(958); clf
+SV = [];
+pEff = [];
+for i = 1:size(GPInfo,1)
+    for j = 1:size(GPInfo, 2)
+        SV(i,j) = GPInfo(i,j).StressNew(2);
+        pEff(i,j) = mean(GPInfo(i,j).StressNew(1:3));
+    end
+end
+PlotHistoryVariable( Nodes1, Elements1, GPInfo, SV);
+drawnow
+
+
+
+figure(358); clf
+PlotHistoryVariable( Nodes1, Elements1, GPInfo, pEff);
+drawnow
+
+
 
 
 
@@ -150,7 +189,7 @@ for iii = [956:959]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis(cc);
+    caxis([-15,0]);
     colorbar
     drawnow
     pause(1)
@@ -169,7 +208,7 @@ for iii = [356:359]
     fig = figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis(cc);
+    caxis([-15,0]);
     colorbar
     drawnow
     pause(1)
@@ -187,7 +226,7 @@ for iii = [556:559]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-%     caxis(cc);
+    caxis([0, 22]);
     colorbar
     drawnow
     pause(1)

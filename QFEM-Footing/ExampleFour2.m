@@ -7,6 +7,7 @@ figure(99); clf
 semilogx(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'Q4Q4')
+plot(eSizeAxis, Qmixed, 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
@@ -18,6 +19,7 @@ figure(104); clf
 loglog(eSizeAxis, abs(Qnodal-Qquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(eSizeAxis, abs(Qlinear-Qquad(end)), 'gs-.', 'DisplayName', 'Q4Q4')
+plot(eSizeAxis, abs(Qmixed-Qquad(end)), 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(eSizeAxis, abs(Qquad-Qquad(end)), 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
@@ -28,6 +30,7 @@ figure(100); clf
 semilogx(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'Q4Q4')
+plot(eSizeAxis, PWmixed, 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'Q8Q4')
 
 xlabel('$h_e$ (m)', 'interpreter', 'latex')
@@ -41,6 +44,7 @@ figure(101); clf
 loglog(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'Q4Q4')
+plot(nDofsmixed, TIMEmixed, 'c*-.', 'DisplayName', 'Q4Q4Q4')
 plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlim([1E2, 3E4])
@@ -55,6 +59,7 @@ figure(102); clf
 semilogx(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'Q4Q4')
+plot(nDofsmixed, TIMEmixed./nDofsmixed, 'c*-.', 'DisplayName', 'Q4Q4Q4')
 plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlim([1E2, 3E4])
@@ -69,9 +74,10 @@ figure(103); clf
 semilogx(nDofs, nZeronodal./nDofs, 'r*-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(nDofs, nZerolinear./nDofs, 'g*-.', 'DisplayName', 'Q4Q4')
+plot(nDofsmixed, nZeromixed./nDofsmixed, 'c*-.', 'DisplayName', 'Q4Q4Q4')
 plot(nDofsquad, nZeroquad./nDofsquad, 'b*-.', 'DisplayName', 'Q8Q4')
 xlim([1E2, 3E4])
-ylim([10, 60])
+ylim([0, 100])
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('$n_{nz}$/ $n_{dofs}$ (s)', 'interpreter', 'latex')
 drawnow
@@ -81,6 +87,7 @@ figure(200); clf
 loglog(TIMEnodal, abs(Qnodal-Qquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(TIMElinear, abs(Qlinear-Qquad(end)), 'gs-.', 'DisplayName', 'Q4Q4')
+plot(TIMEmixed, abs(Qmixed-Qquad(end)), 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(TIMEquad, abs(Qquad-Qquad(end)), 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -95,6 +102,7 @@ figure(201); clf
 loglog(TIMEnodal, abs(Qnodal-0*Qquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(TIMElinear, abs(Qlinear-0*Qquad(end)), 'gs-.', 'DisplayName', 'Q4Q4')
+plot(TIMEmixed, abs(Qmixed-0*Qquad(end)), 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(TIMEquad, abs(Qquad-0*Qquad(end)), 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -107,6 +115,7 @@ figure(202); clf
 loglog(TIMEnodal, abs(PWnodal-PWquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(TIMElinear, abs(PWlinear-PWquad(end)), 'gs-.', 'DisplayName', 'Q4Q4')
+plot(TIMEmixed, abs(PWmixed-PWquad(end)), 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(TIMEquad, abs(PWquad-PWquad(end)), 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('Computational cost (s)', 'interpreter', 'latex')
@@ -118,6 +127,7 @@ figure(203); clf
 loglog(TIMEnodal, abs(PWnodal-0*PWquad(end)), 'rs-.', 'DisplayName', 'NS-Q4Q4')
 hold on
 plot(TIMElinear, abs(PWlinear-0*PWquad(end)), 'gs-.', 'DisplayName', 'Q4Q4')
+plot(TIMEmixed, abs(PWmixed-0*PWquad(end)), 'cs-.', 'DisplayName', 'Q4Q4Q4')
 plot(TIMEquad, abs(PWquad-0*PWquad(end)), 'bs-.', 'DisplayName', 'Q8Q4')
 drawnow
 xlabel('Computational cost (s)', 'interpreter', 'latex')

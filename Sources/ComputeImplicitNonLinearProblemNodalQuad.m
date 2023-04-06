@@ -194,8 +194,8 @@ for nod = 1:nNodes
 
     % Adding effective stresses Kuu
     Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
-    Cn(dofsU,dofswP) = Cn(dofsU,dofswP) - GPNodes(nod).Q*GPNodes(nod).Weight;
-    Cn(dofswP,dofsU) = Cn(dofswP,dofsU) + GPNodes(nod).Q'*GPNodes(nod).Weight;
+    Cn(dofsU,dofswP) = Cn(dofsU,dofswP) - GPNodes(nod).Q;
+    Cn(dofswP,dofsU) = Cn(dofswP,dofsU) + GPNodes(nod).Q';
 
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
 
@@ -256,7 +256,7 @@ for nod = 1:nNodes
     
 
     % Adding internal forces due to water phase Kuwp
-    f(dofsU) = f(dofsU) - GPNodes(nod).Q * X(dofswP) * GPNodes(nod).Weight;
+    f(dofsU) = f(dofsU) - GPNodes(nod).Q * X(dofswP) ;
 end
 
 

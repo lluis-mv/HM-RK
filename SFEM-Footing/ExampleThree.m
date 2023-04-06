@@ -196,7 +196,7 @@ for iii = [956:959]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis(cc);
+    caxis([-15,0]);
     colorbar
     drawnow
     pause(1)
@@ -215,7 +215,7 @@ for iii = [356:359]
     fig = figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis(cc);
+    caxis([-15,0]);
     colorbar
     drawnow
     pause(1)
@@ -233,7 +233,7 @@ for iii = [556:559]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis(cc);
+    caxis([0, 22]);
     colorbar
     drawnow
     pause(1)

@@ -160,7 +160,7 @@ II = 1/3*[ones(3,1); zeros(3,1)];
 % Idev = eye(3,3)-1/2*[ones(2,2), zeros(2,1); zeros(1,3)];
 % II = 1/2*[ones(2,1); zeros(1,1)];
 
-
+alfaVol = 0.75;
 for el = 1:nElements    
     for ngp = 1:size(GPInfo,2)
         
@@ -206,6 +206,10 @@ for el = 1:nElements
             if ( all(ElementType == 'T3T3') || all(ElementType == 'M3T3') )
                 AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
+            elseif ( all(ElementType == 'Q4Q4') || all(ElementType == 'M4Q4')  )
+                AlphaStab = 1.0/ConstModulus - 6*dt*perme/he^2;
+                AlphaStab = max(0, AlphaStab);
+                alfaVol = 0.15;
             else
                 AlphaStab = 0;
             end
@@ -220,7 +224,7 @@ for el = 1:nElements
         Ms = Ms + M;
         
         Ce = [kke, kkeVol, Q; 
-             Q', -Mtheta+0.75*GPInfo(el,ngp).Ms , 0*H;
+             Q', -Mtheta+alfaVol*GPInfo(el,ngp).Ms , 0*H;
             0*Q', Mtheta, Ms];
         Ke = [0*kke, 0*Q, 0*Q;
             0*Q', 0*H, 0*H

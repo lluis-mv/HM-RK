@@ -175,30 +175,6 @@ nElements = size(Elements, 1);
 Cn = sparse(nDofs*nNodes, nDofs*nNodes);
 Kn = sparse(nDofs*nNodes, nDofs*nNodes);
 
-% if ( nargin == 10)
-%     Cn = sparse(nDofs*nNodes, nDofs*nNodes);
-%     Kn = sparse(nDofs*nNodes, nDofs*nNodes);
-% else
-%     Cn(1:3:end, 1:3:end) = 0;
-%     Cn(1:3:end, 2:3:end) = 0;
-%     Cn(2:3:end, 1:3:end) = 0;
-%     Cn(2:3:end, 2:3:end) = 0;
-%
-%     for nod = 1:nNodes
-%         CPatch = GPNodes(nod).NeigNodes;
-%
-%         dofsU = [];
-%         dofswP = [];
-%         for mm = 1:length(CPatch)
-%             dofsU = [dofsU, (CPatch(mm)-1)*nDofs+[1, 2]];
-%             dofswP = [dofswP, (CPatch(mm)-1)*nDofs+3];
-%         end
-%
-%         % Adding effective stresses Kuu
-%         Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
-%     end
-%     return;
-% end
 
 
 
@@ -222,30 +198,13 @@ for nod = 1:nNodes
     % Adding effective stresses Kuu
     Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
 
-
-
-    % Adding internal forces due to water phase Kuwp
-    for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight;
-        N = zeros(1, length(dofswP));
-        Cel = Elements(el,:);
-        for ind = 1:3
-            index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/108;
-        end
-        index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/54;
-
-        Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).B'*mIdentity* N*weight;
-        Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + N'*mIdentity'*GPNodes(nod).B*weight;
-    end
-
+    Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).Q;
+    Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + GPNodes(nod).Q';
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
 
 
 end
 
-global NumberStabilized
 
 
 ngp = 1;
@@ -259,10 +218,6 @@ for el = 1:nElements
     elseif ( length(AlphaStabM) == 2)
         AlphaStab = AlphaStabM(1)/ConstModulus - dt*perme/he^2*AlphaStabM(2);
         AlphaStab = -max(0.0, AlphaStab);
-    end
-
-    if ( AlphaStab~= 0)
-        NumberStabilized = NumberStabilized +1;
     end
 
     dofswP = GPElements(el).dofsWP;
@@ -299,26 +254,7 @@ for nod = 1:nNodes
 
     ThisStress = Idev*GPNodes(nod).StressNew;
     f(dofsU) = f(dofsU) + GPNodes(nod).B'*(  ThisStress([1,2,4]) ) * GPNodes(nod).Weight;
-
-    % Adding internal forces due to water phase Kuwp
-    for el = GPNodes(nod).NeigElement'
-        weight = GPElements(el).Weight;
-        N = zeros(1, length(dofswP));
-        wPn = zeros(length(dofswP), 1);
-
-        Cel = Elements(el,:);
-        for ind = 1:3
-            index = find(dofswP == 3*(Cel(ind)-1)+3);
-            N(index) = 7/108;
-            wPn(index) = X( dofswP(index));
-        end
-        index = find(dofswP == 3*(nod-1)+3);
-        N(index) = 11/54;
-        wPn(index) = X( dofswP(index));
-        wP = N*wPn;
-
-        f(dofsU) = f(dofsU) - GPNodes(nod).B'*mIdentity* wP*weight;
-    end
+    f(dofsU) = f(dofsU) - GPNodes(nod).Q*(  X(dofswP) ) ;
 
 
 

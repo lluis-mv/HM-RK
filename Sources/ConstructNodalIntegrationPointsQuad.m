@@ -94,7 +94,7 @@ for nod = 1:size(Nodes,1)
                 b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
                 B = [B, b];
             end
-            Be = Be+B*weight;
+            Be = Be+B*w(ii)*det(J);
 
         end
 
@@ -141,8 +141,9 @@ for nod = 1:size(Nodes,1)
         end
         
 
-        Qe = zeros(8,4);
+        
         X = Nodes(Celem,:);
+        Nint = zeros(4,1);
         for ii = 1:length(al)
             alfa = al(ii);
             beta = be(ii);
@@ -155,28 +156,24 @@ for nod = 1:size(Nodes,1)
                 - beta/4 - 1/4,   1/4 - alfa/4];
             NsmallP =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
             J = Nsmall_chi'*X;
-            dN_dX = inv(J)*Nsmall_chi';
-            for i = 1:4
-                b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
-                B = [B, b];
-            end
-            Qe = Qe+B'*mIdentity*NsmallP'*weight;
+            
+            Nint = Nint+NsmallP*w(ii)*det(J);
 
         end
 
+        Nint2 = zeros(1,length(GPNodes(nod).NeigNodes));
+        for i = 1:4
+            index = find(Celem(i) == GPNodes(nod).NeigNodes);
+            Nint2(index) = Nint(i);
+        end
         
-        Celem = Elements(neigElem,:);
-        ind = [];
-        ind2 = [];
-        for jj = 1:ne
-            tt = find(GPNodes(nod).NeigNodes == Celem(jj));
-            ind = [ind, 2*tt-1, 2*tt];
-            ind2 = [ind2, tt];
-        end
-        Qnod(ind, ind2) = Qnod(ind,ind2) + Qe;
+        
+        
+
+        Qnod = Qnod + GPNodes(nod).B'*mIdentity* Nint2;
         
     end
-    GPNodes(nod).Q = Qnod / GPNodes(nod).Weight;
+    GPNodes(nod).Q = Qnod ;
 end
 
 

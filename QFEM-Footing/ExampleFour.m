@@ -78,14 +78,14 @@ if (true)
         Qlinear(i) = FF(end-1)/l;
 
 
-%         tic
-%         [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
-        TIMEmixed(i)= nan;
-        nDofsmixed(i) = size(Nodes1,1)*4*nan;
-        nZeromixed(i) = nZero*nan;
+         tic
+         [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M4Q4', 1);
+        TIMEmixed(i)= toc;
+        nDofsmixed(i) = size(Nodes1,1)*4;
+        nZeromixed(i) = nZero;
         FF = [information.F];
-        PWmixed(i) = FF(end)*nan;
-        Qmixed(i) = FF(end-1)/l*nan;
+        PWmixed(i) = FF(end);
+        Qmixed(i) = FF(end-1)/l;
 
 
         tic
@@ -110,7 +110,7 @@ if (true)
         plot(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-Q4Q4')
         hold on
         plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'Q4Q4')
-        
+        plot(eSizeAxis, Qmixed, 'cs-.', 'DisplayName', 'Q4Q4Q4')
         plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'Q8Q4')
         drawnow
         xlabel('$h_e$ (m)', 'interpreter', 'latex')
@@ -122,7 +122,7 @@ if (true)
         plot(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-Q4Q4')
         hold on
         plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'Q4Q4')
-        
+        plot(eSizeAxis, PWmixed, 'cs-.', 'DisplayName', 'Q4Q4Q4')        
         plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'Q8Q4')
         xlabel('$h_e$ (m)', 'interpreter', 'latex')
         ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
@@ -134,7 +134,7 @@ if (true)
         plot(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-Q4Q4')
         hold on
         plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'Q4Q4')
-        
+        plot(nDofsmixed, TIMEmixed, 'c*-.', 'DisplayName', 'Q4Q4Q4')        
         plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'Q8Q4')
         drawnow
         xlabel('Number of dofs', 'interpreter', 'latex')
@@ -147,7 +147,7 @@ if (true)
         plot(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-Q4Q4')
         hold on
         plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'Q4Q4')
-        
+        plot(nDofsmixed, TIMEmixed./nDofsmixed, 'c*-.', 'DisplayName', 'Q4Q4Q4')        
         plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'Q8Q4')
         drawnow
         xlabel('Number of dofs', 'interpreter', 'latex')
