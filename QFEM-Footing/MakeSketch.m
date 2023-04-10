@@ -1,9 +1,20 @@
 
-function [] = MakeSketch(Nodes1, Elements1)
 
+function MakeSketch(Nodes, Elements)
 
 figure(1); clf;
-triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
+
+
+
+
+ii = [1,2,3,4,1];
+for elem = 1:size(Elements,1)
+    Celem = Elements(elem,:);
+    Xe = Nodes(Celem,:);
+    plot(Xe(ii,1), Xe(ii,2), 'k')
+    hold on
+end
+
 
 
 axis off; axis equal
@@ -57,4 +68,4 @@ plot(0,0, 'sr', 'linewidth', 1,'MarkerFaceColor', 'r')
 
 
 
-print('SketchFooting', '-dpdf')
+print('SketchFootingQ', '-dpdf')

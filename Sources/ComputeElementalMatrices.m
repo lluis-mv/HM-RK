@@ -16,6 +16,8 @@ elseif ( all(ElementType == 'Q8Q8') )
     [GPInfo] = ComputeElementalMatricesQ8Q8(Nodes, Elements, CP);
 elseif ( all(ElementType == 'M3T3') )
     [GPInfo] = ComputeElementalMatricesT3T3Mixed(Nodes, Elements, CP);
+elseif ( all(ElementType == 'M4Q4') )
+    [GPInfo] = ComputeElementalMatricesQ4Q4Mixed(Nodes, Elements, CP);
 end
 
 
@@ -472,7 +474,7 @@ D = De([1,2,4], [1,2,4]);
 
 [al, be, w] = GetWeights(CP.HydroMechanical, 'Q8Q8');
 
-[al, be, w] = GetWeights(9);
+[al, be, w] = GetWeights(4);
 
 for el = 1:nElements
     for gp = 1:length(w)
@@ -575,6 +577,155 @@ for el = 1:nElements
         GPInfo(el,gp).dofsWP = dofsWP(1:4);
         GPInfo(el,gp).dofsWPreal = dofsWP; % Those relevant to compute internal forces,... blahblah
         GPInfo(el,gp).IndexReorder = [1,2,9, 3,4,10, 5,6,11, 7,8,12];
+    end
+end
+
+
+
+function [GPInfo] = ComputeElementalMatricesQ4Q4Mixed(Nodes, Elements, CP)
+
+
+
+
+nNodes = size(Nodes, 1);
+nElements = size(Elements, 1);
+ndim = 2;
+
+De = zeros(6,6);
+
+E = CP.E;
+nu = CP.nu;
+
+for i = 1:3
+    for j = 1:3
+        if ( i==j)
+            De(i,j) = (1-nu);
+        else
+            De(i,j) = nu;
+        end
+    end
+    De(i+3, i+3) = (1-2*nu)/2;
+end
+
+De = E/(1+nu)/(1-2*nu) * De;
+
+
+D = De([1,2,4], [1,2,4]);
+
+
+
+
+
+[al, be, w] = GetWeights(4);
+
+for el = 1:nElements
+    for gp = 1:length(w)
+        
+        Cel = Elements(el,:);
+        X = Nodes(Cel,:);
+        
+        
+        
+        
+        dofs = [];
+        dofsU = [];
+        dofsVol = [];
+        dofsWP = [];
+        for ii = 1:length(Cel)
+            dofs = [ dofs, (Cel(ii)-1)*4 + [1,2,3,4] ];
+            dofsU = [ dofsU, (Cel(ii)-1)*4 + [1,2] ];
+            dofsVol = [ dofsVol, ((Cel(ii)-1)*4 + 3) ];
+            dofsWP = [ dofsWP, ((Cel(ii)-1)*4 + 4) ];
+            
+        end
+        
+        
+        
+        alfa = al(gp);
+        beta = be(gp);
+        
+        NsmallP =  1/4*[(1-alfa)*(1-beta); (1+alfa)*(1-beta); (1+alfa)*(1+beta); (1-alfa)*(1+beta)];
+        Nsmall_chiP = [   beta/4 - 1/4,   alfa/4 - 1/4;
+            1/4 - beta/4, - alfa/4 - 1/4;
+            beta/4 + 1/4,   alfa/4 + 1/4;
+            - beta/4 - 1/4,   1/4 - alfa/4];
+
+        
+
+
+ 
+        Nsmall = NsmallP;
+        Nsmall_chi = Nsmall_chiP;
+        
+        Nu = (zeros(ndim, 4*ndim));
+        for i = 1:4
+            for dd = 1:2
+                Nu(dd, ndim*(i-1)+dd) = Nsmall(i);
+            end
+        end
+        J = Nsmall_chi'*X;
+        dN_dX = inv(J)*Nsmall_chi';
+        
+        JP = Nsmall_chiP'*X(1:4,:);
+        
+        
+        B = [];
+        for i = 1:4
+            b = [dN_dX(1,i), 0; 0, dN_dX(2,i); dN_dX(2,i), dN_dX(1,i)]; %% geotechnical engineering
+            B = [B, b];
+        end
+        
+        
+        Area = det(J)*4;
+        
+        he = 0;
+        for i = 1:4
+            aux = 0;
+            for j = 1:2
+                aux = aux + dN_dX(j,i);
+            end
+            he = he + abs(aux);
+        end
+        he = sqrt(2)*he;
+        he = 4/he;
+        
+        Ms = 1/36* [  7, -1, -5, -1;
+            -1,  7, -1, -5;
+            -5, -1,  7, -1;
+            -1, -5, -1,  7];
+        GPInfo(el,gp).Weight = Area*w(gp);
+        GPInfo(el,gp).B =B;
+        GPInfo(el,gp).dN_dX = JP\Nsmall_chiP';
+        GPInfo(el,gp).N = NsmallP';
+        GPInfo(el,gp).Nu = Nu;
+        GPInfo(el,gp).he = he;
+        GPInfo(el,gp).Ms = Ms;
+        GPInfo(el,gp).D = D;
+        GPInfo(el,gp).D6 = De;
+        
+        
+        
+        GPInfo(el,gp).StressNew = zeros(6,1);
+        GPInfo(el,gp).StressPrev = zeros(6,1);
+        
+        GPInfo(el,gp).StrainNew = zeros(6,1);
+        GPInfo(el,gp).StrainPrev = zeros(6,1);
+
+        GPInfo(el,gp).AssumedStrainNew = zeros(6,1);
+        GPInfo(el,gp).AssumedStrainPrev = zeros(6,1);
+        
+        GPInfo(el,gp).HistoryNew = 0;
+        GPInfo(el,gp).HistoryPrev = 0;
+        
+        GPInfo(el,gp).MCC = false;
+        GPInfo(el,gp).VonMises = false;
+        
+        GPInfo(el,gp).dofs = dofs;
+        GPInfo(el,gp).dofsU = dofsU;
+        GPInfo(el,gp).dofsVol = dofsVol;
+        GPInfo(el,gp).dofsWP = dofsWP(1:4);
+        GPInfo(el,gp).dofsWPreal = dofsWP; % Those relevant to compute internal forces,... blahblah
+        GPInfo(el,gp).IndexReorder = [1,2,9,13, 3,4,10,14, 5,6,11,15, 7,8,12,16];
     end
 end
 

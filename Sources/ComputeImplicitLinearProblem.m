@@ -14,7 +14,7 @@ nElements = size(Elements, 1);
 
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 1, dt, true, AlphaStabM);
+[C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 1, dt, true, AlphaStabM);
 
 [C, K, X, fini, nDir] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 

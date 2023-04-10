@@ -41,7 +41,7 @@ else
             Vol = U(GPInfo(el,gp).dofsVol);
 
             GPInfo(el,gp).StrainNew([1,2,4]) = GPInfo(el,gp).B*Uel;
-            VolStrain = GPInfo(1,1).N*Vol;
+            VolStrain = GPInfo(el,gp).N*Vol;
 
             GPInfo(el,gp).AssumedStrainNew = Idev*GPInfo(el,gp).StrainNew + II*VolStrain;
 

@@ -8,6 +8,7 @@ cd SFEM/
 matlab "SFEM_Figure; quit" > output 2>&1 & 
 
 cd ../
+
 cd SFEM-Example1
 
 matlab "ExampleOne; quit" > output 2>&1 &
@@ -35,9 +36,26 @@ matlab "ExampleThree; quit" > output1 2>&1 &
 exit
 
 cd ..
-exit 0
-cd SFEM-Membrane/
 
-matlab "ExampleOne; quit" > output1 2>&1 &
 
-matlab "ExampleTwo; ExampleTwo2; quit" > output1 2>&1 &
+cd QFEM-Example1
+
+matlab "ExampleOne; quit" > output 2>&1 &
+
+
+matlab "ExampleTwo; quit" > output2 2>&1 & 
+
+cd ..
+
+
+cd QFEM-Footing/
+
+matlab "ExampleThree; quit" > output1 2>&1 & 
+
+matlab "ExampleFour; ExampleFour2; quit" > output2 2>&1 &
+
+
+cd ..
+
+
+

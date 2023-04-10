@@ -1,5 +1,5 @@
 
-function [X, GPElements, GPNodes, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPElements, GPNodes, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemNodalQuad(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 if (nargout >= 5)
     DoSomePostProcess = true;
@@ -14,19 +14,18 @@ nNodes = size(Nodes, 1);
 
 [GPElements] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 [GPElements] = InitializeConstitutiveLaw(CP, GPElements);
-[GPNodes] = ConstructNodalIntegrationPoints(CP, Nodes, Elements, GPElements);
+GPElements = CalculateSmoothingPathAreas( Nodes, Elements, GPElements);
+[GPNodes] = ConstructNodalIntegrationPointsQuad(CP, Nodes, Elements, GPElements);
 
 
 
 [C, K] = AssembleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
-
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
 
 if ( any([GPElements.VonMises] == true) )
     addpath('../ModifiedCamClay/vonMises/')
-elseif ( any([GPElements.MCC] > true) )
+elseif ( any([GPElements.MCC] == true) )
     addpath('../ModifiedCamClay/')
-    addpath('../ModifiedCamClay/VP/')
 end
 
 
@@ -67,7 +66,7 @@ for loadStep = 1:nSteps
     while( true )
 
         % Compute D, Sigma...
-        [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true, dt);
+        [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true);
 
         % Create again C with the appropriate ElastoPlastic stiffness matrix
         [C, K] = AssembleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab, C, K);
@@ -96,8 +95,8 @@ for loadStep = 1:nSteps
         normRes = norm(residual);
 
 
-       disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
-       if ( iter > 10 || reduce)
+        %         disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
+        if ( iter > 10 || reduce)
             disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             if ( reduce)
                 disp('In the line search, haha')
@@ -107,7 +106,7 @@ for loadStep = 1:nSteps
             break;
         end
         if ( iter == 30 && normRes > 1E-8)
-            X = nan*X; 
+            X = nan*X;
             Xn = nan*X;
             normRes = nan;
             nZero = nnz(A);
@@ -177,9 +176,6 @@ Cn = sparse(nDofs*nNodes, nDofs*nNodes);
 Kn = sparse(nDofs*nNodes, nDofs*nNodes);
 
 
-
-
-
 perme = CP.k;
 
 mIdentity = [1,1,0]';
@@ -198,9 +194,9 @@ for nod = 1:nNodes
 
     % Adding effective stresses Kuu
     Cn(dofsU,dofsU) = Cn(dofsU,dofsU) + GPNodes(nod).B'*GPNodes(nod).D*GPNodes(nod).B*GPNodes(nod).Weight;
+    Cn(dofsU,dofswP) = Cn(dofsU,dofswP) - GPNodes(nod).Q;
+    Cn(dofswP,dofsU) = Cn(dofswP,dofsU) + GPNodes(nod).Q';
 
-    Cn(dofsU, dofswP) = Cn(dofsU, dofswP) - GPNodes(nod).Q;
-    Cn(dofswP, dofsU) = Cn(dofswP, dofsU) + GPNodes(nod).Q';
     Kn(dofswP, dofswP) = Kn(dofswP, dofswP) - GPNodes(nod).dN_dX'*perme*GPNodes(nod).dN_dX*GPNodes(nod).Weight;
 
 
@@ -208,11 +204,12 @@ end
 
 
 
+
 ngp = 1;
 for el = 1:nElements
     ConstModulus=  GPElements(el,ngp).ConstrainedModulus;
     he = sqrt( sum([GPElements(el,:).Weight]));
-    AlphaStab = 2/ConstModulus - dt*perme/he^2/1200;
+    AlphaStab = 1.0/ConstModulus - dt*perme/he^2/120;
     AlphaStab = max(0.0, AlphaStab);
     if ( length(AlphaStabM) == 1)
         AlphaStab = -AlphaStab*AlphaStabM;
@@ -221,9 +218,10 @@ for el = 1:nElements
         AlphaStab = -max(0.0, AlphaStab);
     end
 
-    dofswP = GPElements(el).dofsWP;
 
-    Cn(dofswP, dofswP) = Cn(dofswP, dofswP) - GPElements(el).Ms*AlphaStab * GPElements(el).Weight;
+    dofswP = GPElements(el,1).dofsWP;
+
+    Cn(dofswP, dofswP) = Cn(dofswP, dofswP) - GPElements(el,1).Ms*AlphaStab * sum([GPElements(el,:).Weight]);
 end
 
 
@@ -255,11 +253,10 @@ for nod = 1:nNodes
 
     ThisStress = Idev*GPNodes(nod).StressNew;
     f(dofsU) = f(dofsU) + GPNodes(nod).B'*(  ThisStress([1,2,4]) ) * GPNodes(nod).Weight;
-    f(dofsU) = f(dofsU) - GPNodes(nod).Q*(  X(dofswP) ) ;
+    
 
-
-
-
+    % Adding internal forces due to water phase Kuwp
+    f(dofsU) = f(dofsU) - GPNodes(nod).Q * X(dofswP) ;
 end
 
 
@@ -267,10 +264,10 @@ end
 
 
 
-function [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes,  U, consistent,  dt, RKMethod)
+function [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes,  U, consistent, RKMethod)
 
 nDofs = 3;
-if ( nargin == 6)
+if ( nargin == 5)
     RKMethod = 0;
 end
 
@@ -289,7 +286,7 @@ for nod = 1:nNodes
 
     GPNodes(nod).StrainNew([1,2,4]) = GPNodes(nod).B*Uel;
 
-    GPNodes(nod) = EvaluateLaw( CP, GPNodes(nod), consistent, RKMethod, dt);
+    GPNodes(nod) = EvaluateLaw( CP, GPNodes(nod), consistent, RKMethod);
 
 end
 
@@ -302,9 +299,7 @@ function [GPElements] = ComputeConstrainedModulus(CP, Nodes, Elements, GPElement
 
 
 if ( GPElements(1,1).MCC )
-    kappa = CP.kappa;
-    lambda = CP.lambda;
-    nu = CP.nu;
+    [kappa, lambda, M, nu] = GetConstitutiveParameters();
 
     for el = 1:size(GPElements,1)
         Celem = Elements(el,:);
@@ -323,5 +318,3 @@ if ( GPElements(1,1).MCC )
         end
     end
 end
-
-

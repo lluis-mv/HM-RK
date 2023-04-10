@@ -17,41 +17,33 @@ CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 t = T/CP.M/CP.k;
 
 
-eSize = 0.05;
 
-model = createpde(1);
 
-dx = 0.4; dy = 1;
-
-R1 = [3,4,0, dx, dx, 0, 0, 0, dy, dy]';
-g = decsg(R1);
-geometryFromEdges(model, g);
-
-mesh = generateMesh(model, 'Hmax', eSize, 'GeometricOrder','linear');
-
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-mesh = generateMesh(model, 'Hmax', eSize);
-
-Nodes2 = mesh.Nodes';
-Elements2 = mesh.Elements';
+[Nodes2, Elements2] = ReadTheMesh('ThisMesh.msh');
+[Nodes, Elements] = SimplifyOrder(Nodes2,Elements2);
 
 
 % First part. compute the eigenvalues
 figure(1);
 clf;
-triplot(Elements, Nodes(:,1), Nodes(:,2), 'k');
+ii = [1,2,3,4,1];
+for elem = 1:size(Elements,1)
+    Celem = Elements(elem,:);
+    Xe = Nodes(Celem,:);
+    plot(Xe(ii,1), Xe(ii,2), 'k')
+    hold on
+end
+
 drawnow
 axis equal
 axis off
-print('ExampleOne-FemMesh', '-dpdf')
+ print('ExampleQne-FemMesh', '-dpdf')
 
 Nodes1 = Nodes;
 Elements1 = Elements;
 
 % Estimate the element size
-[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, 'T3T3');
+[GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, 'Q4Q4');
 
 
 NStepsRef = 1;
@@ -69,17 +61,17 @@ for Stab = [1, 0]
     
     for j = 3:-1:1
         if ( j == 1)
-            ElementType = 'T3T3';
+            ElementType = 'Q4Q4';
             Nodes = Nodes1;
             Elements = Elements1;
             Color = 'r';
         elseif (j == 2)
-            ElementType = 'T3T3';
+            ElementType = 'Q4Q4';
             Nodes = Nodes1;
             Elements = Elements1;
             Color = 'g';
         else
-            ElementType = 'T6T3';
+            ElementType = 'Q8Q4';
             Nodes = Nodes2;
             Elements = Elements2;
             Color = 'b';
@@ -91,7 +83,7 @@ for Stab = [1, 0]
         if (j ~= 1)
              [U, GPInfo] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, NStepsRef, ElementType, Stab);
         else
-             [U, GPInfo] = ComputeImplicitNonLinearProblemNodal(Nodes, Elements, CP, dt, NStepsRef, ElementType, Stab);
+             [U, GPInfo] = ComputeImplicitNonLinearProblemNodalQuad(Nodes, Elements, CP, dt, NStepsRef, ElementType, Stab);
         end
 
         
@@ -102,7 +94,7 @@ for Stab = [1, 0]
         [y, index2] = sort(y);
         WP = WP(index2);
         
-        if ( all('T6T6' == ElementType))
+        if ( all('Q8Q8' == ElementType))
             [WP, y] = CorrectInterpolation(WP, y);
         end
         
@@ -118,7 +110,7 @@ for Stab = [1, 0]
         end
         
         
-        if ( all('T3T3' == ElementType))
+        if ( all('Q4Q4' == ElementType))
             if ( j == 1)
                 ElementType = ['NS-', ElementType];
             end
@@ -138,7 +130,7 @@ for Stab = [1, 0]
         xlabel('$p_w$ (kPa)', 'interpreter', 'latex')
         ylabel('$z$ (m)', 'interpreter', 'latex')
         set(gca, 'FontSize', 16)
-        print(['ExampleOne-Solution-', num2str(Stab)], '-dpdf')
+        print(['ExampleQne-Solution-', num2str(Stab)], '-dpdf')
         
     end
 end
