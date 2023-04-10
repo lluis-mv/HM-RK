@@ -77,7 +77,7 @@ plot(nDofs, nZerolinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
 plot(nDofsmixed, nZeromixed./nDofsmixed, 'c*-.', 'DisplayName', 'T3T3T3')
 plot(nDofsquad, nZeroquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
 xlim([1E2, 3E4])
-ylim([10, 60])
+ylim([0, 100])
 xlabel('Number of dofs, $n_{dofs}$', 'interpreter', 'latex')
 ylabel('$n_{nz}$/ $n_{dofs}$ (s)', 'interpreter', 'latex')
 drawnow
