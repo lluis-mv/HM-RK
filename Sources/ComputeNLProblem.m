@@ -26,7 +26,7 @@ nElements = size(Elements, 1);
 [GPInfo] = ComputeElementalMatrices(Nodes, Elements, CP, ElementType);
 [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
+[C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod, dt, false, AlphaStabM);
 [~,~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
 
 f0 = ComputeInternalForces( Elements, GPInfo, X, CP.HydroMechanical);
@@ -72,7 +72,7 @@ for loadStep = 1:nSteps
             GPInfo = EvaluateConstitutiveLawNL(GPInfo, CP,  dt, k, a, b,  i, true);
         
             % Create again C with the appropriate ElastoPlastic stiffness matrix
-            [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
+            [C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, RKMethod,  dt, false, AlphaStabM);
             
             [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K);
             k(:,i) = C\(K*XStep + f + uDirichlet);

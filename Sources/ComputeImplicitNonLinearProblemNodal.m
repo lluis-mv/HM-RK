@@ -18,7 +18,7 @@ nNodes = size(Nodes, 1);
 
 
 
-[C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
+[C, K] = AssembleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab);
 
 [~, ~, X, fini, nDirichlet] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
 
@@ -69,7 +69,7 @@ for loadStep = 1:nSteps
         [GPElements, GPNodes] = EvaluateConstitutiveLawNodal(CP, GPElements, GPNodes, Xn, true);
 
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab, C, K);
+        [C, K] = AssembleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, 0, dt, true, AlphaStab, C, K);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPElements, C, K);
 
 
@@ -165,7 +165,7 @@ end
 nZero = nnz(A);
 
 
-function [Cn, Kn] = EnsambleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, Cn, Kn)
+function [Cn, Kn] = AssembleNodalMatrices(Nodes, Elements, GPElements, GPNodes, CP, ElementType, RKMethod, dt, implicit, AlphaStabM, Cn, Kn)
 
 nDofs = 3;
 nNodes = size(Nodes, 1);

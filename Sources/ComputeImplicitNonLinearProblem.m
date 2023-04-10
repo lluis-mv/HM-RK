@@ -20,7 +20,7 @@ nNodes = size(Nodes, 1);
 [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
 
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
+[C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
 
 dofsPerNode = 3;
 if ( ElementType(1) == 'M')
@@ -81,7 +81,7 @@ for loadStep = 1:nSteps
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
+        [C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, dofsPerNode);
         
         
@@ -128,7 +128,7 @@ for loadStep = 1:nSteps
             
             break;
         end
-        if ( iter == 30 && normRes > 1E-8)
+        if ( iter == 35 && normRes > 1E-8)
             X = nan*X; 
             Xn = nan*X;
             normRes = nan;
