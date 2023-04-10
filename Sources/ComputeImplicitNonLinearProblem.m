@@ -128,7 +128,7 @@ for loadStep = 1:nSteps
             
             break;
         end
-        if ( iter == 30 && normRes > 1E-8)
+        if ( iter == 35 && normRes > 1E-8)
             X = nan*X; 
             Xn = nan*X;
             normRes = nan;
