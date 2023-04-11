@@ -15,7 +15,7 @@ nElem = size(C,1);
 
 if ( isfield(GPInfo(1,1), 'AssumedStrainNew') == false)
 ngp = size(GPInfo,2);
-    parfor el = 1:nElem
+    for el = 1:nElem
         for gp = 1:ngp
 
             nSystem = GPInfo(el,gp).dofsU;

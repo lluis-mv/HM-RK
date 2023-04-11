@@ -130,6 +130,7 @@ function [] = GenerateFigures(iCase)
 
 figure(901)
 cc = caxis;
+cc(2) = 0.0;
 i = 1;
 pause(1)
 for iii = [901:(900+iCase)]
@@ -149,6 +150,7 @@ end
 
 figure(301)
 cc = caxis;
+cc(2) = 0.0;
 i = 1;
 pause(1)
 for iii = [301:(300+iCase)]

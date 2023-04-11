@@ -1,6 +1,6 @@
 % Solver for a linear problem
 
-function [X, GPInfo, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPInfo, normRes, ThisInfo, nZero, ErrorNorms] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 
 if (nargout >= 4)
@@ -55,6 +55,8 @@ if ( ElementType(1) == 'T')
 end
 if ( DoSomePostProcess ) 
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP, [], [], dofsPerNode);
+    ErrorNorms.Iter0 =[];
+    ErrorNorms.IterEnd =[];
 end
 
 reduce = false;
@@ -111,6 +113,12 @@ for loadStep = 1:nSteps
         
         normRes = norm(residual);
         
+        if (loadStep == 1)
+            ErrorNorms.Iter0 =[ErrorNorms.Iter0, normRes];
+        elseif ( loadStep == nSteps)
+            ErrorNorms.IterEnd =[ErrorNorms.IterEnd, normRes];
+        end
+
         
         disp(['load Step :: ', num2str(loadStep), ' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10 || reduce)
