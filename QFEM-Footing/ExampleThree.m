@@ -27,6 +27,7 @@ dt = 1.0/nSteps;
 
 %MakeSketch
 MakeSketch(Nodes1, Elements1);
+print('SketchFootingQ', '-dpdf')
 clc; clf; close all; 
 
 
@@ -189,7 +190,7 @@ for iii = [956:959]
     figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis([-15,0]);
+    caxis([-15,-2]);
     colorbar
     drawnow
     pause(1)
@@ -208,7 +209,7 @@ for iii = [356:359]
     fig = figure(iii)
     axis equal; xlim([0,4]); ylim([-4, 0]); axis off
     colormap jet
-    caxis([-15,0]);
+    caxis([-13,-5]);
     colorbar
     drawnow
     pause(1)

@@ -209,7 +209,7 @@ ngp = 1;
 for el = 1:nElements
     ConstModulus=  GPElements(el,ngp).ConstrainedModulus;
     he = sqrt( sum([GPElements(el,:).Weight]));
-    AlphaStab = 1.0/ConstModulus - dt*perme/he^2/120;
+    AlphaStab = 0.75/ConstModulus - dt*perme/he^2/120;
     AlphaStab = max(0.0, AlphaStab);
     if ( length(AlphaStabM) == 1)
         AlphaStab = -AlphaStab*AlphaStabM;

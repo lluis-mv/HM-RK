@@ -79,7 +79,7 @@ for el = 1:nElements
                 AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
             elseif ( all(ElementType == 'Q4Q4'))
-                AlphaStab = 1.0/ConstModulus - 6*dt*perme/he^2;
+                AlphaStab = 0.75/ConstModulus - 4.5*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
             else
                 AlphaStab = 0;
@@ -207,9 +207,9 @@ for el = 1:nElements
                 AlphaStab = 2/ConstModulus - 12*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
             elseif ( all(ElementType == 'Q4Q4') || all(ElementType == 'M4Q4')  )
-                AlphaStab = 1.0/ConstModulus - 6*dt*perme/he^2;
+                AlphaStab = 0.75/ConstModulus - 4.5*dt*perme/he^2;
                 AlphaStab = max(0, AlphaStab);
-                alfaVol = 0.2;
+                alfaVol = 0.25;
             else
                 AlphaStab = 0;
             end

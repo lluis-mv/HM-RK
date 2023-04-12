@@ -5,7 +5,8 @@ alias matlab='export MESA_LOADER_DRIVER_OVERRIDE=i965; /home/lmonforte/Matlab/bi
 
 cd SFEM/
 
-matlab "SFEM_Figure; quit" > output 2>&1 & 
+matlab "SFEM_Figure; quit" > output 2>&1  
+matlab "SFEM_Figure_Quad; quit" > output 2>&1  
 
 cd ../
 
