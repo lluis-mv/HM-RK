@@ -23,14 +23,14 @@ if ( size(C, 2) == 4)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-        for iii = 1:2
-            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-            hold on;
-        end
+
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        hold on;
+
     end
 elseif ( size(C, 2) == 8)
-    [s,t]=meshgrid(-1:1:1,-1:1:1);
-%     [s,t]=meshgrid([-1,1],[-1,1]);
+    [s,t]=meshgrid(-1:0.5:1,-1:0.5:1);
+    %     [s,t]=meshgrid([-1,1],[-1,1]);
 
     nElem = size(C, 1);
 
@@ -55,10 +55,10 @@ elseif ( size(C, 2) == 8)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-        for iii = 1:2
-            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-            hold on;
-        end
+
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        hold on;
+
     end
 elseif ( size(C, 2) == 6)
     [s,t]=meshgrid(0:0.05:1,0:0.05:1);
@@ -88,10 +88,10 @@ elseif ( size(C, 2) == 6)
             end
         end
 
-        for iii = 1:2
-            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-            hold on;
-      	 end
+
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        hold on;
+
     end
 elseif ( size(C,2) == 3)
     [s,t]=meshgrid(0:0.05:1,0:0.05:1);

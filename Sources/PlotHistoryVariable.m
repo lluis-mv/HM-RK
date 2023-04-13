@@ -47,7 +47,7 @@ elseif ( size(values,2) == 9)
     nn = 1:4;
 
 
-    [s,t]=meshgrid(-1:1:1,-1:1:1);
+    [s,t]=meshgrid(-1:0.5:1,-1:0.5:1);
     %     [s,t]=meshgrid([-1,1],[-1,1]);
 
     for elem = 1:nElem
@@ -79,10 +79,9 @@ elseif ( size(values,2) == 9)
                 res(i,j) = N'*v3;
             end
         end
-        for iii = 1:2
-            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-            hold on;
-        end
+        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        hold on;
+
 
     end
 
@@ -112,17 +111,17 @@ else
         nn = 1:4;
 
     end
-        for elem = 1:nElem
+    for elem = 1:nElem
 
-            v = values(elem,:);
+        v = values(elem,:);
 
-            v3 = A\v';
-            v2 = B*v3;
+        v3 = A\v';
+        v2 = B*v3;
 
-            Celem = C(elem,nn);
+        Celem = C(elem,nn);
 
-            patch( x(Celem), y(Celem), v2, 'edgecolor', 'none')
-        end
-
-
+        patch( x(Celem), y(Celem), v2, 'edgecolor', 'none')
     end
+
+
+end
