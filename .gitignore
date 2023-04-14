@@ -13,3 +13,7 @@ output*
 *.pdf
 
 *.fig
+
+StupidIdea/
+
+QFEM-Footing2/
