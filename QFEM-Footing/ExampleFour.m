@@ -14,7 +14,7 @@ CP.Elastic = false;
 CP.MCC = 2;
 
 
-ESIZE = [2:11];
+ESIZE = [2:10,12:12];
 
 
 
