@@ -23,9 +23,11 @@ if ( size(C, 2) == 4)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-        hold on;
+    
+        for i = 1:2 % surfing twice. Otherwise, matlab gets confused (White lines)
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+            hold on;
+        end
 
     end
 elseif ( size(C, 2) == 8)
@@ -55,9 +57,10 @@ elseif ( size(C, 2) == 8)
                 res(i,j) = N'*U(C(elem,:));
             end
         end
-
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-        hold on;
+        for i = 1:2 % surfing twice. Otherwise, matlab gets confused (White lines)
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+            hold on;
+        end
 
     end
 elseif ( size(C, 2) == 6)

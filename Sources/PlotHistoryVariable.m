@@ -79,8 +79,10 @@ elseif ( size(values,2) == 9)
                 res(i,j) = N'*v3;
             end
         end
-        surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
-        hold on;
+        for i = 1:2 % surfing twice. Otherwise, matlab gets confused (White lines)
+            surf(xx, yy, res ,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+            hold on;
+        end
 
 
     end
