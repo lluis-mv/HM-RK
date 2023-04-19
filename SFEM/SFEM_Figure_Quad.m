@@ -154,7 +154,9 @@ for elem = 1:nElem
                 res(i,j) = NsmallP(index);
             end
         end
-        surf(xx,yy,res,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        for i = 1:2 % surfing twice. Otherwise, matlab gets confused (White lines)
+            surf(xx,yy,res,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        end
         view(0,90)
         hold on
 
@@ -210,7 +212,9 @@ for elem = 1:nElem
                 res(i,j) = dN_dX(1, index);
             end
         end
-        surf(xx,yy,res,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        for i = 1:2 % surfing twice. Otherwise, matlab gets confused (White lines)
+            surf(xx,yy,res,'FaceColor', 'interp' , 'EdgeColor', 'interp')
+        end
         view(0,90)
         hold on
 

@@ -196,7 +196,7 @@ for iii = [956:959]
     pause(1)
     
     fig = figure(iii);
-    exportgraphics(fig,['Q1-SV-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['Q1-SV-', num2str(i), '.png'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -214,7 +214,7 @@ for iii = [356:359]
     drawnow
     pause(1)
     fig = figure(iii);
-    exportgraphics(fig,['Q1-pEff-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['Q1-pEff-', num2str(i), '.png'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
@@ -232,7 +232,7 @@ for iii = [556:559]
     drawnow
     pause(1)
     fig = figure(iii);
-    exportgraphics(fig,['Q1-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    exportgraphics(fig,['Q1-Water-', num2str(i), '.png'], 'BackgroundColor', 'none','ContentType','vector');
     i = i+1;
 end
 
