@@ -1,13 +1,24 @@
 
 
-function MakeSketch(Nodes, Elements)
+function MakeSketch(Nodes, Elements, nFig, sketch)
 
-figure(1); clf;
+if ( nargin == 2)
+    nFig = 1;
+    sketch = true;
+end
+if ( nargin == 3)
+    sketch = true;
+end
+
+figure(nFig); clf;
 
 
 
-
-ii = [1,2,3,4,1];
+if ( size(Elements,2) == 4)
+    ii = [1,2,3,4,1];
+else
+    ii = [1,5,2,6, 3,7, 4,8, 1];
+end
 for elem = 1:size(Elements,1)
     Celem = Elements(elem,:);
     Xe = Nodes(Celem,:);
@@ -20,7 +31,9 @@ end
 axis off; axis equal
 hold on
 
-
+if ( sketch == false)
+    return;
+end
 
 B = 2;
 x = [0, B/2, B/2, 0];
@@ -68,4 +81,4 @@ plot(0,0, 'sr', 'linewidth', 1,'MarkerFaceColor', 'r')
 
 
 
-print('SketchFootingQ', '-dpdf')
+

@@ -10,6 +10,8 @@ ImplicitProblem-Q8Q4.msh
 output*
 *.res
 
+*.png
+
 *.pdf
 
 *.fig
