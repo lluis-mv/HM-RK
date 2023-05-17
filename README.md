@@ -17,7 +17,7 @@ A three field element has displacement, volumetric strain and water pressure as 
 Additionally, node-based smoothed finite elements are considered. This implementation is only valid for linear triangular elements and bilinear quadrilateral elements.
 
 
-Constitutive models: linear elasticity, non-linear elasticity (pressure-dependent hypo-elastic law) and Subloading Modified Cam Clay [(Hashiguchi, 2017)](https://doi.org/10.1007/978-3-319-48821-9)
+Constitutive models: linear elasticity, non-linear elasticity (pressure-dependent hypo-elastic law) and Subloading Modified Cam Clay [(Hashiguchi, 2017)](https://doi.org/10.1007/978-3-319-48821-9).
 
 ### Matlab versions
 
