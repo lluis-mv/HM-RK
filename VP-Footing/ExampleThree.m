@@ -30,9 +30,10 @@ CP.m = 1.75;
 
 CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
-CP.RK = -6;
+CP.RK = -2;
 
-eSize= 0.15;
+eSize= 0.2;
+
 MakeSketch(eSize)
 model = createpde(1);
 
@@ -48,18 +49,12 @@ Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
 
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
 
 
 
-nSteps = 400;
+nSteps = 200;
 dt = 3600.0/nSteps;
-
-
+500, 
 
 
 ind = find(Nodes(:,2) == max( Nodes(:,2)));
@@ -73,10 +68,14 @@ iCase = 1;
 
 COLOR = ['krgbcm']
 
-for ETA = [0, 100, 500, 1000]
+for ETA = [0, 1, 500, 1000]
 
 
     color = COLOR(iCase);
+    col = COLOR(iCase);
+    if ( color == 'r')
+        color = 'r-.';
+    end
     CP.PerzynaEta = ETA;
     CP.MCC = 3;
     if ( CP.PerzynaEta == 0)
@@ -86,7 +85,7 @@ for ETA = [0, 100, 500, 1000]
 
 
     tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
+    [U, GPInfo, rrr,  information, ~, ErrorNorms] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
     toc
 
     FF = [information.F];
@@ -107,10 +106,13 @@ for ETA = [0, 100, 500, 1000]
     figure(900+iCase); clf
     SV = [];
     pEff = [];
+    StrainDev = [];
+    GPInfo = ComputeStrainInvatiants(GPInfo);
     for i = 1:size(GPInfo,1)
         for j = 1:size(GPInfo, 2)
-            SV(i,j) = GPInfo(i,j).StressNew(2);
-            pEff(i,j) = mean(GPInfo(i,j).StressNew(1:3));
+            SV(i,j) = -GPInfo(i,j).StressNew(2);
+            pEff(i,j) = -mean(GPInfo(i,j).StressNew(1:3));
+            StrainDev(i,j) = GPInfo(i,j).StrainDev;
         end
     end
     PlotHistoryVariable( Nodes, Elements, GPInfo, SV);
@@ -120,17 +122,96 @@ for ETA = [0, 100, 500, 1000]
     figure(300+iCase); clf
     PlotHistoryVariable( Nodes, Elements, GPInfo, pEff);
     drawnow
+    
+
+
+    figure(400+iCase); clf
+    PlotHistoryVariable( Nodes, Elements, GPInfo, StrainDev);
+    drawnow
+
+
     GenerateFigures(iCase)
+
+
+    figure(20);
+
+    nnn = 0:(length(ErrorNorms.Iter0)-1);
+    semilogy( nnn, ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('Iteration, $i$', 'interpreter', 'latex')
+    ylabel('Norm of the residual, $\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best')
+    drawnow
+    print(['Footing-C-Res0-'], '-dpdf')
+
+
+    fig = figure(21);
+    loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('$$\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+    ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+    drawnow
+    exportgraphics(fig,'Footing-C-Res01-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+
+    figure(30);
+    nnn = 0:(length(ErrorNorms.IterEnd)-1);
+    semilogy( nnn, ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('Iteration', 'interpreter', 'latex')
+    ylabel('NormResidual', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best')
+    drawnow
+    print(['Footing-C-ResE-'], '-dpdf')
+
+    fig = figure(31);
+    loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('$R_i$', 'interpreter', 'latex')
+    ylabel('$R_{i+1}$', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+    drawnow
+    exportgraphics(fig,'Footing-C-ResE1-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+
+
 
     iCase = iCase+1;
 
 end
 
+fig = figure(21);
+xx = xlim();
+yy = ylim();
+DrawLines();
+xlim(xx);
+ylim(yy);
+drawnow
+exportgraphics(fig,'Footing-C-Res01-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+fig = figure(31)
+xx = xlim();
+yy = ylim();
+DrawLines();
+xlim(xx);
+ylim(yy);
+drawnow
+exportgraphics(fig,'Footing-C-ResE1-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
 function [] = GenerateFigures(iCase)
 
 figure(901)
 cc = caxis;
-cc(2) = 0.0;
+% cc(2) = 0.0;
 i = 1;
 pause(1)
 for iii = [901:(900+iCase)]
@@ -150,7 +231,7 @@ end
 
 figure(301)
 cc = caxis;
-cc(2) = 0.0;
+% cc(2) = 0.0;
 i = 1;
 pause(1)
 for iii = [301:(300+iCase)]
@@ -185,6 +266,25 @@ for iii = [501:(500+iCase)]
 end
 
 
+
+figure(401)
+cc = caxis;
+cc(1) = 0;
+i = 1;
+pause(1)
+for iii = [401:(400+iCase)]
+    figure(iii)
+    axis equal; xlim([0,4]); ylim([-4, 0]); axis off
+    colormap jet
+    caxis(cc);
+    colorbar
+    drawnow
+    pause(1)
+    fig = figure(iii);
+    exportgraphics(fig,['F1-StrainDev-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+    i = i+1;
+end
+
 figure(212)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
@@ -200,3 +300,16 @@ xlabel('Footing indentation, $u_z$ (m)', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
 fig = figure(214);
 exportgraphics(fig,['F1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+
+
+function [] = DrawLines()
+
+xx = 10.^linspace(-20,20,5);
+for c = (-20:2:20)
+    yy = 10.^(2*log10(xx)+c);
+    zz = 10.^(-10) * (1:length(yy));
+    plot3(xx,yy,  zz, 'k-.', 'HandleVisibility', 'off')
+    hold on
+end
+
+

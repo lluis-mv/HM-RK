@@ -30,8 +30,8 @@ for el = 1:nElements
         GPInfo(el, gp).StrainNew = zeros(6,1);
         GPInfo(el, gp).StrainPrev = zeros(6,1);
 
-        GPInfo(el, gp).HistoryNew = -[10.1];
-        GPInfo(el, gp).HistoryPrev = -[10.1];
+        GPInfo(el, gp).HistoryNew = -[10.0];
+        GPInfo(el, gp).HistoryPrev = -[10.0];
         
         p = -mean(GPInfo(el, gp).StressNew(1:3));
         if ( Elastic)

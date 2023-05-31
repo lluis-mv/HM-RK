@@ -64,7 +64,7 @@ normRes0 = nan;
 proposal = 0*X;
 for loadStep = 1:nSteps
     
-    Xn = X+ proposal;
+    Xn = X+ 0.0*proposal;
     iter = 0;
     
     t = t + dt;
@@ -113,12 +113,13 @@ for loadStep = 1:nSteps
         
         normRes = norm(residual);
         
+        if ( DoSomePostProcess ) 
         if (loadStep == 1)
             ErrorNorms.Iter0 =[ErrorNorms.Iter0, normRes];
         elseif ( loadStep == nSteps)
             ErrorNorms.IterEnd =[ErrorNorms.IterEnd, normRes];
         end
-
+        end
         
         disp(['load Step :: ', num2str(loadStep), ' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10 || reduce)

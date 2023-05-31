@@ -32,8 +32,8 @@ CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
 CP.RK = -6;
 
-eSize= 0.3;
-MakeSketch(eSize)
+eSize= 0.2;
+%MakeSketch(eSize)
 model = createpde(1);
 
 
@@ -48,17 +48,10 @@ Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
 
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
 
-
-
-nSteps = 100;
+nSteps = 200;
 dt = 3600.0/nSteps;
-nSteps = 10;
+nSteps = 50;
 
 
 
@@ -75,7 +68,8 @@ l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
 COLOR = ['krgbcm']
 
 xAxis = [1,2,4,6,8];
-ETAS = [100, 500, 1000];
+
+ETAS = [0, 1, 500, 1000];
 Resistance = nan*ones(length(xAxis), length(ETAS));
 TIME = nan*ones(length(xAxis), length(ETAS));
 WaterP = nan*ones(length(xAxis), length(ETAS));
@@ -101,7 +95,7 @@ for RK = -xAxis
         end
 
 
-
+        col = COLOR(iCase);
         tic
         [U, GPInfo, rrr,  information, ~, ErrorNorms] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
         TIME(jCase, iCase) = toc;
@@ -113,30 +107,47 @@ for RK = -xAxis
         
 
         figure(40); clf
-        plot(xAxis, Resistance', '*-.');
+
+        for iii = 1:4
+        plot(xAxis, Resistance(:,iii), [COLOR(iii), '*-.'], 'linewidth', 2);
+        hold on
+        end
         xlabel('RK order', 'interpreter', 'latex')
         ylabel('Resistance (kPa)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
+        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+            'location', 'best')
         drawnow
         print('OrderCost-1', '-dpdf')
 
         figure(41); clf
-        plot(xAxis, WaterP', '*-.');
+        for iii = 1:4
+        plot(xAxis, WaterP(:,iii), [COLOR(iii), '*-.'], 'linewidth', 2);
+        hold on
+        end
         xlabel('RK order', 'interpreter', 'latex')
         ylabel('Water pressure (kPa)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
+        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+            'location', 'best')
         drawnow
         print('OrderCost-2', '-dpdf')
 
         figure(42); clf;
-        plot(xAxis, TIME', '*-.');
+        for iii = 1:4
+        plot(xAxis, TIME(:,iii), [COLOR(iii), '*-.'], 'linewidth', 2);
+        hold on
+        end
         xlabel('RK order', 'interpreter', 'latex')
         ylabel('Computational cost (s)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
+        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+            'location', 'best')
+        drawnow
         print('OrderCost-3', '-dpdf')
 
         figure(20); 
-        semilogy( ErrorNorms.Iter0, '*-.')
+        semilogy( ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2);
         hold on
         xlabel('Iteration', 'interpreter', 'latex')
         ylabel('NormResidual', 'interpreter', 'latex')
@@ -144,7 +155,7 @@ for RK = -xAxis
         print(['OrderCost-Res0-', num2str(jCase)], '-dpdf')
 
         figure(21);
-        loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), '*-.')
+        loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2);
         hold on
         xlabel('$R_i$', 'interpreter', 'latex')
         ylabel('$R_{i+1}$', 'interpreter', 'latex')
@@ -153,7 +164,7 @@ for RK = -xAxis
 
 
         figure(30); 
-        semilogy( ErrorNorms.IterEnd, '*-.')
+        semilogy( ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2);
         hold on
         xlabel('Iteration', 'interpreter', 'latex')
         ylabel('NormResidual', 'interpreter', 'latex')
@@ -161,7 +172,7 @@ for RK = -xAxis
         print(['OrderCost-ResE-', num2str(jCase)], '-dpdf')
 
         figure(31); 
-        loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), '*-.')
+        loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2);
         hold on
         xlabel('$R_i$', 'interpreter', 'latex')
         ylabel('$R_{i+1}$', 'interpreter', 'latex')
