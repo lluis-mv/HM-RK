@@ -1,305 +1,301 @@
 function [] = ExampleFour()
 addpath('../Sources')
+
+
+clear all; clc; clf; close all;
+
+
 % 1. Define the problem
 
 
 CP.HydroMechanical = true;
 CP.E = 1000;
-CP.nu = 0.3;
-nu = CP.nu;
-CP.M = CP.E*(1-nu)/(1+nu)/(1-2*nu);
 CP.k = 1E-12;
-CP.k = 1E-12;
+CP.k = 1E-7;
 CP.Elastic = false;
-CP.MCC = 2;
+CP.MCC = 3;
 
 
+CP.kappa = 0.01;
+CP.lambda = 0.1;
+CP.M_MCC = 1.3;
+CP.nu = 0.3;
+
+CP.n = 1.5;
+CP.r = 2;
+
+CP.m = 1.75;
+
+CP.PerzynaN = 1;
+CP.PerzynaEta = 1000;
+CP.RK = -2;
+
+eSize= 0.06;
+%MakeSketch(eSize)
 model = createpde(1);
+CP.MCC = false;
+
+R1 = [3,4, 0, 1, 1, 0,  0, 0, -0.25, -0.25]';
 
 
-R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
-
-
-
-ESIZE = 1./[2:11];
-
-
-
-nSteps = 100;
-dt = 1.0/nSteps;
-
-
-i = 1;
 
 g = decsg(R1);
 geometryFromEdges(model, g);
-
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-
-
-if (true)
-
-    for eSize = ESIZE
-
-        mesh = generateMesh(model, 'Hmax', eSize);
-        Nodes = mesh.Nodes';
-        Elements = mesh.Elements';
-
-
-
-        mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-        Nodes1 = mesh1.Nodes';
-        Elements1 = mesh1.Elements';
-
-        figure(1)
-        triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
-        axis equal;
-        axis off;
-        print(['Mesh-', num2str(i)], '-dpdf');
-
-        [GPInfo] = ComputeElementalMatrices(Nodes1, Elements1, CP, 'T3T3');
-        he = mean(sqrt([GPInfo(:,:).Weight]));
-
-        eSizeAxis(i) = he;
-
-
-
-        tic
-        [U, GPInfo, GPNodes, rrr,  information2, nZero] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-        TIMEnodal(i)= toc;
-        nDofs(i) = size(Nodes1,1)*3;
-        nZeronodal(i) = nZero;
-        ind = find(Nodes(:,2) == max( Nodes(:,2)));
-        xx = sort(Nodes(ind,1));
-        ind = find(xx == 1);
-        l = 0.5*(xx(ind)+xx(ind+1));
-        l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
-
-
-        FF = [information2.F];
-        PWnodal(i) = FF(end);
-        Qnodal(i) = FF(end-1)/l;
-
-
-        tic
-        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-        TIMElinear(i)= toc;
-        nZerolinear(i) = nZero;
-        TIMEnodal./TIMElinear
-        FF = [information.F];
-        PWlinear(i) = FF(end);
-        Qlinear(i) = FF(end-1)/l;
-
-
-        tic
-        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
-        TIMEmixed(i)= toc;
-        nDofsmixed(i) = size(Nodes1,1)*4;
-        nZeromixed(i) = nZero;
-        FF = [information.F];
-        PWmixed(i) = FF(end);
-        Qmixed(i) = FF(end-1)/l;
-
-
-        tic
-        [U, GPInfo, rrr,  information, nZero] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
-        TIMEquad(i) = toc;
-        nZeroquad(i) = nZero;
-        FF = [information.F];
-        PWquad(i) = FF(end);
-        Qquad(i) = FF(end-1)/l2;
-        nDofsquad(i) = size(Nodes,1)*3;
-
-
-        save('UndrainedData.mat', ...
-            'ESIZE', 'i', 'eSizeAxis', ...
-            'TIMEnodal', 'nDofs', 'PWnodal', 'Qnodal', 'nZeronodal', ...
-            'TIMElinear',  'PWlinear', 'Qlinear', 'nZerolinear', ...
-            'TIMEquad', 'nDofsquad', 'PWquad', 'Qquad', 'nZeroquad', ...
-            'TIMEmixed', 'nDofsmixed', 'PWmixed', 'Qmixed', 'nZeromixed');
-
-
-        figure(99); clf
-        plot(eSizeAxis, Qnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
-        hold on
-        plot(eSizeAxis, Qlinear, 'gs-.', 'DisplayName', 'T3T3')
-        plot(eSizeAxis, Qmixed, 'cs-.', 'DisplayName', 'T3T3T3')
-        plot(eSizeAxis, Qquad, 'bs-.', 'DisplayName', 'T6T3')
-        drawnow
-        xlabel('$h_e$ (m)', 'interpreter', 'latex')
-        ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
-        ylim([32,37])
-        drawnow
-
-        figure(100); clf
-        plot(eSizeAxis, PWnodal, 'rs-.', 'DisplayName', 'NS-T3T3')
-        hold on
-        plot(eSizeAxis, PWlinear, 'gs-.', 'DisplayName', 'T3T3')
-        plot(eSizeAxis, PWmixed, 'cs-.', 'DisplayName', 'T3T3T3')
-        plot(eSizeAxis, PWquad, 'bs-.', 'DisplayName', 'T6T3')
-        xlabel('$h_e$ (m)', 'interpreter', 'latex')
-        ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
-        drawnow
-        ylim([18,23])
-
-        drawnow
-        figure(101); clf
-        plot(nDofs, TIMEnodal, 'r*-.', 'DisplayName', 'NS-T3T3')
-        hold on
-        plot(nDofs, TIMElinear, 'g*-.', 'DisplayName', 'T3T3')
-        plot(nDofsmixed, TIMEmixed, 'c*-.', 'DisplayName', 'T3T3T3')
-        plot(nDofsquad, TIMEquad, 'b*-.', 'DisplayName', 'T6T3')
-        drawnow
-        xlabel('Number of dofs', 'interpreter', 'latex')
-        ylabel('Computational cost (s)', 'interpreter', 'latex')
-        set(gca, 'XScale', 'log')
-        set(gca, 'YScale', 'log')
-
-
-        figure(102); clf
-        plot(nDofs, TIMEnodal./nDofs, 'r*-.', 'DisplayName', 'NS-T3T3')
-        hold on
-        plot(nDofs, TIMElinear./nDofs, 'g*-.', 'DisplayName', 'T3T3')
-        plot(nDofsmixed, TIMEmixed./nDofsmixed, 'c*-.', 'DisplayName', 'T3T3T3')
-        plot(nDofsquad, TIMEquad./nDofsquad, 'b*-.', 'DisplayName', 'T6T3')
-        drawnow
-        xlabel('Number of dofs', 'interpreter', 'latex')
-        ylabel('Computational cost / Number of dofs (s)', 'interpreter', 'latex')
-        set(gca, 'XScale', 'log')
-        set(gca, 'YScale', 'log')
-
-        for jj = [99, 100, 101, 102]
-            figure(jj)
-            set(gca, 'FontSize', 15)
-            ll = legend();
-            set(ll, 'location', 'best', 'interpreter', 'latex')
-        end
-
-        figure(99); drawnow; pause(1); print('Footing-Load-1', '-dpdf')
-        figure(100); drawnow; pause(1); print('Footing-WP-1', '-dpdf')
-        figure(101); drawnow; pause(1); print('Footing-Cost-1', '-dpdf')
-        figure(102); drawnow; pause(1); print('Footing-Velocity-1', '-dpdf')
-        i = i+1;
-        close all;
-        ExampleFour2()
-        close all;
-    end
-
-end
-
-
-
-eSize = 1/4;
 mesh = generateMesh(model, 'Hmax', eSize);
 Nodes = mesh.Nodes';
 Elements = mesh.Elements';
 
 
-
+model1 = createpde(1);
+geometryFromEdges(model1, g);
 mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
 Nodes1 = mesh1.Nodes';
 Elements1 = mesh1.Elements';
 
-NSTEPS = 10.^linspace(1.5,log10(1000),10); NSTEPS(end) = 1000;
-NSTEPS = floor(NSTEPS);
-i = 1;
-
-
-for nSteps = NSTEPS
-
-
-    dt = 1.0/nSteps;
-    dtAxis(i) = dt;
 
 
 
-    tic
-    [U, GPInfo, GPNodes, rrr,  information2] = ComputeImplicitNonLinearProblemNodal(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-
-    TIMEnodal(i)= toc;
-    nDofs(i) = size(Nodes1,1)*3;
-    ind = find(Nodes(:,2) == max( Nodes(:,2)));
-    xx = sort(Nodes(ind,1));
-    ind = find(xx == 1);
-    l = 0.5*(xx(ind)+xx(ind+1));
-    l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
-
-    FF = [information2.F];
-    PWnodal(i) = FF(end);
-    Qnodal(i) = FF(end-1)/l;
+dt = 1/25;
+nSteps = 300;
 
 
 
-    tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'T3T3', 1);
-    TIMElinear(i)= toc;
-    TIMEnodal./TIMElinear
-    FF = [information.F];
-    PWlinear(i) = FF(end);
-    Qlinear(i) = FF(end-1)/l;
+% ind = find(Nodes(:,2) == max( Nodes(:,2)));
+% xx = sort(Nodes(ind,1));
+% ind = find(xx == 1);
+% l = 0.5*(xx(ind)+xx(ind+1));
+% l2 = xx(ind)+0.25*(xx(ind+1)-xx(ind));
+l2 = 1;
+
+iCase = 1;
+
+COLOR = ['krgbcm']
+
+for ETA = [0, 10, 100, 1000]
 
 
-    tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes1, Elements1, CP, dt, nSteps, 'M3T3', 1);
-    TIMEmixed(i)= toc;
-
-    FF = [information.F];
-    PWmixed(i) = FF(end);
-    Qmixed(i) = FF(end-1)/l;
-
-    tic
-    [U, GPInfo, rrr,  information] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3', 1);
-    TIMEquad(i) = toc;
-    FF = [information.F];
-    PWquad(i) = FF(end);
-    Qquad(i) = FF(end-1)/l2;
-    nDofsquad(i) = size(Nodes,1)*3;
-
-
-
-    figure(99); clf
-    plot(NSTEPS(1:i), Qnodal(1:i), 'rs-.', 'DisplayName', 'NS-T3T3')
-    hold on
-    plot(NSTEPS(1:i), Qlinear(1:i), 'gs-.', 'DisplayName', 'T3T3')
-    plot(NSTEPS(1:i), Qlinear(1:i), 'cs-.', 'DisplayName', 'T3T3T3')
-    plot(NSTEPS(1:i), Qquad(1:i), 'bs-.', 'DisplayName', 'T6T3')
-    drawnow
-    xlabel('$n_{steps}$', 'interpreter', 'latex')
-    ylabel('Footing resistance (kPa)', 'interpreter', 'latex')
-    set(gca, 'XScale', 'log')
-    ylim([32,37])
-
-    figure(100); clf
-    plot(NSTEPS(1:i), PWnodal(1:i), 'rs-.', 'DisplayName', 'NS-T3T3')
-    hold on
-    plot(NSTEPS(1:i), PWlinear(1:i), 'gs-.', 'DisplayName', 'T3T3')
-    plot(NSTEPS(1:i), PWlinear(1:i), 'cs-.', 'DisplayName', 'T3T3T3')
-    plot(NSTEPS(1:i), PWquad(1:i), 'bs-.', 'DisplayName', 'T6T3')
-    xlabel('$n_{steps}$', 'interpreter', 'latex')
-    ylabel('$p_w$ (kPa)', 'interpreter', 'latex')
-    drawnow
-    ylim([18,23])
-    set(gca, 'XScale', 'log')
-
-    save('TimeUndrainedData.mat', ...
-        'i', 'dtAxis', 'NSTEPS', ...
-        'PWnodal', 'Qnodal',  ...
-        'PWlinear', 'Qlinear', ...
-        'PWquad', 'Qquad', ...
-        'PWmixed', 'Qmixed');
-
-    for jj = [99, 100]
-        figure(jj)
-        set(gca, 'FontSize', 15)
-        ll = legend();
-        set(ll, 'location', 'best', 'interpreter', 'latex')
+    color = COLOR(iCase);
+    col = COLOR(iCase);
+    if ( color == 'r')
+        color = 'r-.';
     end
+    CP.PerzynaEta = ETA;
+    CP.MCC = 3;
+    if ( CP.PerzynaEta == 0)
+        CP.MCC = 4;
+    end
+    
+    
 
-    figure(99); drawnow; pause(1); print('Footing-Load-2', '-dpdf')
-    figure(100); drawnow; pause(1); print('Footing-WP-2', '-dpdf')
-    i = i+1;
-    close all;
-%     ExampleFour2
-    close all;
+
+    tic
+    [U, GPInfo, rrr,  information, ~, ErrorNorms] = ComputeImplicitNonLinearProblemContact(Nodes, Elements, CP, dt, nSteps, 'T6T3');
+    toc
+
+    FF = [information.F];
+    FF(1:2:end) = FF(1:2:end)/l2;
+    figure(212)
+    semilogx( [information.t], FF(1:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    hold on
+
+
+    figure(213)
+    semilogx( [information.t], [information.u], color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    hold on
+
+
+    figure(214)
+    semilogx( [information.t], FF(2:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    hold on
+
+%     figure(500+iCase); clf
+%     pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+%     drawnow
+% 
+%     figure(900+iCase); clf
+%     SV = [];
+%     pEff = [];
+%     for i = 1:size(GPInfo,1)
+%         for j = 1:size(GPInfo, 2)
+%             SV(i,j) = -GPInfo(i,j).StressNew(2);
+%             pEff(i,j) = -mean(GPInfo(i,j).StressNew(1:3));
+%         end
+%     end
+%     PlotHistoryVariable( Nodes, Elements, GPInfo, SV);
+%     drawnow
+% 
+% 
+%     figure(300+iCase); clf
+%     PlotHistoryVariable( Nodes, Elements, GPInfo, pEff);
+%     drawnow
+    GenerateFigures(iCase)
+
+
+%     figure(20);
+%     nnn = 0:(length(ErrorNorms.Iter0)-1);
+%     semilogy( nnn, ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2, ...
+%         'DisplayName',  ['$\eta = $', num2str(ETA)]);
+%     hold on
+%     xlabel('Iteration, $i$', 'interpreter', 'latex')
+%     ylabel('Norm of the residual, $\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+%     set(gca, 'FontSize', 15)
+%     legend('interpreter', 'latex', 'location', 'best')
+%     drawnow
+%     print(['Contact-C-Res0-'], '-dpdf')
+% 
+% 
+%     fig = figure(21);
+%     loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2, ...
+%         'DisplayName',  ['$\eta = $', num2str(ETA)]);
+%     hold on
+%     xlabel('$$\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+%     ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
+%     set(gca, 'FontSize', 15)
+%     legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+%     drawnow
+%     exportgraphics(fig,'Contact-C-Res01-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+% 
+% 
+    figure(30);
+    nnn = 0:(length(ErrorNorms.IterEnd)-1);
+    semilogy( nnn, ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('Iteration', 'interpreter', 'latex')
+    ylabel('NormResidual', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best')
+    drawnow
+    print(['Contact-C-ResF-'], '-dpdf')
+
+    fig = figure(31);
+    loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2, ...
+        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+    hold on
+    xlabel('$R_i$', 'interpreter', 'latex')
+    ylabel('$R_{i+1}$', 'interpreter', 'latex')
+    set(gca, 'FontSize', 15)
+    legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+    drawnow
+    exportgraphics(fig,'Contact-C-ResF1-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+
+
+
+    iCase = iCase+1;
+
+end
+
+% fig = figure(21);
+% xx = xlim();
+% yy = ylim();
+% DrawLines();
+% xlim(xx);
+% ylim(yy);
+% drawnow
+% exportgraphics(fig,'Contact-C-Res01-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+% 
+fig = figure(31);
+xx = xlim();
+yy = ylim();
+DrawLines();
+xlim(xx);
+ylim(yy);
+drawnow
+exportgraphics(fig,'Contact-C-ResF1-.pdf', 'BackgroundColor', 'none','ContentType','vector');
+
+function [] = GenerateFigures(iCase)
+
+% figure(901)
+% cc = caxis;
+% i = 1;
+% pause(1)
+% for iii = [901:(900+iCase)]
+%     figure(iii)
+%     axis equal; %xlim([0,4]); ylim([-4, 0]); 
+%     axis off
+%     colormap jet
+%     caxis(cc);
+%     colorbar('southoutside')
+%     drawnow
+%     pause(1)
+% 
+%     fig = figure(iii);
+%     exportgraphics(fig,['C1-SV-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+%     i = i+1;
+% end
+% 
+% 
+% figure(301)
+% cc = caxis;
+% i = 1;
+% pause(1)
+% for iii = [301:(300+iCase)]
+%     fig = figure(iii)
+%     axis equal; %xlim([0,4]); ylim([-4, 0]); 
+%     axis off
+%     colormap jet
+%     caxis(cc);
+%     colorbar('southoutside')
+%     drawnow
+%     pause(1)
+%     fig = figure(iii);
+%     exportgraphics(fig,['C1-pEff-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+%     i = i+1;
+% end
+% 
+% 
+% figure(501)
+% cc = caxis;
+% i = 1;
+% pause(1)
+% for iii = [501:(500+iCase)]
+%     figure(iii)
+%     axis equal; %xlim([0,4]); ylim([-4, 0]); 
+%     axis off
+%     colormap jet
+%     caxis(cc);
+%     colorbar('southoutside')
+%     drawnow
+%     pause(1)
+%     fig = figure(iii);
+%     exportgraphics(fig,['C1-Water-', num2str(i), '.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+%     i = i+1;
+% end
+
+
+figure(212)
+legend('location', 'best', 'interpreter', 'latex')
+set(gca, 'FontSize', 15)
+xlabel('time, $t$ (s)', 'interpreter', 'latex')
+ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+fig = figure(212);
+exportgraphics(fig,['C1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+
+figure(213)
+legend('location', 'best', 'interpreter', 'latex')
+set(gca, 'FontSize', 15)
+xlabel('time, $t$ (s)', 'interpreter', 'latex')
+ylabel('Vertical displacement, $u_z$ (m)', 'interpreter', 'latex')
+fig = figure(213);
+exportgraphics(fig,['C1-Displacement.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+
+
+figure(214)
+legend('location', 'best', 'interpreter', 'latex')
+set(gca, 'FontSize', 15)
+xlabel('time, $t$ (s)', 'interpreter', 'latex')
+ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
+fig = figure(214);
+exportgraphics(fig,['C1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');
+
+
+function [] = DrawLines()
+
+xx = 10.^linspace(-20,20,5);
+for c = (-20:2:20)
+    yy = 10.^(2*log10(xx)+c);
+    zz = 10.^(-10) * (1:length(yy));
+    plot3(xx,yy,  zz, 'k-.', 'HandleVisibility', 'off')
+    hold on
 end

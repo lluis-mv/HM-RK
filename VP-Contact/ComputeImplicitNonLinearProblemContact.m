@@ -1,9 +1,9 @@
 % Solver for a linear problem
 
-function [X, GPInfo, normRes, ThisInfo, nZero] = ComputeImplicitNonLinearProblemContact(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
+function [X, GPInfo, normRes, ThisInfo, nZero, ErrorNorms] = ComputeImplicitNonLinearProblemContact(Nodes, Elements, CP, dt, nSteps, ElementType, AlphaStab)
 
 
-Penalty = 10000000;
+Penalty = 100000;
 
 if (nargout >= 4)
     DoSomePostProcess = true;
@@ -22,7 +22,7 @@ nNodes = size(Nodes, 1);
 [GPInfo] = InitializeConstitutiveLaw(CP, GPInfo);
 
 
-[C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
+[C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
 
 dofsPerNode = 3;
 if ( ElementType(1) == 'M')
@@ -68,6 +68,8 @@ if ( ElementType(1) == 'T')
 end
 if ( DoSomePostProcess ) 
     ThisInfo = DoThisPostProcess( 0, Nodes, Elements, GPInfo, X, CP, [], [], dofsPerNode);
+    ErrorNorms.Iter0 =[];
+    ErrorNorms.IterEnd =[];
 end
 
 reduce = false;
@@ -78,9 +80,14 @@ gV = 0.0;
 
 for loadStep = 1:nSteps
     
-    Xn = X+ proposal;
+    Xn = X+ 0*proposal;
     iter = 0;
     
+    theLoad = min(15.0, 10+0.2*loadStep)
+    if ( theLoad == 15)
+        dt = 1.05*dt;
+    end
+
     t = t + dt;
     [df, vDirichlet] = ComputeForceVector(t, Nodes, Elements, GPInfo, CP, dofsPerNode);
 
@@ -108,7 +115,7 @@ for loadStep = 1:nSteps
         
         
         % Create again C with the appropriate ElastoPlastic stiffness matrix
-        [C, K ] = EnsambleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
+        [C, K ] = AssembleMatrices(Nodes, Elements, GPInfo, CP, ElementType, 0, dt, true, AlphaStab);
         [C, K,  ~, ~, ~] = ApplyBoundaryConditions(Nodes, Elements, GPInfo, C, K, dofsPerNode);
         
         
@@ -138,12 +145,19 @@ for loadStep = 1:nSteps
 
         
         totalForce = sum(Penalty * (Xn(dofsPenalty)-gV));
-        residual(length(residual)+1) = totalForce + min(20.0, 10+loadStep);
+        residual(length(residual)+1) = totalForce + theLoad;
 %         residual(length(residual)+1) = gV-0.0001;
 
 
         normRes = norm(residual);
         
+        if ( DoSomePostProcess ) 
+        if (loadStep == 1)
+            ErrorNorms.Iter0 =[ErrorNorms.Iter0, normRes];
+        elseif ( loadStep == nSteps)
+            ErrorNorms.IterEnd =[ErrorNorms.IterEnd, normRes];
+        end
+        end
         
         disp(['load Step :: ', num2str(loadStep), ' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
         if ( iter > 10 || reduce)
@@ -152,7 +166,7 @@ for loadStep = 1:nSteps
                 disp('In the line search, haha')
             end
         end
-        if ( normRes < 1E-11 && iter > 0)
+        if ( normRes < 1E-9 && iter > 0)
             %disp([' :: nonlinear solver, iter :: ', num2str(iter), ' :: residual ', num2str(normRes) ])
             
             break;

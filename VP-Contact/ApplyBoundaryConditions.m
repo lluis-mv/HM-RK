@@ -20,7 +20,7 @@ nodesRight = find(Nodes(:,1) == max(Nodes(:,1)));
 
 index = find( (Nodes(:,1) > 1) &  abs(Nodes(:,2)) < 1E-8);
 % index = [index; nodesBottom];
-
+index = nodesRight;
 % ho he de fer millor per separar allò....
 % i.e. the element is T6T3
 if ( length([GPInfo(1,1).dofsWP]) ~= length([GPInfo(1,1).dofsWPreal]) )
@@ -61,12 +61,10 @@ C(dofs,:) = 0;
 C(dofs,dofs) = penalty*eye(length(dofs));
 
 % Fix uX on left and Right
-
-dofs = dofsPerNode*([nodesBottom; nodesRight; nodesLeft; index]-1)+1;
+dofs = dofsPerNode*([nodesLeft;  index]-1)+1;
 nDirichlet = [nDirichlet; dofs];
 C(dofs,:) = 0;
 C(dofs,dofs) =penalty*eye(length(dofs));
-
 X0 = zeros(dofsPerNode*nNodes, 1);
 % X0(3:3:end) = -10;
 
