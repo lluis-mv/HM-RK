@@ -113,9 +113,9 @@ for RK = -xAxis
         hold on
         end
         xlabel('RK order', 'interpreter', 'latex')
-        ylabel('Resistance (kPa)', 'interpreter', 'latex')
+        ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
-        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+        legend('Elasto-Plastic', '$\eta = 1$ s',  '$\eta = 500$ s',  '$\eta = 1000$ s', 'interpreter', 'latex',...
             'location', 'best')
         drawnow
         print('OrderCost-1', '-dpdf')
@@ -128,7 +128,7 @@ for RK = -xAxis
         xlabel('RK order', 'interpreter', 'latex')
         ylabel('Water pressure (kPa)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
-        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+        legend('Elasto-Plastic', '$\eta = 1$ s',  '$\eta = 500$ s',  '$\eta = 1000$ s', 'interpreter', 'latex',...
             'location', 'best')
         drawnow
         print('OrderCost-2', '-dpdf')
@@ -141,43 +141,43 @@ for RK = -xAxis
         xlabel('RK order', 'interpreter', 'latex')
         ylabel('Computational cost (s)', 'interpreter', 'latex')
         set(gca, 'FontSize', 15)
-        legend('VP', '$\eta = 1$',  '$\eta = 500$',  '$\eta = 1000$', 'interpreter', 'latex',...
+        legend('Elasto-Plastic', '$\eta = 1$ s',  '$\eta = 500$ s',  '$\eta = 1000$ s', 'interpreter', 'latex',...
             'location', 'best')
         drawnow
         print('OrderCost-3', '-dpdf')
 
-        figure(20); 
-        semilogy( ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2);
-        hold on
-        xlabel('Iteration', 'interpreter', 'latex')
-        ylabel('NormResidual', 'interpreter', 'latex')
-        set(gca, 'FontSize', 15)
-        print(['OrderCost-Res0-', num2str(jCase)], '-dpdf')
-
-        figure(21);
-        loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2);
-        hold on
-        xlabel('$R_i$', 'interpreter', 'latex')
-        ylabel('$R_{i+1}$', 'interpreter', 'latex')
-        set(gca, 'FontSize', 15)
-        print(['OrderCost-Res01-', num2str(jCase)], '-dpdf')
-
-
-        figure(30); 
-        semilogy( ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2);
-        hold on
-        xlabel('Iteration', 'interpreter', 'latex')
-        ylabel('NormResidual', 'interpreter', 'latex')
-        set(gca, 'FontSize', 15)
-        print(['OrderCost-ResE-', num2str(jCase)], '-dpdf')
-
-        figure(31); 
-        loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2);
-        hold on
-        xlabel('$R_i$', 'interpreter', 'latex')
-        ylabel('$R_{i+1}$', 'interpreter', 'latex')
-        set(gca, 'FontSize', 15)
-        print(['OrderCost-ResE1-', num2str(jCase)], '-dpdf')
+%         figure(20); 
+%         semilogy( ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2);
+%         hold on
+%         xlabel('Iteration', 'interpreter', 'latex')
+%         ylabel('NormResidual', 'interpreter', 'latex')
+%         set(gca, 'FontSize', 15)
+%         print(['OrderCost-Res0-', num2str(jCase)], '-dpdf')
+% 
+%         figure(21);
+%         loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2);
+%         hold on
+%         xlabel('$R_i$', 'interpreter', 'latex')
+%         ylabel('$R_{i+1}$', 'interpreter', 'latex')
+%         set(gca, 'FontSize', 15)
+%         print(['OrderCost-Res01-', num2str(jCase)], '-dpdf')
+% 
+% 
+%         figure(30); 
+%         semilogy( ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2);
+%         hold on
+%         xlabel('Iteration', 'interpreter', 'latex')
+%         ylabel('NormResidual', 'interpreter', 'latex')
+%         set(gca, 'FontSize', 15)
+%         print(['OrderCost-ResE-', num2str(jCase)], '-dpdf')
+% 
+%         figure(31); 
+%         loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2);
+%         hold on
+%         xlabel('$R_i$', 'interpreter', 'latex')
+%         ylabel('$R_{i+1}$', 'interpreter', 'latex')
+%         set(gca, 'FontSize', 15)
+%         print(['OrderCost-ResE1-', num2str(jCase)], '-dpdf')
 
 
 

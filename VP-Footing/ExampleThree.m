@@ -54,7 +54,7 @@ Elements = mesh.Elements';
 
 nSteps = 200;
 dt = 3600.0/nSteps;
-500, 
+
 
 
 ind = find(Nodes(:,2) == max( Nodes(:,2)));
@@ -88,15 +88,20 @@ for ETA = [0, 1, 500, 1000]
     [U, GPInfo, rrr,  information, ~, ErrorNorms] = ComputeImplicitNonLinearProblem(Nodes, Elements, CP, dt, nSteps, 'T6T3');
     toc
 
+    NameToDisplay = ['$\eta = $', num2str(ETA), ' s'];
+    if ( ETA == 0)
+        NameToDisplay = 'Elasto-Plastic';
+    end
+
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l2;
     figure(212)
-    plot( [information.t]*indentation, FF(1:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    plot( [information.t]*indentation, FF(1:2:end), color, 'linewidth', 2, 'DisplayName', NameToDisplay )
     hold on
 
 
     figure(214)
-    plot( [information.t]*indentation, FF(2:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    plot( [information.t]*indentation, FF(2:2:end), color, 'linewidth', 2, 'DisplayName',  NameToDisplay)
     hold on
 
     figure(500+iCase); clf
@@ -122,7 +127,7 @@ for ETA = [0, 1, 500, 1000]
     figure(300+iCase); clf
     PlotHistoryVariable( Nodes, Elements, GPInfo, pEff);
     drawnow
-    
+
 
 
     figure(400+iCase); clf
@@ -134,10 +139,9 @@ for ETA = [0, 1, 500, 1000]
 
 
     figure(20);
-
     nnn = 0:(length(ErrorNorms.Iter0)-1);
     semilogy( nnn, ErrorNorms.Iter0, [col, '*-.'], 'linewidth', 2, ...
-        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+        'DisplayName',  NameToDisplay);
     hold on
     xlabel('Iteration, $i$', 'interpreter', 'latex')
     ylabel('Norm of the residual, $\|\mathbf{R}_i\|$', 'interpreter', 'latex')
@@ -149,7 +153,7 @@ for ETA = [0, 1, 500, 1000]
 
     fig = figure(21);
     loglog( ErrorNorms.Iter0(1:end-1), ErrorNorms.Iter0(2:end), [col, '*-.'], 'linewidth', 2, ...
-        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+        'DisplayName',  NameToDisplay);
     hold on
     xlabel('$$\|\mathbf{R}_i\|$', 'interpreter', 'latex')
     ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
@@ -162,7 +166,7 @@ for ETA = [0, 1, 500, 1000]
     figure(30);
     nnn = 0:(length(ErrorNorms.IterEnd)-1);
     semilogy( nnn, ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2, ...
-        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+        'DisplayName',  NameToDisplay);
     hold on
     xlabel('Iteration', 'interpreter', 'latex')
     ylabel('NormResidual', 'interpreter', 'latex')
@@ -173,7 +177,7 @@ for ETA = [0, 1, 500, 1000]
 
     fig = figure(31);
     loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2, ...
-        'DisplayName',  ['$\eta = $', num2str(ETA)]);
+        'DisplayName', NameToDisplay);
     hold on
     xlabel('$R_i$', 'interpreter', 'latex')
     ylabel('$R_{i+1}$', 'interpreter', 'latex')

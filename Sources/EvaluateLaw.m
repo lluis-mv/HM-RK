@@ -24,7 +24,7 @@ if (GP.MCC)
             j2( 1:3, 1:3) = -j2( 1:3, 1:3);
             X = j*X;
             DeltaStrain1 = j2*DeltaStrain;
-            [Xnew, D] = FourthExplicitCasmVP(X, DeltaStrain1, CP, CP.RK, DT, true);
+            [Xnew, D] = CasmVP(X, DeltaStrain1, CP, CP.RK, DT, true);
             D = j2*D*j2;
             Xnew = j*Xnew;
 
@@ -100,6 +100,6 @@ j2 = eye(6,6);
 j2( 1:3, 1:3) = -j2( 1:3, 1:3);
 X = j*X;
 DeltaStrain = j2*DeltaStrain;
-[Xnew, D] = FourthExplicitCasmVP(X, DeltaStrain, CP, CP.RK, DT, true);
+[Xnew, D] = CasmVP(X, DeltaStrain, CP, CP.RK, DT, true);
 X1 = j*Xnew;
 
