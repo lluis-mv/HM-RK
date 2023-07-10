@@ -34,6 +34,7 @@ CP.RK = -2;
 
 eSize= 0.2;
 
+
 MakeSketch(eSize)
 model = createpde(1);
 
@@ -159,6 +160,8 @@ for ETA = [0, 1, 500, 1000]
     ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+    xlim([1E-10, 1E0])
+    drawnow
     drawnow
     exportgraphics(fig,'Footing-C-Res01-.pdf', 'BackgroundColor', 'none','ContentType','vector');
 
@@ -168,8 +171,8 @@ for ETA = [0, 1, 500, 1000]
     semilogy( nnn, ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2, ...
         'DisplayName',  NameToDisplay);
     hold on
-    xlabel('Iteration', 'interpreter', 'latex')
-    ylabel('NormResidual', 'interpreter', 'latex')
+    xlabel('Iteration, $i$', 'interpreter', 'latex')
+    ylabel('Norm of the residual, $\|\mathbf{R}_i\|$', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     legend('interpreter', 'latex', 'location', 'best')
     drawnow
@@ -179,10 +182,12 @@ for ETA = [0, 1, 500, 1000]
     loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2, ...
         'DisplayName', NameToDisplay);
     hold on
-    xlabel('$R_i$', 'interpreter', 'latex')
-    ylabel('$R_{i+1}$', 'interpreter', 'latex')
+    xlabel('$$\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+    ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
+    xlim([1E-10, 1E0])
+    drawnow
     drawnow
     exportgraphics(fig,'Footing-C-ResE1-.pdf', 'BackgroundColor', 'none','ContentType','vector');
 
@@ -235,7 +240,8 @@ end
 
 figure(301)
 cc = caxis;
-% cc(2) = 0.0;
+cc(1) = 0.0;
+cc(2) = 14.0;
 i = 1;
 pause(1)
 for iii = [301:(300+iCase)]
@@ -274,6 +280,7 @@ end
 figure(401)
 cc = caxis;
 cc(1) = 0;
+cc(2) = 0.6;
 i = 1;
 pause(1)
 for iii = [401:(400+iCase)]

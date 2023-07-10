@@ -92,20 +92,25 @@ for ETA = [0, 10, 100, 1000]
     [U, GPInfo, rrr,  information, ~, ErrorNorms] = ComputeImplicitNonLinearProblemContact(Nodes, Elements, CP, dt, nSteps, 'T6T3');
     toc
 
+   NameToDisplay = ['$\eta = $', num2str(ETA), ' s'];
+    if ( ETA == 0)
+        NameToDisplay = 'Elasto-Plastic';
+    end
+
     FF = [information.F];
     FF(1:2:end) = FF(1:2:end)/l2;
     figure(212)
-    semilogx( [information.t], FF(1:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    semilogx( [information.t], FF(1:2:end), color, 'linewidth', 2, 'DisplayName',  NameToDisplay)
     hold on
 
 
     figure(213)
-    semilogx( [information.t], [information.u], color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    semilogx( [information.t], [information.u], color, 'linewidth', 2, 'DisplayName',  NameToDisplay)
     hold on
 
 
     figure(214)
-    semilogx( [information.t], FF(2:2:end), color, 'linewidth', 2, 'DisplayName',  ['$\eta = $', num2str(ETA)])
+    semilogx( [information.t], FF(2:2:end), color, 'linewidth', 2, 'DisplayName',  NameToDisplay)
     hold on
 
 %     figure(500+iCase); clf
@@ -267,7 +272,8 @@ function [] = GenerateFigures(iCase)
 figure(212)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
-xlabel('time, $t$ (s)', 'interpreter', 'latex')
+legend('location', 'south')
+xlabel('Time, $t$ (s)', 'interpreter', 'latex')
 ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
 fig = figure(212);
 exportgraphics(fig,['C1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
@@ -275,7 +281,8 @@ exportgraphics(fig,['C1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType',
 figure(213)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
-xlabel('time, $t$ (s)', 'interpreter', 'latex')
+legend('location', 'south')
+xlabel('Time, $t$ (s)', 'interpreter', 'latex')
 ylabel('Vertical displacement, $u_z$ (m)', 'interpreter', 'latex')
 fig = figure(213);
 exportgraphics(fig,['C1-Displacement.pdf'], 'BackgroundColor', 'none','ContentType','vector');
@@ -284,7 +291,8 @@ exportgraphics(fig,['C1-Displacement.pdf'], 'BackgroundColor', 'none','ContentTy
 figure(214)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
-xlabel('time, $t$ (s)', 'interpreter', 'latex')
+legend('location', 'south')
+xlabel('Time, $t$ (s)', 'interpreter', 'latex')
 ylabel('Water pressure, $p_w$ (kPa)', 'interpreter', 'latex')
 fig = figure(214);
 exportgraphics(fig,['C1-Water.pdf'], 'BackgroundColor', 'none','ContentType','vector');

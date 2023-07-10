@@ -167,8 +167,8 @@ for ETA = [0, 1, 500, 1000]
     semilogy( nnn, ErrorNorms.IterEnd, [col, '*-.'], 'linewidth', 2, ...
         'DisplayName', NameToDisplay);
     hold on
-    xlabel('Iteration', 'interpreter', 'latex')
-    ylabel('NormResidual', 'interpreter', 'latex')
+    xlabel('Iteration, $i$', 'interpreter', 'latex')
+    ylabel('Norm of the residual, $\|\mathbf{R}_i\|$', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     legend('interpreter', 'latex', 'location', 'best')
     drawnow
@@ -178,8 +178,8 @@ for ETA = [0, 1, 500, 1000]
     loglog( ErrorNorms.IterEnd(1:end-1), ErrorNorms.IterEnd(2:end), [col, '*-.'], 'linewidth', 2, ...
         'DisplayName',  NameToDisplay);
     hold on
-    xlabel('$R_i$', 'interpreter', 'latex')
-    ylabel('$R_{i+1}$', 'interpreter', 'latex')
+    xlabel('$$\|\mathbf{R}_i\|$', 'interpreter', 'latex')
+    ylabel('$$\|\mathbf{R}_{i+1}\|$', 'interpreter', 'latex')
     set(gca, 'FontSize', 15)
     legend('interpreter', 'latex', 'location', 'best','location', 'northwest')
     drawnow
