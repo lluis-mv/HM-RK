@@ -32,22 +32,22 @@ CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
 CP.RK = -6;
 
-eSize= 0.2;
-%MakeSketch(eSize)
-model = createpde(1);
+
+MakeSketch('Mesh-Coarse.msh')
+% model = createpde(1);
 
 
-R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
+% R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
 
 
 
-g = decsg(R1);
-geometryFromEdges(model, g);
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
+% g = decsg(R1);
+% geometryFromEdges(model, g);
+% mesh = generateMesh(model, 'Hmax', eSize);
+% Nodes = mesh.Nodes';
+% Elements = mesh.Elements';
 
-
+[Nodes, Elements] = ReadTheMesh('Mesh-Coarse.msh');
 
 nSteps = 200;
 dt = 3600.0/nSteps;

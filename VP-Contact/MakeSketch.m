@@ -1,33 +1,13 @@
-function MakeSketch(eSize)
-
+function MakeSketch(XFILE)
+addpath('../Sources')
 if ( nargin == 0)
-    eSize = 0.04;
+    XFILE = 'Mesh.msh';
 end
 
 
-model = createpde(1);
-R1 = [3,4, 0, 1, 1, 0,  0, 0, -0.25, -0.25]';
-
-g = decsg(R1);
-geometryFromEdges(model, g);
-
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-
-
-
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-
-
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
-
+[Nodes, Elements] = ReadTheMesh('Mesh.msh');
 figure(1); clf;
-triplot(Elements1, Nodes1(:,1), Nodes1(:,2), 'k')
+triplot(Elements(:,1:3), Nodes(:,1), Nodes(:,2), 'k')
 
 
 axis off; axis equal

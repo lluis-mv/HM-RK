@@ -32,24 +32,24 @@ CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
 CP.RK = -2;
 
-eSize= 0.2;
 
+% 
+% 
+MakeSketch('Mesh-Coarse.msh')
+% model = createpde(1);
+% 
+% 
+% R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
+% 
+% 
+% 
+% g = decsg(R1);
+% geometryFromEdges(model, g);
+% mesh = generateMesh(model, 'Hmax', eSize);
+% Nodes = mesh.Nodes';
+% Elements = mesh.Elements';
 
-MakeSketch(eSize)
-model = createpde(1);
-
-
-R1 = [3,5, 0, 1, 4, 4, 0, 0, 0, 0, -4, -4]';
-
-
-
-g = decsg(R1);
-geometryFromEdges(model, g);
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-
+[Nodes, Elements] = ReadTheMesh('Mesh-Coarse.msh');
 
 
 
@@ -106,7 +106,8 @@ for ETA = [0, 1, 500, 1000]
     hold on
 
     figure(500+iCase); clf
-    pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+%     pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+    PlotNodal(Nodes, Elements, U(3:3:end))
     drawnow
 
     figure(900+iCase); clf

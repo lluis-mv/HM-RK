@@ -1,0 +1,30 @@
+BackgroundMesh V 1.0
+MESH dimension 3 ElemType Triangle Nnode 3
+Coordinates
+    1               0               0               0
+    2               2               0               0
+    3               4               0               0
+    4               0              -2               0
+    5               2              -2               0
+    6               4              -2               0
+    7               0              -4               0
+    8               2              -4               0
+    9               4              -4               0
+End Coordinates
+Elements
+1 1 2 4
+2 1 4 3
+3 4 6 3
+4 6 3 5
+End Elements
+DesiredSize Nodes
+    1             0.1
+    2             0.2
+    3               1
+    4             0.2
+    5             0.2
+    6               1
+    7               1
+    8               1
+    9               1
+End DesiredSize

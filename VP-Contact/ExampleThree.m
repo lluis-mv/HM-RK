@@ -30,27 +30,13 @@ CP.PerzynaN = 1;
 CP.PerzynaEta = 1000;
 CP.RK = -2;
 
-eSize= 0.06;
-MakeSketch(eSize)
-model = createpde(1);
+
+MakeSketch('Mesh.msh')
+
 CP.MCC = false;
 
-R1 = [3,4, 0, 1, 1, 0,  0, 0, -0.25, -0.25]';
 
-
-
-g = decsg(R1);
-geometryFromEdges(model, g);
-mesh = generateMesh(model, 'Hmax', eSize);
-Nodes = mesh.Nodes';
-Elements = mesh.Elements';
-
-
-model1 = createpde(1);
-geometryFromEdges(model1, g);
-mesh1 = generateMesh(model1, 'Hmax', eSize, 'GeometricOrder','linear');
-Nodes1 = mesh1.Nodes';
-Elements1 = mesh1.Elements';
+[Nodes, Elements] = ReadTheMesh('Mesh.msh');
 
 
 
@@ -115,7 +101,7 @@ for ETA = [0, 1, 500, 1000]
     hold on
 
     figure(500+iCase); clf
-    pdeplot(model,'XYData',U(3:3:end),'ColorMap','jet');
+    PlotNodal(Nodes, Elements, U(3:3:end))
     drawnow
 
     figure(900+iCase); clf
