@@ -301,7 +301,7 @@ figure(212)
 legend('location', 'best', 'interpreter', 'latex')
 set(gca, 'FontSize', 15)
 xlabel('Footing indentation, $u_z$ (m)', 'interpreter', 'latex')
-ylabel('Footing reaction (kPa)', 'interpreter', 'latex')
+ylabel('Footing reaction, $q$ (kPa)', 'interpreter', 'latex')
 fig = figure(212);
 exportgraphics(fig,['F1-Reaction.pdf'], 'BackgroundColor', 'none','ContentType','vector');
 
