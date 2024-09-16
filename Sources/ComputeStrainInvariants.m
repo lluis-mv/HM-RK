@@ -1,4 +1,4 @@
-function GPInfo = ComputeStrainInvatiants(GPInfo)
+function GPInfo = ComputeStrainInvariants(GPInfo)
 
 for i = 1:size(GPInfo,1)
     for j = 1:size(GPInfo, 2)

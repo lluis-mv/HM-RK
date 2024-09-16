@@ -115,7 +115,7 @@ for eSize= [0.25, 0.14, 0.07]
 
 
     figure(457); clf
-    GPNodes = ComputeStrainInvatiants(GPNodes);
+    GPNodes = ComputeStrainInvariants(GPNodes);
     PlotHistoryVariableNodal( Nodes1, Elements1, GPNodes, [GPNodes.StrainDev]');
     drawnow
 
@@ -162,7 +162,7 @@ for eSize= [0.25, 0.14, 0.07]
     drawnow
 
     figure(456); clf
-    GPInfo = ComputeStrainInvatiants(GPInfo);
+    GPInfo = ComputeStrainInvariants(GPInfo);
     PlotHistoryVariable( Nodes1, Elements1, GPInfo, [GPInfo.StrainDev]');
     drawnow
 
@@ -200,7 +200,7 @@ for eSize= [0.25, 0.14, 0.07]
     SV = [];
     pEff = [];
     StrainDev = [];
-    GPInfo = ComputeStrainInvatiants(GPInfo);
+    GPInfo = ComputeStrainInvariants(GPInfo);
     for i = 1:size(GPInfo,1)
         for j = 1:size(GPInfo, 2)
             SV(i,j) = GPInfo(i,j).StressNew(2);
