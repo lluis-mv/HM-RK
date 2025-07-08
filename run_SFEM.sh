@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-alias matlab='export MESA_LOADER_DRIVER_OVERRIDE=i965; /home/lmonforte/Matlab/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
+alias matlab='export MESA_LOADER_DRIVER_OVERRIDE=i965; /usr/local/MATLAB/R2024a/bin/matlab -nodesktop -nosplash -noFigureWindows -r'
 
 cd SFEM/
 
